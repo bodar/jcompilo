@@ -1,6 +1,5 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Predicates;
 import com.googlecode.totallylazy.Sequence;
@@ -15,6 +14,11 @@ import java.io.FileNotFoundException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.googlecode.compilo.CompileOption.Debug;
+import static com.googlecode.compilo.CompileOption.Source6;
+import static com.googlecode.compilo.CompileOption.Target6;
+import static com.googlecode.compilo.CompileOption.UncheckedWarnings;
+import static com.googlecode.compilo.CompileOption.WarningAsErrors;
 import static com.googlecode.compilo.Compiler.compiler;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.directory;
@@ -25,7 +29,9 @@ import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Files.temporaryDirectory;
 import static com.googlecode.totallylazy.Files.temporaryFile;
 import static com.googlecode.totallylazy.Files.workingDirectory;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
+import static javax.tools.ToolProvider.getSystemJavaCompiler;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -72,6 +78,7 @@ public class CompilerTest {
     @Test
     @Ignore("Manual")
     public void canCompileTL() throws Exception {
+        Compiler compiler = Compiler.compiler(getSystemJavaCompiler(), sequence(Debug, UncheckedWarnings, WarningAsErrors));
         File totallylazy = directory(workingDirectory(), "../totallylazy/");
         File src = directory(totallylazy, "src");
         File output = file(compilo, "totallylazy.jar");

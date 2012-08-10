@@ -28,7 +28,7 @@
                    bootclasspath="${java.home}/lib/rt.jar" target="1.6" source="1.6" debug="true"
                    includeantruntime="false" encoding="UTF-8">
                 <compilerarg value="-Xlint:unchecked"/>
-                <compilerarg value="-Werror"/>
+                    <compilerarg value="-Werror"/>
             </javac>
             <copy todir="@{classes}">
                 <fileset dir="@{src}">

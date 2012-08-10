@@ -1,5 +1,6 @@
 package com.googlecode.compilo;
 
+import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Pair;
@@ -21,6 +22,10 @@ import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.googlecode.compilo.CompileOption.Debug;
+import static com.googlecode.compilo.CompileOption.Source6;
+import static com.googlecode.compilo.CompileOption.Target6;
+import static com.googlecode.totallylazy.Callables.toString;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.isFile;
@@ -33,14 +38,20 @@ public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
     private final JavaCompiler compiler;
     private final StandardJavaFileManager standardFileManager;
+    private final Sequence<CompileOption> options;
 
-    public Compiler(final JavaCompiler javaCompiler) {
+    private Compiler(final JavaCompiler javaCompiler, Sequence<CompileOption> options) {
         compiler = javaCompiler;
+        this.options = options;
         standardFileManager = compiler.getStandardFileManager(null, null, UTF8);
     }
 
     public static Compiler compiler() {
-        return new Compiler(getSystemJavaCompiler());
+        return compiler(getSystemJavaCompiler(), sequence(Debug));
+    }
+
+    public static Compiler compiler(JavaCompiler systemJavaCompiler, Sequence<CompileOption> sequence) {
+        return new Compiler(systemJavaCompiler, sequence);
     }
 
     public Boolean compile(final File source, File destination, final Iterable<File> dependancies) throws IOException {
@@ -52,7 +63,7 @@ public class Compiler {
             @Override
             public Boolean call(ZipOutputStream output) throws Exception {
                 copy(nonJava.map(relativeTo(source)), output);
-                return compiler.getTask(null, manager(output), null, null, null, javaFileObjects(javaFiles)).call();
+                return compiler.getTask(null, manager(output), null, options.map(toString), null, javaFileObjects(javaFiles)).call();
             }
         });
     }
