@@ -7,8 +7,6 @@ import com.googlecode.totallylazy.Runnables;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Streams;
 
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
 import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
@@ -100,55 +98,6 @@ public class Compiler {
                 });
             }
         });
-    }
-
-    private static class ZipFileManager extends ForwardingJavaFileManager<JavaFileManager> {
-        private final ZipOutputStream outputStream;
-
-        public ZipFileManager(final JavaFileManager fileManager, File destination) throws FileNotFoundException {
-            super(fileManager);
-            outputStream = new ZipOutputStream(new FileOutputStream(destination));
-        }
-
-        @Override
-        public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
-            return new ZipFileObject(super.getJavaFileForOutput(location, className, kind, sibling), outputStream);
-        }
-
-        @Override
-        public void flush() throws IOException {
-            outputStream.flush();
-            outputStream.close();
-        }
-    }
-
-    private static class ZipFileObject extends ForwardingJavaFileObject<JavaFileObject> {
-        private final JavaFileObject output;
-        private final ZipOutputStream outputStream;
-
-        public ZipFileObject(JavaFileObject output, ZipOutputStream outputStream) {
-            super(output);
-            this.output = output;
-            this.outputStream = outputStream;
-        }
-
-        @Override
-        public OutputStream openOutputStream() throws IOException {
-            outputStream.putNextEntry(new ZipEntry(output.getName()));
-            return new OutputStream() {
-                @Override
-                public void write(int b) throws IOException {
-                    outputStream.write(b);
-                }
-
-                @Override
-                public void close() throws IOException {
-                    outputStream.closeEntry();
-                }
-            };
-        }
-
-
     }
 
 }
