@@ -7,7 +7,6 @@ import com.googlecode.totallylazy.Runnables;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Streams;
 
-import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -44,18 +43,22 @@ public class Compiler {
         return new Compiler(getSystemJavaCompiler());
     }
 
-    public Boolean compile(File source, File destination, final Iterable<File> dependancies) throws IOException {
-        Pair<Sequence<File>, Sequence<File>> partition = recursiveFiles(source).filter(isFile()).partition(hasSuffix("java"));
-        Sequence<File> javaFiles = partition.first();
-        Sequence<File> nonJava = partition.second();
-        copy(nonJava.map(relativeTo(source)), destination);
+    public Boolean compile(final File source, File destination, final Iterable<File> dependancies) throws IOException {
         setDependencies(dependancies);
-        return compiler.getTask(null, manager(destination), null, null, null, javaFileObjects(javaFiles)).call();
+        final Pair<Sequence<File>, Sequence<File>> partition = recursiveFiles(source).filter(isFile()).partition(hasSuffix("java"));
+        final Sequence<File> javaFiles = partition.first();
+        final Sequence<File> nonJava = partition.second();
+        return using(new ZipOutputStream(new FileOutputStream(destination)), new Function1<ZipOutputStream, Boolean>() {
+            @Override
+            public Boolean call(ZipOutputStream output) throws Exception {
+                copy(nonJava.map(relativeTo(source)), output);
+                return compiler.getTask(null, manager(output), null, null, null, javaFileObjects(javaFiles)).call();
+            }
+        });
     }
 
-    private JavaFileManager manager(File destination) throws FileNotFoundException {
-        if(destination.isDirectory()) return standardFileManager;
-        return new ZipFileManager(standardFileManager, destination);
+    private JavaFileManager manager(final ZipOutputStream zipOutputStream) throws FileNotFoundException {
+        return new ZipFileManager(standardFileManager, zipOutputStream);
     }
 
     private Sequence<JavaFileObject> javaFileObjects(Sequence<File> javaFiles) {
@@ -75,29 +78,22 @@ public class Compiler {
         };
     }
 
-    private void copy(Sequence<Pair<String, File>> files, File directory) throws IOException {
+    private void copy(Sequence<Pair<String, File>> files, ZipOutputStream output) throws IOException {
         for (Pair<String, File> pair : files) {
             String relativePath = pair.first();
-            File source = pair.second();
-            File destination = new File(directory, relativePath);
-            destination.getParentFile().mkdirs();
-            copyFile(source, destination);
+            output.putNextEntry(new ZipEntry(relativePath));
+            copyFile(pair.second(), output);
+            output.closeEntry();
         }
     }
 
-    private void copyFile(final File source, final File destination) throws IOException {
+    private void copyFile(final File source, final OutputStream out) throws IOException {
         using(new FileInputStream(source), new Function1<FileInputStream, Object>() {
             @Override
             public Object call(final FileInputStream in) throws Exception {
-                return using(new FileOutputStream(destination), new Function1<FileOutputStream, Object>() {
-                    @Override
-                    public Object call(FileOutputStream out) throws Exception {
-                        Streams.copy(in, out);
-                        return Runnables.VOID;
-                    }
-                });
+                Streams.copy(in, out);
+                return Runnables.VOID;
             }
         });
     }
-
 }
