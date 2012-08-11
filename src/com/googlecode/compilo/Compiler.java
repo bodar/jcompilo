@@ -1,6 +1,5 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Pair;
@@ -23,8 +22,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.googlecode.compilo.CompileOption.Debug;
-import static com.googlecode.compilo.CompileOption.Source6;
-import static com.googlecode.compilo.CompileOption.Target6;
 import static com.googlecode.totallylazy.Callables.toString;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.hasSuffix;
@@ -38,9 +35,9 @@ public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
     private final JavaCompiler compiler;
     private final StandardJavaFileManager standardFileManager;
-    private final Sequence<CompileOption> options;
+    private final Sequence<?> options;
 
-    private Compiler(final JavaCompiler javaCompiler, Sequence<CompileOption> options) {
+    private Compiler(final JavaCompiler javaCompiler, Sequence<?> options) {
         compiler = javaCompiler;
         this.options = options;
         standardFileManager = compiler.getStandardFileManager(null, null, UTF8);
@@ -50,7 +47,7 @@ public class Compiler {
         return compiler(getSystemJavaCompiler(), sequence(Debug));
     }
 
-    public static Compiler compiler(JavaCompiler systemJavaCompiler, Sequence<CompileOption> sequence) {
+    public static Compiler compiler(JavaCompiler systemJavaCompiler, Sequence<?> sequence) {
         return new Compiler(systemJavaCompiler, sequence);
     }
 

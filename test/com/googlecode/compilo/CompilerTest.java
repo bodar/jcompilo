@@ -11,12 +11,13 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.googlecode.compilo.CompileOption.Debug;
-import static com.googlecode.compilo.CompileOption.Source6;
-import static com.googlecode.compilo.CompileOption.Target6;
+import static com.googlecode.compilo.CompileOption.Source;
+import static com.googlecode.compilo.CompileOption.Target;
 import static com.googlecode.compilo.CompileOption.UncheckedWarnings;
 import static com.googlecode.compilo.CompileOption.WarningAsErrors;
 import static com.googlecode.compilo.Compiler.compiler;
@@ -26,8 +27,6 @@ import static com.googlecode.totallylazy.Files.emptyTemporaryDirectory;
 import static com.googlecode.totallylazy.Files.file;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
-import static com.googlecode.totallylazy.Files.temporaryDirectory;
-import static com.googlecode.totallylazy.Files.temporaryFile;
 import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
@@ -78,7 +77,8 @@ public class CompilerTest {
     @Test
     @Ignore("Manual")
     public void canCompileTL() throws Exception {
-        Compiler compiler = Compiler.compiler(getSystemJavaCompiler(), sequence(Debug, UncheckedWarnings, WarningAsErrors));
+        Sequence<?> options = sequence(Debug, UncheckedWarnings, WarningAsErrors, Target, 6, Source, 6);
+        Compiler compiler = Compiler.compiler(getSystemJavaCompiler(), options);
         File totallylazy = directory(workingDirectory(), "../totallylazy/");
         File src = directory(totallylazy, "src");
         File output = file(compilo, "totallylazy.jar");

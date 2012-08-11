@@ -5,8 +5,8 @@ public enum CompileOption {
     Debug("-g"),
     UncheckedWarnings("-Xlint:unchecked"),
     WarningAsErrors("-Werror"),
-    Target6("-target 6"),
-    Source6("-source 6");
+    Target("-target"),
+    Source("-source");
 
     private final String value;
 
