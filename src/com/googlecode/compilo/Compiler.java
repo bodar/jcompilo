@@ -16,9 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.googlecode.compilo.CompileOption.Debug;
@@ -27,7 +27,10 @@ import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
+import static com.googlecode.totallylazy.Files.workingDirectory;
+import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static javax.tools.StandardLocation.CLASS_OUTPUT;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
@@ -37,18 +40,22 @@ public class Compiler {
     private final StandardJavaFileManager standardFileManager;
     private final Sequence<?> options;
 
-    private Compiler(final JavaCompiler javaCompiler, Sequence<?> options) {
+    private Compiler(Sequence<?> options, final JavaCompiler javaCompiler) {
         compiler = javaCompiler;
         this.options = options;
         standardFileManager = compiler.getStandardFileManager(null, null, UTF8);
     }
 
     public static Compiler compiler() {
-        return compiler(getSystemJavaCompiler(), sequence(Debug));
+        return compiler(sequence(Debug));
     }
 
-    public static Compiler compiler(JavaCompiler systemJavaCompiler, Sequence<?> sequence) {
-        return new Compiler(systemJavaCompiler, sequence);
+    public static Compiler compiler(Sequence<?> compileOptions) {
+        return compiler(compileOptions, getSystemJavaCompiler());
+    }
+
+    public static Compiler compiler(Sequence<?> compileOptions, JavaCompiler javaCompiler) {
+        return new Compiler(compileOptions, javaCompiler);
     }
 
     public Boolean compile(final File source, File destination, final Iterable<File> dependancies) throws IOException {
@@ -75,6 +82,7 @@ public class Compiler {
 
     private void setDependencies(Iterable<File> dependancies) throws IOException {
         standardFileManager.setLocation(CLASS_PATH, dependancies);
+        standardFileManager.setLocation(CLASS_OUTPUT, one(workingDirectory()));
     }
 
     public static Function1<File, Pair<String, File>> relativeTo(final File base) {
@@ -86,22 +94,20 @@ public class Compiler {
         };
     }
 
-    private void copy(Sequence<Pair<String, File>> files, ZipOutputStream output) throws IOException {
-        for (Pair<String, File> pair : files) {
-            String relativePath = pair.first();
-            output.putNextEntry(new ZipEntry(relativePath));
-            copyFile(pair.second(), output);
-            output.closeEntry();
+    private void copy(Sequence<Pair<String, File>> files, final ZipOutputStream output) throws IOException {
+        for (final Pair<String, File> pair : files) {
+            using(new FileInputStream(pair.second()), new Function1<InputStream, Object>() {
+                @Override
+                public Object call(final InputStream in) throws Exception {
+                    return using(new ZipEntryOutputStream(output, pair.first()), new Function1<OutputStream, Object>() {
+                        @Override
+                        public Object call(OutputStream outputStream) throws Exception {
+                            Streams.copy(in, outputStream);
+                            return Runnables.VOID;
+                        }
+                    });
+                }
+            });
         }
-    }
-
-    private void copyFile(final File source, final OutputStream out) throws IOException {
-        using(new FileInputStream(source), new Function1<FileInputStream, Object>() {
-            @Override
-            public Object call(final FileInputStream in) throws Exception {
-                Streams.copy(in, out);
-                return Runnables.VOID;
-            }
-        });
     }
 }

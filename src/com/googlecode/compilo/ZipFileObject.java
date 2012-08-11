@@ -19,27 +19,6 @@ public class ZipFileObject extends ForwardingJavaFileObject<JavaFileObject> {
 
     @Override
     public OutputStream openOutputStream() throws IOException {
-        outputStream.putNextEntry(new ZipEntry(filename));
-        return new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                outputStream.write(b);
-            }
-
-            @Override
-            public void write(byte[] b) throws IOException {
-                outputStream.write(b);
-            }
-
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                outputStream.write(b, off, len);
-            }
-
-            @Override
-            public void close() throws IOException {
-                outputStream.closeEntry();
-            }
-        };
+        return new ZipEntryOutputStream(outputStream, filename);
     }
 }

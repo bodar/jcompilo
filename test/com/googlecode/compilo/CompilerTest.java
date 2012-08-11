@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.Serializable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -78,7 +77,7 @@ public class CompilerTest {
     @Ignore("Manual")
     public void canCompileTL() throws Exception {
         Sequence<?> options = sequence(Debug, UncheckedWarnings, WarningAsErrors, Target, 6, Source, 6);
-        Compiler compiler = Compiler.compiler(getSystemJavaCompiler(), options);
+        Compiler compiler = Compiler.compiler(options);
         File totallylazy = directory(workingDirectory(), "../totallylazy/");
         File src = directory(totallylazy, "src");
         File output = file(compilo, "totallylazy.jar");
