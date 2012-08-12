@@ -82,7 +82,6 @@ public class Compiler {
 
     private void setDependencies(Iterable<File> dependancies) throws IOException {
         standardFileManager.setLocation(CLASS_PATH, dependancies);
-        standardFileManager.setLocation(CLASS_OUTPUT, one(workingDirectory()));
     }
 
     public static Function1<File, Pair<String, File>> relativeTo(final File base) {

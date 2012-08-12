@@ -6,30 +6,30 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class ZipEntryOutputStream extends OutputStream {
-    private final ZipOutputStream outputStream;
+    private final ZipOutputStream out;
 
-    public ZipEntryOutputStream(final ZipOutputStream outputStream, String filename) throws IOException {
-        this.outputStream = outputStream;
-        this.outputStream.putNextEntry(new ZipEntry(filename));
+    public ZipEntryOutputStream(final ZipOutputStream out, String filename) throws IOException {
+        this.out = out;
+        this.out.putNextEntry(new ZipEntry(filename));
     }
 
     @Override
     public void write(int b) throws IOException {
-        outputStream.write(b);
+        out.write(b);
     }
 
     @Override
     public void write(byte[] b) throws IOException {
-        outputStream.write(b);
+        out.write(b);
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        outputStream.write(b, off, len);
+        out.write(b, off, len);
     }
 
     @Override
     public void close() throws IOException {
-        outputStream.closeEntry();
+        out.closeEntry();
     }
 }
