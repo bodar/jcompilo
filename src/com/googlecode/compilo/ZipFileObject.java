@@ -1,5 +1,7 @@
 package com.googlecode.compilo;
 
+import com.googlecode.totallylazy.ZipEntryOutputStream;
+
 import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaFileObject;
 import java.io.IOException;

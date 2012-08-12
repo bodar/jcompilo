@@ -3,34 +3,29 @@ package com.googlecode.compilo;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Runnables;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Streams;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.zip.ZipOutputStream;
 
 import static com.googlecode.compilo.CompileOption.Debug;
 import static com.googlecode.totallylazy.Callables.toString;
 import static com.googlecode.totallylazy.Closeables.using;
+import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
-import static com.googlecode.totallylazy.Files.workingDirectory;
-import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static javax.tools.StandardLocation.CLASS_OUTPUT;
+import static com.googlecode.totallylazy.Source.methods.copy;
+import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
@@ -66,7 +61,7 @@ public class Compiler {
         return using(new ZipOutputStream(new FileOutputStream(destination)), new Function1<ZipOutputStream, Boolean>() {
             @Override
             public Boolean call(ZipOutputStream output) throws Exception {
-                copy(nonJava.map(relativeTo(source)), output);
+                copy(fileSource(source, nonJava), zipDestination(output));
                 return compiler.getTask(null, manager(output), null, options.map(toString), null, javaFileObjects(javaFiles)).call();
             }
         });
@@ -82,31 +77,5 @@ public class Compiler {
 
     private void setDependencies(Iterable<File> dependancies) throws IOException {
         standardFileManager.setLocation(CLASS_PATH, dependancies);
-    }
-
-    public static Function1<File, Pair<String, File>> relativeTo(final File base) {
-        return new Function1<File, Pair<String, File>>() {
-            @Override
-            public Pair<String, File> call(File file) throws Exception {
-                return Pair.pair(Files.relativePath(base, file), file);
-            }
-        };
-    }
-
-    private void copy(Sequence<Pair<String, File>> files, final ZipOutputStream output) throws IOException {
-        for (final Pair<String, File> pair : files) {
-            using(new FileInputStream(pair.second()), new Function1<InputStream, Object>() {
-                @Override
-                public Object call(final InputStream in) throws Exception {
-                    return using(new ZipEntryOutputStream(output, pair.first()), new Function1<OutputStream, Object>() {
-                        @Override
-                        public Object call(OutputStream outputStream) throws Exception {
-                            Streams.copy(in, outputStream);
-                            return Runnables.VOID;
-                        }
-                    });
-                }
-            });
-        }
     }
 }
