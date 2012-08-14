@@ -14,13 +14,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.googlecode.compilo.CompileOption.*;
 import static com.googlecode.compilo.Compiler.compiler;
-import static com.googlecode.compilo.Compiler.iterableSource;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.*;
-import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -33,7 +31,7 @@ public class CompilerTest {
 
     @Before
     public void setUp() throws Exception {
-        workingDirectory = workingDirectory();
+        workingDirectory = new File(".");
         compiler = compiler(jars(workingDirectory, "lib"));
         compilo = emptyTemporaryDirectory("compilo");
     }
@@ -69,7 +67,7 @@ public class CompilerTest {
     @Test
     @Ignore("Manual")
     public void canCompileTL() throws Exception {
-        Sequence<?> options = sequence(Debug, UncheckedWarnings, WarningAsErrors, Target, 6, Source, 6);
+        Sequence<?> options = sequence(CompileOption.Debug, CompileOption.UncheckedWarnings, CompileOption.WarningAsErrors, CompileOption.Target, 6, CompileOption.Source, 6);
         File totallylazy = directory(workingDirectory, "../totallylazy/");
         Sequence<File> dependencies = jars(totallylazy, "lib");
         Compiler compiler = Compiler.compiler(dependencies, options);
@@ -88,20 +86,38 @@ public class CompilerTest {
     }
 
     private boolean execute(Sequence<String> tests, Sequence<File> jars) throws Exception {
-        String className = TestExecutor.class.getName();
-        String fileName = String.format("%s.java", className.replace('.', '/'));
-        InputStream inputStream = new FileInputStream(new File(workingDirectory, "src/" + fileName));
-        Source source = iterableSource(one(Pair.pair(fileName, inputStream)));
-        File testExecutor = file(compilo, "TestExecutor.jar");
-        Destination destination = ZipDestination.zipDestination(new FileOutputStream(testExecutor));
-        Compiler.compiler(Sequences.empty(File.class)).compile(source, destination);
-        destination.close();
+        File testExecutor = file(compilo, "compilo.test.hook.jar");
+        Destination destination = zipDestination(new FileOutputStream(testExecutor));
+
+        Source source = sourceOf(TestExecutor.class, TestExecutor.ResultCallable.class, TestExecutor.NullOutputStream.class, TestExecutor.NullPrintStream.class);
+        Source.methods.copyAndClose(source, destination);
 
         final URLClassLoader classLoader = new URLClassLoader(asUrls(jars.cons(testExecutor).toList()), null);
-        Class<?> aClass = classLoader.loadClass(className);
 
-        Method execute = Methods.method(aClass, "execute", List.class).get();
+        Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
+        Method execute = Methods.method(executor, "execute", List.class).get();
         return Methods.<TestExecutor, Boolean>invoke(execute, null, tests.toList());
+    }
+
+    private Source sourceOf(final Class<?>... classes) {
+        return new Source() {
+            @Override
+            public Sequence<Pair<String, InputStream>> sources() {
+                return sequence(classes).map(new Function1<Class<?>, Pair<String, InputStream>>() {
+                    @Override
+                    public Pair<String, InputStream> call(Class<?> aClass) throws Exception {
+                        String className = aClass.getName();
+                        String fileName = String.format("%s.class", className.replace('.', '/'));
+                        URL url = aClass.getResource("/" + fileName);
+                        return Pair.pair(fileName, url.openStream());
+                    }
+                });
+            }
+
+            @Override
+            public void close() throws IOException {
+            }
+        };
     }
 
     private static URL[] asUrls(List<File> jars) throws MalformedURLException {

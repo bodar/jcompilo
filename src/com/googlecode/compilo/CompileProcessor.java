@@ -47,12 +47,7 @@ public class CompileProcessor extends Function2<Source, Destination, Integer> im
     }
 
     private Sequence<JavaFileObject> javaFileObjects(Sequence<Pair<String, InputStream>> javaFiles) {
-        return javaFiles.map(new Function1<Pair<String, InputStream>, JavaFileObject>() {
-            @Override
-            public JavaFileObject call(final Pair<String, InputStream> pair) throws Exception {
-                return new SourceFileObject(pair);
-            }
-        });
+        return javaFiles.map(SourceFileObject.sourceFileObject());
     }
 
     private void setDependencies(Iterable<File> dependancies) throws IOException {
