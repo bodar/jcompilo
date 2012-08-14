@@ -19,6 +19,7 @@ import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
+import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
@@ -41,26 +42,7 @@ public class Compiler {
     public static Compiler compiler(Iterable<File> dependancies, Sequence<?> compileOptions, JavaCompiler javaCompiler) throws IOException {
         return compiler(constructors.<Processor>empty()).
                 add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
-                add(copy(not(endsWith(".java"))));
-    }
-
-    private static Processor copy(final Predicate<? super String> predicate) {
-        return new Processor() {
-            @Override
-            public Integer call(Source source, Destination destination) throws Exception {
-                return Source.methods.copy(source, destination);
-            }
-
-            @Override
-            public boolean matches(String other) {
-                return predicate.matches(other);
-            }
-
-            @Override
-            public String name() {
-                return "Copied";
-            }
-        };
+                add(CopyProcessor.copy(not(endsWith(".java"))));
     }
 
     public static Compiler compiler(ImmutableList<Processor> processors) {
@@ -73,28 +55,39 @@ public class Compiler {
 
     public Map<Processor, List<Pair<String, InputStream>>> compile(final File sourceDirectory, File destinationJar) throws Exception {
         Source source = source(sourceDirectory);
-        Destination destination = ZipDestination.zipDestination(new FileOutputStream(destinationJar));
+        Destination destination = zipDestination(new FileOutputStream(destinationJar));
+        try {
+            return compile(source, destination);
+        } finally {
+            source.close();
+            destination.close();
+            System.out.println("into " + destinationJar);
+        }
+    }
 
+    public Map<Processor, List<Pair<String, InputStream>>> compile(Source source, Destination destination) throws Exception {
         final Map<Processor, List<Pair<String, InputStream>>> matchedSources = partition(source);
 
         for (final Processor processor : processors) {
-            Integer number = processor.call(iterableSource(matchedSources.get(processor)), destination);
-            System.out.printf("%s %d inputs%n", processor.name(), number);
+            List<Pair<String, InputStream>> matched = matchedSources.get(processor);
+            if(matched.isEmpty()) continue;
+            Integer number = processor.call(iterableSource(matched), destination);
+            System.out.printf("%s %d; ", processor.name(), number);
         }
 
-        source.close();
-        destination.close();
         return matchedSources;
     }
 
     private Map<Processor, List<Pair<String, InputStream>>> partition(Source source) {
         final Map<Processor, List<Pair<String, InputStream>>> matchedSources = Maps.map();
 
+        for (Processor processor : processors) {
+            matchedSources.put(processor, new ArrayList<Pair<String, InputStream>>());
+        }
+
         for (Pair<String, InputStream> pair : source.sources()) {
             for (Processor processor : processors) {
                 if (processor.matches(pair.first())) {
-                    if (!matchedSources.containsKey(processor))
-                        matchedSources.put(processor, new ArrayList<Pair<String, InputStream>>());
                     matchedSources.get(processor).add(pair);
                 }
             }
@@ -106,7 +99,7 @@ public class Compiler {
         return MemoryStore.copy(FileSource.fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile())));
     }
 
-    private Source iterableSource(final Iterable<Pair<String, InputStream>> sequence) {
+    public static Source iterableSource(final Iterable<Pair<String, InputStream>> sequence) {
         return new Source() {
             @Override
             public Sequence<Pair<String, InputStream>> sources() {

@@ -5,19 +5,21 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.googlecode.compilo.CompileOption.*;
 import static com.googlecode.compilo.Compiler.compiler;
+import static com.googlecode.compilo.Compiler.iterableSource;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.*;
+import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,16 +29,18 @@ import static org.hamcrest.Matchers.is;
 public class CompilerTest {
     private Compiler compiler;
     private File compilo;
+    private File workingDirectory;
 
     @Before
     public void setUp() throws Exception {
-        compiler = compiler(jars(workingDirectory(), "lib"));
+        workingDirectory = workingDirectory();
+        compiler = compiler(jars(workingDirectory, "lib"));
         compilo = emptyTemporaryDirectory("compilo");
     }
 
     @Test
     public void canCompilerADirectory() throws Exception {
-        File input = directory(workingDirectory(), "example");
+        File input = directory(workingDirectory, "example");
         File output = file(compilo, "compilo.jar");
         assertThat(compiler.compile(input, output).size(), is(greaterThan(0)));
         assertThat(jarContains(output, "HelloWorld.class"), is(true));
@@ -66,7 +70,7 @@ public class CompilerTest {
     @Ignore("Manual")
     public void canCompileTL() throws Exception {
         Sequence<?> options = sequence(Debug, UncheckedWarnings, WarningAsErrors, Target, 6, Source, 6);
-        File totallylazy = directory(workingDirectory(), "../totallylazy/");
+        File totallylazy = directory(workingDirectory, "../totallylazy/");
         Sequence<File> dependencies = jars(totallylazy, "lib");
         Compiler compiler = Compiler.compiler(dependencies, options);
         File src = directory(totallylazy, "src");
@@ -75,12 +79,41 @@ public class CompilerTest {
 
         File test = directory(totallylazy, "test");
         File testJar = file(compilo, "totallylazy-test.jar");
-        compiler = Compiler.compiler(dependencies.cons(output), options);
-        Map<Processor, List<Pair<String, InputStream>>> result = compiler.compile(test, testJar);
-        assertThat(result.size(), is(greaterThan(0)));
+        TestProcessor testProcessor = new TestProcessor();
+        Sequence<File> productionDependencies = dependencies.cons(output);
+        compiler = Compiler.compiler(productionDependencies, options).add(testProcessor);
+        assertThat(compiler.compile(test, testJar).size(), is(greaterThan(0)));
+
+        assertThat(execute(testProcessor.tests(), productionDependencies.cons(testJar)), is(true));
+    }
+
+    private boolean execute(Sequence<String> tests, Sequence<File> jars) throws Exception {
+        String className = TestExecutor.class.getName();
+        String fileName = String.format("%s.java", className.replace('.', '/'));
+        InputStream inputStream = new FileInputStream(new File(workingDirectory, "src/" + fileName));
+        Source source = iterableSource(one(Pair.pair(fileName, inputStream)));
+        File testExecutor = file(compilo, "TestExecutor.jar");
+        Destination destination = ZipDestination.zipDestination(new FileOutputStream(testExecutor));
+        Compiler.compiler(Sequences.empty(File.class)).compile(source, destination);
+        destination.close();
+
+        final URLClassLoader classLoader = new URLClassLoader(asUrls(jars.cons(testExecutor).toList()), null);
+        Class<?> aClass = classLoader.loadClass(className);
+
+        Method execute = Methods.method(aClass, "execute", List.class).get();
+        return Methods.<TestExecutor, Boolean>invoke(execute, null, tests.toList());
+    }
+
+    private static URL[] asUrls(List<File> jars) throws MalformedURLException {
+        URL[] urls = new URL[jars.size()];
+        for (int i = 0; i < jars.size(); i++) {
+            urls[i] = jars.get(i).toURI().toURL();
+        }
+        return urls;
     }
 
     private Sequence<File> jars(File totallylazy, final String name) {
         return recursiveFiles(directory(totallylazy, name)).filter(hasSuffix("jar")).realise();
     }
+
 }

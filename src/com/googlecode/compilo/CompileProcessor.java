@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.googlecode.totallylazy.Callables.toString;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static javax.tools.StandardLocation.CLASS_PATH;
 
@@ -55,7 +56,7 @@ public class CompileProcessor extends Function2<Source, Destination, Integer> im
     }
 
     private void setDependencies(Iterable<File> dependancies) throws IOException {
-        standardFileManager.setLocation(CLASS_PATH, dependancies);
+        if(!sequence(dependancies).isEmpty())standardFileManager.setLocation(CLASS_PATH, dependancies);
     }
 
     @Override
