@@ -24,9 +24,9 @@ import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
-    private final ImmutableList<Pair<Predicate<String>, Function2<Source, Destination, Integer>>> processors;
+    private final ImmutableList<Processor> processors;
 
-    private Compiler(ImmutableList<Pair<Predicate<String>, Function2<Source, Destination, Integer>>> processors) {
+    private Compiler(ImmutableList<Processor> processors) {
         this.processors = processors;
     }
 
@@ -39,49 +39,60 @@ public class Compiler {
     }
 
     public static Compiler compiler(Iterable<File> dependancies, Sequence<?> compileOptions, JavaCompiler javaCompiler) throws IOException {
-        return compiler(constructors.<Pair<Predicate<String>, Function2<Source, Destination, Integer>>>empty()).
-                add(endsWith(".java"), CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
-                add(not(endsWith(".java")), copy());
+        return compiler(constructors.<Processor>empty()).
+                add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
+                add(copy(not(endsWith(".java"))));
     }
 
-    private static Function2<Source, Destination, Integer> copy() {
-        return new Function2<Source, Destination, Integer>() {
+    private static Processor copy(final Predicate<? super String> predicate) {
+        return new Processor() {
             @Override
             public Integer call(Source source, Destination destination) throws Exception {
                 return Source.methods.copy(source, destination);
             }
+
+            @Override
+            public boolean matches(String other) {
+                return predicate.matches(other);
+            }
+
+            @Override
+            public String name() {
+                return "Copied";
+            }
         };
     }
 
-    public static Compiler compiler(ImmutableList<Pair<Predicate<String>, Function2<Source, Destination, Integer>>> processors) {
+    public static Compiler compiler(ImmutableList<Processor> processors) {
         return new Compiler(processors);
     }
 
-    public Compiler add(Predicate<? super String> predicate, Callable2<? super Source, ? super Destination, ? extends Integer> processor) {
-        return compiler(processors.add(Pair.pair(Unchecked.<Predicate<String>>cast(predicate), Function2.<Source, Destination, Integer>function(processor))));
+    public Compiler add(Processor processor) {
+        return compiler(processors.add(processor));
     }
 
-    public Boolean compile(final File sourceDirectory, File destinationJar) throws IOException {
+    public Map<Processor, List<Pair<String, InputStream>>> compile(final File sourceDirectory, File destinationJar) throws Exception {
         Source source = source(sourceDirectory);
         Destination destination = ZipDestination.zipDestination(new FileOutputStream(destinationJar));
 
-        final Map<Pair<Predicate<String>, Function2<Source, Destination, Integer>>, List<Pair<String, InputStream>>> matchedSources = partition(source);
+        final Map<Processor, List<Pair<String, InputStream>>> matchedSources = partition(source);
 
-        for (final Pair<Predicate<String>, Function2<Source, Destination, Integer>> processor : processors) {
-            processor.second().apply(iterableSource(matchedSources.get(processor)), destination);
+        for (final Processor processor : processors) {
+            Integer number = processor.call(iterableSource(matchedSources.get(processor)), destination);
+            System.out.printf("%s %d inputs%n", processor.name(), number);
         }
 
         source.close();
         destination.close();
-        return true;
+        return matchedSources;
     }
 
-    private Map<Pair<Predicate<String>, Function2<Source, Destination, Integer>>, List<Pair<String, InputStream>>> partition(Source source) {
-        final Map<Pair<Predicate<String>, Function2<Source, Destination, Integer>>, List<Pair<String, InputStream>>> matchedSources = Maps.map();
+    private Map<Processor, List<Pair<String, InputStream>>> partition(Source source) {
+        final Map<Processor, List<Pair<String, InputStream>>> matchedSources = Maps.map();
 
         for (Pair<String, InputStream> pair : source.sources()) {
-            for (Pair<Predicate<String>, Function2<Source, Destination, Integer>> processor : processors) {
-                if (processor.first().matches(pair.first())) {
+            for (Processor processor : processors) {
+                if (processor.matches(pair.first())) {
                     if (!matchedSources.containsKey(processor))
                         matchedSources.put(processor, new ArrayList<Pair<String, InputStream>>());
                     matchedSources.get(processor).add(pair);

@@ -1,9 +1,6 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Predicates;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Zip;
+import com.googlecode.totallylazy.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,25 +8,20 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.googlecode.compilo.CompileOption.Debug;
-import static com.googlecode.compilo.CompileOption.Source;
-import static com.googlecode.compilo.CompileOption.Target;
-import static com.googlecode.compilo.CompileOption.UncheckedWarnings;
-import static com.googlecode.compilo.CompileOption.WarningAsErrors;
+import static com.googlecode.compilo.CompileOption.*;
 import static com.googlecode.compilo.Compiler.compiler;
 import static com.googlecode.totallylazy.Closeables.using;
-import static com.googlecode.totallylazy.Files.directory;
-import static com.googlecode.totallylazy.Files.emptyTemporaryDirectory;
-import static com.googlecode.totallylazy.Files.file;
-import static com.googlecode.totallylazy.Files.hasSuffix;
-import static com.googlecode.totallylazy.Files.recursiveFiles;
-import static com.googlecode.totallylazy.Files.workingDirectory;
+import static com.googlecode.totallylazy.Files.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 public class CompilerTest {
@@ -46,7 +38,7 @@ public class CompilerTest {
     public void canCompilerADirectory() throws Exception {
         File input = directory(workingDirectory(), "example");
         File output = file(compilo, "compilo.jar");
-        assertThat(compiler.compile(input, output), is(true));
+        assertThat(compiler.compile(input, output).size(), is(greaterThan(0)));
         assertThat(jarContains(output, "HelloWorld.class"), is(true));
         assertThat(jarContains(output, "resource.txt"), is(true));
         assertThat(jarContains(output, "sub/another.txt"), is(true));
@@ -79,12 +71,13 @@ public class CompilerTest {
         Compiler compiler = Compiler.compiler(dependencies, options);
         File src = directory(totallylazy, "src");
         File output = file(compilo, "totallylazy.jar");
-        assertThat(compiler.compile(src, output), is(true));
+        assertThat(compiler.compile(src, output).size(), is(greaterThan(0)));
 
         File test = directory(totallylazy, "test");
         File testJar = file(compilo, "totallylazy-test.jar");
         compiler = Compiler.compiler(dependencies.cons(output), options);
-        assertThat(compiler.compile(test, testJar), is(true));
+        Map<Processor, List<Pair<String, InputStream>>> result = compiler.compile(test, testJar);
+        assertThat(result.size(), is(greaterThan(0)));
     }
 
     private Sequence<File> jars(File totallylazy, final String name) {
