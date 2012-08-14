@@ -17,27 +17,27 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static javax.tools.StandardLocation.CLASS_PATH;
 
-public class CompileProcessor extends Function2<Source, Destination, Integer> implements Processor {
-    private static final LogicalPredicate<String> JAVA_FILES = endsWith(".java");
+public class CompileProcessor implements Processor {
+    private static final Predicate<String> JAVA_FILES = endsWith(".java");
     private final JavaCompiler compiler;
-    private final Sequence<?> options;
+    private final Sequence<CompileOption> options;
     private final StandardJavaFileManager standardFileManager;
 
-    private CompileProcessor(JavaCompiler compiler, Sequence<?> options, Iterable<File> dependancies) throws IOException {
+    private CompileProcessor(JavaCompiler compiler, Sequence<CompileOption> options, Iterable<File> dependancies) throws IOException {
         this.compiler = compiler;
         this.options = options;
         standardFileManager = compiler.getStandardFileManager(null, null, Compiler.UTF8);
         setDependencies(dependancies);
     }
 
-    public static CompileProcessor compile(final Sequence<?> options, final JavaCompiler compiler, Iterable<File> dependancies) throws IOException {
+    public static CompileProcessor compile(final Sequence<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) throws IOException {
         return new CompileProcessor(compiler, options, dependancies);
     }
 
     @Override
     public Integer call(Source source, Destination destination) throws Exception {
         Sequence<Pair<String, InputStream>> sources = source.sources();
-        Boolean success = compiler.getTask(null, manager(destination), null, options.map(toString), null, javaFileObjects(sources)).call();
+        Boolean success = compiler.getTask(null, manager(destination), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
         if(!success) throw new IllegalStateException("Compile failed");
         return sources.size();
     }

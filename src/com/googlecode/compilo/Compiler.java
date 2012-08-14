@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.googlecode.compilo.CompileOption.Debug;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
@@ -32,14 +31,14 @@ public class Compiler {
     }
 
     public static Compiler compiler(Iterable<File> dependancies) throws IOException {
-        return compiler(dependancies, sequence(Debug));
+        return compiler(dependancies, sequence(CompileOption.Debug));
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Sequence<?> compileOptions) throws IOException {
+    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions) throws IOException {
         return compiler(dependancies, compileOptions, getSystemJavaCompiler());
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Sequence<?> compileOptions, JavaCompiler javaCompiler) throws IOException {
+    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions, JavaCompiler javaCompiler) throws IOException {
         return compiler(constructors.<Processor>empty()).
                 add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
                 add(CopyProcessor.copy(not(endsWith(".java"))));
@@ -61,7 +60,7 @@ public class Compiler {
         } finally {
             source.close();
             destination.close();
-            System.out.println("into " + destinationJar);
+            System.out.printf("Created '%s'%n", destinationJar);
         }
     }
 

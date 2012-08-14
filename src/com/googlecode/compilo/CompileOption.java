@@ -1,21 +1,24 @@
 package com.googlecode.compilo;
 
-public enum CompileOption {
-    None(""),
-    Debug("-g"),
-    UncheckedWarnings("-Xlint:unchecked"),
-    WarningAsErrors("-Werror"),
-    Target("-target"),
-    Source("-source");
+import com.googlecode.totallylazy.Value;
 
-    private final String value;
+import static com.googlecode.totallylazy.Sequences.sequence;
 
-    CompileOption(String value) {
-        this.value = value;
+public abstract class CompileOption implements Value<Iterable<String>> {
+    public static final CompileOption None = compileOption();
+    public static final CompileOption Debug = compileOption("-g");
+    public static final CompileOption UncheckedWarnings = compileOption("-Xlint:unchecked");
+    public static final CompileOption WarningAsErrors = compileOption("-Werror");
+    public static CompileOption Target(int version) { return compileOption("-target", String.valueOf(version)); }
+    public static CompileOption Source(int version) { return compileOption("-source", String.valueOf(version)); }
+
+    public static CompileOption compileOption(final String... options){
+        return new CompileOption() {
+            @Override
+            public Iterable<String> value() {
+                return sequence(options);
+            }
+        };
     }
 
-    @Override
-    public String toString() {
-        return value;
-    }
 }

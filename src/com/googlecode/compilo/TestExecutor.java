@@ -14,26 +14,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TestExecutor {
-    public static boolean execute(final List<String> testNames) throws Exception {
+    public static boolean execute(final List<String> testNames, final int numberOfThreads) throws Exception {
         PrintStream original = System.out;
         System.setOut(nullPrintStream());
         JUnitCore junit = new JUnitCore();
         Result result = new Result();
         junit.addListener(result.createListener());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfTestThreads());
-
-        List<Callable<Result>> tests = new ArrayList<Callable<Result>>();
-        for (Class<?> testClass : asClasses(testNames)) {
-            tests.add(test(junit, testClass));
-        }
-
-        executorService.invokeAll(tests);
+        execute(asClasses(testNames), numberOfThreads, junit);
         System.setOut(original);
 
         boolean success = result.wasSuccessful();
         if (!success) {
-            System.out.println("Tests failed: " + result.getFailureCount());
+            System.out.printf("%d%n Tests FAILED", result.getFailureCount());
             for (Failure failure : result.getFailures()) {
                 System.out.println(failure.getTestHeader());
                 System.out.println(failure.getTrace());
@@ -43,16 +36,24 @@ public class TestExecutor {
         return success;
     }
 
+    private static void execute(Class<?>[] classes, int numberOfThreads, JUnitCore junit) throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+
+        List<Callable<Result>> tests = new ArrayList<Callable<Result>>();
+        for (Class<?> testClass : classes) {
+            tests.add(test(junit, testClass));
+        }
+
+        executorService.invokeAll(tests);
+        executorService.shutdown();
+    }
+
     private static PrintStream nullPrintStream() {
         return new NullPrintStream();
     }
 
     private static Callable<Result> test(final JUnitCore junit, final Class<?> testClass) {
         return new ResultCallable(junit, testClass);
-    }
-
-    private static int numberOfTestThreads() {
-        return Integer.parseInt(System.getProperty("compilo.test.threads", String.valueOf(Runtime.getRuntime().availableProcessors())));
     }
 
     private static Class<?>[] asClasses(List<String> tests) throws ClassNotFoundException {
