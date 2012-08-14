@@ -1,19 +1,17 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.ZipEntryOutputStream;
+import com.googlecode.totallylazy.Destination;
 
 import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class ZipFileObject extends ForwardingJavaFileObject<JavaFileObject> {
     private final String filename;
-    private final ZipOutputStream outputStream;
+    private final Destination outputStream;
 
-    public ZipFileObject(String className, JavaFileObject output, ZipOutputStream outputStream) {
+    public ZipFileObject(String className, JavaFileObject output, Destination outputStream) {
         super(output);
         this.filename = className.replace('.', '/') + ".class";
         this.outputStream = outputStream;
@@ -21,6 +19,6 @@ public class ZipFileObject extends ForwardingJavaFileObject<JavaFileObject> {
 
     @Override
     public OutputStream openOutputStream() throws IOException {
-        return new ZipEntryOutputStream(outputStream, filename);
+        return outputStream.destination(filename);
     }
 }

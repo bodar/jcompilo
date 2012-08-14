@@ -1,81 +1,111 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Files;
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.collections.ImmutableList;
 
 import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.zip.ZipOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.googlecode.compilo.CompileOption.Debug;
-import static com.googlecode.totallylazy.Callables.toString;
-import static com.googlecode.totallylazy.Closeables.using;
-import static com.googlecode.totallylazy.FileSource.fileSource;
-import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
+import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.Source.methods.copy;
-import static com.googlecode.totallylazy.ZipDestination.zipDestination;
-import static javax.tools.StandardLocation.CLASS_PATH;
+import static com.googlecode.totallylazy.Strings.endsWith;
+import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
-    private final JavaCompiler compiler;
-    private final StandardJavaFileManager standardFileManager;
-    private final Sequence<?> options;
+    private final ImmutableList<Pair<Predicate<String>, Function2<Source, Destination, Integer>>> processors;
 
-    private Compiler(Sequence<?> options, final JavaCompiler javaCompiler) {
-        compiler = javaCompiler;
-        this.options = options;
-        standardFileManager = compiler.getStandardFileManager(null, null, UTF8);
+    private Compiler(ImmutableList<Pair<Predicate<String>, Function2<Source, Destination, Integer>>> processors) {
+        this.processors = processors;
     }
 
-    public static Compiler compiler() {
-        return compiler(sequence(Debug));
+    public static Compiler compiler(Iterable<File> dependancies) throws IOException {
+        return compiler(dependancies, sequence(Debug));
     }
 
-    public static Compiler compiler(Sequence<?> compileOptions) {
-        return compiler(compileOptions, getSystemJavaCompiler());
+    public static Compiler compiler(Iterable<File> dependancies, Sequence<?> compileOptions) throws IOException {
+        return compiler(dependancies, compileOptions, getSystemJavaCompiler());
     }
 
-    public static Compiler compiler(Sequence<?> compileOptions, JavaCompiler javaCompiler) {
-        return new Compiler(compileOptions, javaCompiler);
+    public static Compiler compiler(Iterable<File> dependancies, Sequence<?> compileOptions, JavaCompiler javaCompiler) throws IOException {
+        return compiler(constructors.<Pair<Predicate<String>, Function2<Source, Destination, Integer>>>empty()).
+                add(endsWith(".java"), CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
+                add(not(endsWith(".java")), copy());
     }
 
-    public Boolean compile(final File source, File destination, final Iterable<File> dependancies) throws IOException {
-        setDependencies(dependancies);
-        final Pair<Sequence<File>, Sequence<File>> partition = recursiveFiles(source).filter(isFile()).partition(hasSuffix("java"));
-        final Sequence<File> javaFiles = partition.first();
-        final Sequence<File> nonJava = partition.second();
-        return using(new ZipOutputStream(new FileOutputStream(destination)), new Function1<ZipOutputStream, Boolean>() {
+    private static Function2<Source, Destination, Integer> copy() {
+        return new Function2<Source, Destination, Integer>() {
             @Override
-            public Boolean call(ZipOutputStream output) throws Exception {
-                copy(fileSource(source, nonJava), zipDestination(output));
-                return compiler.getTask(null, manager(output), null, options.map(toString), null, javaFileObjects(javaFiles)).call();
+            public Integer call(Source source, Destination destination) throws Exception {
+                return Source.methods.copy(source, destination);
             }
-        });
+        };
     }
 
-    private JavaFileManager manager(final ZipOutputStream zipOutputStream) throws FileNotFoundException {
-        return new ZipFileManager(standardFileManager, zipOutputStream);
+    public static Compiler compiler(ImmutableList<Pair<Predicate<String>, Function2<Source, Destination, Integer>>> processors) {
+        return new Compiler(processors);
     }
 
-    private Sequence<JavaFileObject> javaFileObjects(Sequence<File> javaFiles) {
-        return sequence(standardFileManager.getJavaFileObjectsFromFiles(javaFiles));
+    public Compiler add(Predicate<? super String> predicate, Callable2<? super Source, ? super Destination, ? extends Integer> processor) {
+        return compiler(processors.add(Pair.pair(Unchecked.<Predicate<String>>cast(predicate), Function2.<Source, Destination, Integer>function(processor))));
     }
 
-    private void setDependencies(Iterable<File> dependancies) throws IOException {
-        standardFileManager.setLocation(CLASS_PATH, dependancies);
+    public Boolean compile(final File sourceDirectory, File destinationJar) throws IOException {
+        Source source = source(sourceDirectory);
+        Destination destination = ZipDestination.zipDestination(new FileOutputStream(destinationJar));
+
+        final Map<Pair<Predicate<String>, Function2<Source, Destination, Integer>>, List<Pair<String, InputStream>>> matchedSources = partition(source);
+
+        for (final Pair<Predicate<String>, Function2<Source, Destination, Integer>> processor : processors) {
+            processor.second().apply(iterableSource(matchedSources.get(processor)), destination);
+        }
+
+        source.close();
+        destination.close();
+        return true;
     }
+
+    private Map<Pair<Predicate<String>, Function2<Source, Destination, Integer>>, List<Pair<String, InputStream>>> partition(Source source) {
+        final Map<Pair<Predicate<String>, Function2<Source, Destination, Integer>>, List<Pair<String, InputStream>>> matchedSources = Maps.map();
+
+        for (Pair<String, InputStream> pair : source.sources()) {
+            for (Pair<Predicate<String>, Function2<Source, Destination, Integer>> processor : processors) {
+                if (processor.first().matches(pair.first())) {
+                    if (!matchedSources.containsKey(processor))
+                        matchedSources.put(processor, new ArrayList<Pair<String, InputStream>>());
+                    matchedSources.get(processor).add(pair);
+                }
+            }
+        }
+        return matchedSources;
+    }
+
+    private MemoryStore source(File sourceDirectory) {
+        return MemoryStore.copy(FileSource.fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile())));
+    }
+
+    private Source iterableSource(final Iterable<Pair<String, InputStream>> sequence) {
+        return new Source() {
+            @Override
+            public Sequence<Pair<String, InputStream>> sources() {
+                return sequence(sequence);
+            }
+
+            @Override
+            public void close() throws IOException {
+            }
+        };
+    }
+
 }
