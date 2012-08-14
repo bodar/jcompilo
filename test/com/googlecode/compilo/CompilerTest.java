@@ -37,19 +37,25 @@ public class CompilerTest {
 
     @Before
     public void setUp() throws Exception {
-        workingDirectory = new File(".");
+        workingDirectory = workingDirectory();
         compiler = compiler(jars(workingDirectory, "lib"));
         compilo = emptyTemporaryDirectory("compilo");
     }
 
     @Test
     public void canCompilerADirectory() throws Exception {
-        File input = directory(workingDirectory, "example");
-        File output = file(compilo, "compilo.jar");
+        File input = directory(workingDirectory, "example/src");
+        File output = file(compilo, "example.jar");
         assertThat(compiler.compile(input, output).size(), is(greaterThan(0)));
         assertThat(jarContains(output, "HelloWorld.class"), is(true));
         assertThat(jarContains(output, "resource.txt"), is(true));
         assertThat(jarContains(output, "sub/another.txt"), is(true));
+    }
+
+    @Test
+    public void foo() throws Exception {
+        System.out.println(System.getProperty("user.dir"));
+        System.out.println(new File("").getAbsoluteFile());
     }
 
     private static boolean jarContains(File jar, final String name) throws FileNotFoundException {
