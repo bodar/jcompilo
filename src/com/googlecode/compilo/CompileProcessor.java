@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.googlecode.totallylazy.Callables.toString;
+import static com.googlecode.totallylazy.LazyException.lazyException;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static javax.tools.StandardLocation.CLASS_PATH;
@@ -23,14 +24,14 @@ public class CompileProcessor implements Processor {
     private final Sequence<CompileOption> options;
     private final StandardJavaFileManager standardFileManager;
 
-    private CompileProcessor(JavaCompiler compiler, Sequence<CompileOption> options, Iterable<File> dependancies) throws IOException {
+    private CompileProcessor(JavaCompiler compiler, Sequence<CompileOption> options, Iterable<File> dependancies) {
         this.compiler = compiler;
         this.options = options;
         standardFileManager = compiler.getStandardFileManager(null, null, Compiler.UTF8);
         setDependencies(dependancies);
     }
 
-    public static CompileProcessor compile(final Sequence<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) throws IOException {
+    public static CompileProcessor compile(final Sequence<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) {
         return new CompileProcessor(compiler, options, dependancies);
     }
 
@@ -50,8 +51,13 @@ public class CompileProcessor implements Processor {
         return javaFiles.map(SourceFileObject.sourceFileObject());
     }
 
-    private void setDependencies(Iterable<File> dependancies) throws IOException {
-        if(!sequence(dependancies).isEmpty())standardFileManager.setLocation(CLASS_PATH, dependancies);
+    private void setDependencies(Iterable<File> dependancies)  {
+        try {
+            if(sequence(dependancies).isEmpty()) return;
+            standardFileManager.setLocation(CLASS_PATH, dependancies);
+        } catch (IOException e) {
+            throw lazyException(e);
+        }
     }
 
     @Override

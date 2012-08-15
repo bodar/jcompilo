@@ -30,15 +30,15 @@ public class Compiler {
         this.processors = processors;
     }
 
-    public static Compiler compiler(Iterable<File> dependancies) throws IOException {
+    public static Compiler compiler(Iterable<File> dependancies) {
         return compiler(dependancies, sequence(CompileOption.Debug));
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions) throws IOException {
+    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions)  {
         return compiler(dependancies, compileOptions, getSystemJavaCompiler());
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions, JavaCompiler javaCompiler) throws IOException {
+    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(constructors.<Processor>empty()).
                 add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
                 add(CopyProcessor.copy(not(endsWith(".java"))));
