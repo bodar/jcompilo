@@ -45,12 +45,6 @@ public class CompilerTest {
         assertThat(jarContains(output, "sub/another.txt"), is(true));
     }
 
-    @Test
-    public void foo() throws Exception {
-        System.out.println(System.getProperty("user.dir"));
-        System.out.println(new File("").getAbsoluteFile());
-    }
-
     private static boolean jarContains(File jar, final String name) throws FileNotFoundException {
         return using(new ZipInputStream(new FileInputStream(jar)), new Function1<ZipInputStream, Boolean>() {
             @Override

@@ -55,7 +55,8 @@
     <target name="compile">
         <compile.and.jar src="${src}" jar="${release.jar.path}" classpathref="all.dependancies"
                          version="${release.version}" main.class="com.googlecode.compilo.Main"/>
-        <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars" version="${release.version}"/>
+        <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars"
+                         version="${release.version}" main.class="com.googlecode.compilo.Main"/>
     </target>
 
     <target name="test">
