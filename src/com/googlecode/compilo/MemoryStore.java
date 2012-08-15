@@ -48,4 +48,8 @@ public class MemoryStore implements Source, Destination {
             }
         };
     }
+
+    public Map<String, byte[]> data() {
+        return data;
+    }
 }

@@ -45,7 +45,7 @@ public class TestExecutor {
         }
 
         executorService.invokeAll(tests);
-        executorService.shutdown();
+        executorService.shutdownNow();
     }
 
     private static PrintStream nullPrintStream() {
