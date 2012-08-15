@@ -1,31 +1,24 @@
-import com.googlecode.compilo.Build;
+import com.googlecode.compilo.convention.BuildConvention;
 
 import java.io.File;
+import java.io.PrintStream;
+import java.util.Properties;
 
 import static com.googlecode.totallylazy.Files.directory;
 import static com.googlecode.totallylazy.Files.workingDirectory;
 
-public class ExampleBuild extends Build.Convention {
-    public ExampleBuild(File root) {
-        super(root);
-    }
-
-    @Override
-    public Locations locations() {
-        return new Locations(root(), identifiers()) {
-            public File lib() { return directory(root(), "../lib"); }
-        };
-    }
-
-    @Override
-    public Build.Identifiers identifiers() {
-        return new Identifiers() {
-            public String group() { return "com.example"; }
-            public String artifact() { return "example"; }
-        };
-    }
+public class ExampleBuild extends BuildConvention {
+    public File libDir() { return directory(rootDir(), "../lib"); }
+    public String group() { return "com.example"; }
+    public String artifact() { return "example"; }
 
     public static void main(String[] args) throws Exception {
-        new ExampleBuild(directory(workingDirectory(), "example")).build();
+        new ExampleBuild(directory(workingDirectory(), "example"), System.getProperties(), System.out).build();
     }
+
+    public ExampleBuild(File root, Properties properties, PrintStream out) {
+        super(root, properties, out);
+    }
+
+    public ExampleBuild() {}
 }
