@@ -58,8 +58,13 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         Sequence<File> productionJars = cons(mainJar(), dependencies());
         compiler(productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
-        tests.execute(cons(testJar(), productionJars));
+        tests.execute(cons(testJar(), productionJars), testThreads());
         return this;
+    }
+
+    @Override
+    public int testThreads() {
+        return Tests.DEFAULT_THREADS;
     }
 
     @Override

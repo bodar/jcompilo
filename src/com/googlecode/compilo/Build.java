@@ -17,5 +17,5 @@ public interface Build extends Locations, Identifiers {
 
     Iterable<CompileOption> compileOptions();
     Iterable<File> dependencies();
-
+    int testThreads();
 }
