@@ -1,7 +1,11 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.*;
-import com.googlecode.totallylazy.predicates.LogicalPredicate;
+import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Source;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
@@ -12,13 +16,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.googlecode.totallylazy.Callables.toString;
 import static com.googlecode.totallylazy.LazyException.lazyException;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static javax.tools.StandardLocation.CLASS_PATH;
+import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class CompileProcessor implements Processor {
+    public static final JavaCompiler DEFAULT_COMPILER = getSystemJavaCompiler();
+    public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(CompileOption.Debug);
     private static final Predicate<String> JAVA_FILES = endsWith(".java");
     private final JavaCompiler compiler;
     private final Sequence<CompileOption> options;
@@ -35,11 +41,20 @@ public class CompileProcessor implements Processor {
         return new CompileProcessor(compiler, options, dependancies);
     }
 
+    public static int compile(Iterable<File> dependancies, Source source, Destination destination) throws Exception {
+        try {
+            return compile(DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(source, destination);
+        } finally {
+            source.close();
+            destination.close();
+        }
+    }
+
     @Override
     public Integer call(Source source, Destination destination) throws Exception {
         Sequence<Pair<String, InputStream>> sources = source.sources();
         Boolean success = compiler.getTask(null, manager(destination), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
-        if(!success) throw new IllegalStateException("Compile failed");
+        if (!success) throw new IllegalStateException("Compile failed");
         return sources.size();
     }
 
@@ -51,9 +66,9 @@ public class CompileProcessor implements Processor {
         return javaFiles.map(SourceFileObject.sourceFileObject());
     }
 
-    private void setDependencies(Iterable<File> dependancies)  {
+    private void setDependencies(Iterable<File> dependancies) {
         try {
-            if(sequence(dependancies).isEmpty()) return;
+            if (sequence(dependancies).isEmpty()) return;
             standardFileManager.setLocation(CLASS_PATH, dependancies);
         } catch (IOException e) {
             throw lazyException(e);

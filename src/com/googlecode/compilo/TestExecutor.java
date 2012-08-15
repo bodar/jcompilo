@@ -56,10 +56,10 @@ public class TestExecutor {
         return new ResultCallable(junit, testClass);
     }
 
-    private static Class<?>[] asClasses(List<String> tests) throws ClassNotFoundException {
-        Class<?>[] result = new Class<?>[tests.size()];
-        for (int i = 0; i < tests.size(); i++) {
-            result[i] = Class.forName(className(tests.get(i)));
+    public static Class<?>[] asClasses(List<String> fileNames) throws ClassNotFoundException {
+        Class<?>[] result = new Class<?>[fileNames.size()];
+        for (int i = 0; i < fileNames.size(); i++) {
+            result[i] = Class.forName(className(fileNames.get(i)));
         }
         return result;
     }

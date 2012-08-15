@@ -31,11 +31,11 @@ public class Compiler {
     }
 
     public static Compiler compiler(Iterable<File> dependancies) {
-        return compiler(dependancies, sequence(CompileOption.Debug));
+        return compiler(dependancies, CompileProcessor.DEFAULT_OPTIONS);
     }
 
     public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions)  {
-        return compiler(dependancies, compileOptions, getSystemJavaCompiler());
+        return compiler(dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER);
     }
 
     public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
