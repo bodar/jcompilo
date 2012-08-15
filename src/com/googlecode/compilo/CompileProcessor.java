@@ -19,6 +19,7 @@ import java.io.InputStream;
 import static com.googlecode.totallylazy.LazyException.lazyException;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
+import static java.lang.String.format;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
@@ -41,7 +42,7 @@ public class CompileProcessor implements Processor {
         return new CompileProcessor(compiler, options, dependancies);
     }
 
-    public static int compile(Iterable<File> dependancies, Source source, Destination destination) throws Exception {
+    public static String compile(Iterable<File> dependancies, Source source, Destination destination) throws Exception {
         try {
             return compile(DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(source, destination);
         } finally {
@@ -51,11 +52,12 @@ public class CompileProcessor implements Processor {
     }
 
     @Override
-    public Integer call(Source source, Destination destination) throws Exception {
+    public String call(Source source, Destination destination) throws Exception {
         Sequence<Pair<String, InputStream>> sources = source.sources();
         Boolean success = compiler.getTask(null, manager(destination), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
         if (!success) throw new IllegalStateException("Compile failed");
-        return sources.size();
+        int size = sources.size();
+        return format("    [javac] Compiling %s source files%n", size);
     }
 
     private JavaFileManager manager(final Destination destination) throws FileNotFoundException {
@@ -78,10 +80,5 @@ public class CompileProcessor implements Processor {
     @Override
     public boolean matches(String other) {
         return JAVA_FILES.matches(other);
-    }
-
-    @Override
-    public String name() {
-        return "Compiled";
     }
 }

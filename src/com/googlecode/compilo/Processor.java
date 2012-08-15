@@ -5,6 +5,5 @@ import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Source;
 
-public interface Processor extends Predicate<String>, Callable2<Source, Destination, Integer>{
-    String name();
+public interface Processor extends Predicate<String>, Callable2<Source, Destination, String>{
 }

@@ -3,6 +3,7 @@ package com.googlecode.compilo;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.callables.TimeCallable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,14 +21,17 @@ import static com.googlecode.totallylazy.Sequences.empty;
 import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Source.methods.copyAndClose;
 import static com.googlecode.totallylazy.Strings.endsWith;
+import static java.lang.System.getProperty;
+import static java.lang.System.nanoTime;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        File buildFile = files(workingDirectory()).
-                find(where(name(), endsWith("Build.java"))).
-                getOrElse(Callables.<File>callThrows(new IllegalStateException("Can not find *Build.java")));
+        long start = nanoTime();
+        File buildFile = files(new File(getProperty("user.dir"))).
+                find(where(name(), endsWith("uild.java"))).
+                getOrElse(Callables.<File>callThrows(new IllegalStateException("Can not find build file")));
 
-        System.out.println("Buildfile:" + buildFile.getAbsolutePath());
+        System.out.println("using: " + buildFile.getAbsolutePath());
 
         String name = relativePath(workingDirectory(), buildFile);
         Source source = source(buildFile, name);
@@ -41,6 +45,9 @@ public class Main {
         Class<?> aClass = loader.loadClass(className(name));
         Build build = (Build) aClass.newInstance();
         build.build();
+
+        System.out.println("BUILD SUCCESSFUL");
+        System.out.printf("Total time: %s milliseconds%n", TimeCallable.calculateMilliseconds(start, nanoTime()));
     }
 
     private static Source source(File buildFile, String name) throws IOException {FileInputStream input = new FileInputStream(buildFile);

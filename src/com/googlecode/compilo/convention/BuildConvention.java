@@ -2,7 +2,7 @@ package com.googlecode.compilo.convention;
 
 import com.googlecode.compilo.Build;
 import com.googlecode.compilo.CompileOption;
-import com.googlecode.compilo.Tests;
+import com.googlecode.compilo.junit.Tests;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
@@ -12,7 +12,7 @@ import java.io.PrintStream;
 import java.util.Properties;
 
 import static com.googlecode.compilo.Compiler.compiler;
-import static com.googlecode.compilo.Tests.tests;
+import static com.googlecode.compilo.junit.Tests.tests;
 import static com.googlecode.totallylazy.Files.delete;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
@@ -34,8 +34,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public Build build() throws Exception {
-        stage("build");
-        return clean().compile().test().Package();
+        return clean().compile().test();
     }
 
     @Override
@@ -58,7 +57,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         Sequence<File> productionJars = cons(mainJar(), dependencies());
         compiler(productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
-        tests.execute(cons(testJar(), productionJars), testThreads());
+        out.println(tests.execute(cons(testJar(), productionJars), testThreads()));
         return this;
     }
 
@@ -76,7 +75,8 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     private void zip(File source, File destination) throws IOException {
-        out.printf("[zip] %s file(s): %s%n", Zip.zip(source, destination), destination.getAbsoluteFile());
+        Number size = Zip.zip(source, destination);
+        out.printf("      [zip] Zipped %s files: %s%n", size, destination.getAbsoluteFile());
     }
 
     @Override

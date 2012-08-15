@@ -1,5 +1,6 @@
-package com.googlecode.compilo;
+package com.googlecode.compilo.junit;
 
+import com.googlecode.compilo.Processor;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Methods;
@@ -23,6 +24,7 @@ import static com.googlecode.totallylazy.Files.temporaryDirectory;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
+import static java.lang.String.format;
 
 public class Tests implements Processor {
     public static final int DEFAULT_THREADS = Runtime.getRuntime().availableProcessors();
@@ -42,13 +44,9 @@ public class Tests implements Processor {
     }
 
     @Override
-    public String name() {
-        return "Testing";
-    }
-
-    @Override
-    public Integer call(Source source, Destination destination) throws Exception {
-        return source.sources().size();
+    public String call(Source source, Destination destination) throws Exception {
+        source.sources().size();
+        return "";
     }
 
     @Override
@@ -58,16 +56,17 @@ public class Tests implements Processor {
         return matched;
     }
 
-    public boolean execute(Sequence<File> dependencies) throws Exception {
+    public String execute(Sequence<File> dependencies) throws Exception {
         return execute(dependencies, DEFAULT_THREADS);
     }
 
-    public boolean execute(Sequence<File> dependencies, int numberOfThreads) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
+    public String execute(Sequence<File> dependencies, int numberOfThreads) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
         final URLClassLoader classLoader = new URLClassLoader(asUrls(dependencies.cons(testExecutor())), null);
 
         Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
         Method execute = Methods.method(executor, "execute", List.class, int.class).get();
-        return Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads);
+        Boolean result = Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads);
+        return format("    [junit] Running %s tests", tests.size());
     }
 
     private File testExecutor() throws FileNotFoundException {
@@ -87,5 +86,4 @@ public class Tests implements Processor {
             }
         }).toArray(URL.class);
     }
-
 }

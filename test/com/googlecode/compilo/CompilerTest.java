@@ -1,5 +1,6 @@
 package com.googlecode.compilo;
 
+import com.googlecode.compilo.junit.Tests;
 import com.googlecode.totallylazy.*;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -81,7 +82,7 @@ public class CompilerTest {
         compiler = compiler(productionDependencies, options).add(tests);
         assertThat(compiler.compile(test, testJar).size(), is(greaterThan(0)));
 
-        assertThat(tests.execute(productionDependencies.cons(testJar)), is(true));
+        tests.execute(productionDependencies.cons(testJar));
     }
 
 

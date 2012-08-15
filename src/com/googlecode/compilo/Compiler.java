@@ -61,7 +61,7 @@ public class Compiler {
         } finally {
             source.close();
             destination.close();
-            System.out.printf("Created '%s'%n", destinationJar);
+            System.out.printf("      [zip] Created: %s%n", destinationJar.getAbsoluteFile());
         }
     }
 
@@ -71,8 +71,8 @@ public class Compiler {
         for (final Processor processor : processors) {
             List<Pair<String, InputStream>> matched = matchedSources.get(processor);
             if(matched.isEmpty()) continue;
-            Integer number = processor.call(iterableSource(matched), destination);
-            System.out.printf("%s %d; ", processor.name(), number);
+            String result = processor.call(iterableSource(matched), destination);
+            System.out.print(result);
         }
 
         return matchedSources;

@@ -1,4 +1,4 @@
-package com.googlecode.compilo;
+package com.googlecode.compilo.junit;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +22,7 @@ public class TestExecutor {
         Result result = new Result();
         junit.addListener(result.createListener());
 
-        execute(asClasses(testNames), numberOfThreads, junit);
+        execute(numberOfThreads, tests(testNames, junit));
         System.setOut(original);
 
         boolean success = result.wasSuccessful();
@@ -36,24 +37,23 @@ public class TestExecutor {
         return success;
     }
 
-    private static void execute(Class<?>[] classes, int numberOfThreads, JUnitCore junit) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
-
+    private static List<Callable<Result>> tests(List<String> testNames, JUnitCore junit) throws ClassNotFoundException {
         List<Callable<Result>> tests = new ArrayList<Callable<Result>>();
-        for (Class<?> testClass : classes) {
-            tests.add(test(junit, testClass));
+        for (Class<?> testClass : asClasses(testNames)) {
+            tests.add(new ResultCallable(junit, testClass));
         }
+        return tests;
+    }
 
-        executorService.invokeAll(tests);
+    @SuppressWarnings("unchecked")
+    private static void execute(int numberOfThreads, final List<? extends Callable<?>> tests) throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        executorService.invokeAll((Collection<? extends Callable<Object>>) tests);
         executorService.shutdownNow();
     }
 
     private static PrintStream nullPrintStream() {
         return new NullPrintStream();
-    }
-
-    private static Callable<Result> test(final JUnitCore junit, final Class<?> testClass) {
-        return new ResultCallable(junit, testClass);
     }
 
     public static Class<?>[] asClasses(List<String> fileNames) throws ClassNotFoundException {

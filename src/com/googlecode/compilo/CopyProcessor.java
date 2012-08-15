@@ -4,6 +4,8 @@ import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Source;
 
+import static java.lang.String.format;
+
 public class CopyProcessor implements Processor {
     private final Predicate<? super String> predicate;
 
@@ -16,17 +18,13 @@ public class CopyProcessor implements Processor {
     }
 
     @Override
-    public Integer call(Source source, Destination destination) throws Exception {
-        return Source.methods.copy(source, destination);
+    public String call(Source source, Destination destination) throws Exception {
+        int size = Source.methods.copy(source, destination);
+        return format("     [copy] Copying %s files%n", size);
     }
 
     @Override
     public boolean matches(String other) {
         return predicate.matches(other);
-    }
-
-    @Override
-    public String name() {
-        return "Copied";
     }
 }
