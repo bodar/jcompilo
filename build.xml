@@ -7,6 +7,7 @@
     <property name="reports" value="${artifacts}/reports"/>
     <property name="src" value="${basedir}/src"/>
     <property name="test" value="${basedir}/test"/>
+    <property name="group.id" value="com.googlecode.${ant.project.name}"/>
     <property name="release.version" value="${build.number}"/>
     <property name="release.name" value="${ant.project.name}-${release.version}"/>
     <property name="release.jar" value="${release.name}.jar"/>
@@ -64,6 +65,8 @@
     <target name="package">
         <mkdir dir="${artifacts}"/>
 
+        <embed.totallylazy/>
+
         <zip destfile="${artifacts}/${release.src}" basedir="src"/>
 
         <exec executable="hg" output="${artifacts}/hg.properties">
@@ -85,7 +88,7 @@
             <entry key="${release.src}.labels" value="Source"/>
         </propertyfile>
 
-        <generate.pom artifact.uri="mvn:com.googlecode.${ant.project.name}:${ant.project.name}:jar:${release.version}"
+        <generate.pom artifact.uri="mvn:${group.id}:${ant.project.name}:jar:${release.version}"
                              dependencies="build/runtime.dependencies"
                              directory="${artifacts}"/>
 
