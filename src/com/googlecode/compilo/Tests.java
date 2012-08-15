@@ -24,21 +24,21 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 
-public class TestProcessor implements Processor {
+public class Tests implements Processor {
     public static final int DEFAULT_THREADS = Runtime.getRuntime().availableProcessors();
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
 
-    private TestProcessor(Predicate<? super String> predicate) {
+    private Tests(Predicate<? super String> predicate) {
         this.predicate = predicate;
     }
 
-    public static TestProcessor testProcessor() {
+    public static Tests tests() {
         return testProcessor(endsWith("Test.java"));
     }
 
-    public static TestProcessor testProcessor(Predicate<? super String> predicate) {
-        return new TestProcessor(predicate);
+    public static Tests testProcessor(Predicate<? super String> predicate) {
+        return new Tests(predicate);
     }
 
     @Override
@@ -58,10 +58,6 @@ public class TestProcessor implements Processor {
         return matched;
     }
 
-    public Sequence<String> tests() {
-        return sequence(tests);
-    }
-
     public boolean execute(Sequence<File> dependencies) throws Exception {
         return execute(dependencies, DEFAULT_THREADS);
     }
@@ -71,7 +67,7 @@ public class TestProcessor implements Processor {
 
         Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
         Method execute = Methods.method(executor, "execute", List.class, int.class).get();
-        return Methods.<TestExecutor, Boolean>invoke(execute, null, tests().toList(), numberOfThreads);
+        return Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads);
     }
 
     private File testExecutor() throws FileNotFoundException {

@@ -6,11 +6,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -20,11 +15,9 @@ import static com.googlecode.compilo.CompileOption.Target;
 import static com.googlecode.compilo.CompileOption.UncheckedWarnings;
 import static com.googlecode.compilo.CompileOption.WarningAsErrors;
 import static com.googlecode.compilo.Compiler.compiler;
-import static com.googlecode.compilo.TestProcessor.testProcessor;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -89,12 +82,12 @@ public class CompilerTest {
 
         File test = directory(totallylazy, "test");
         File testJar = file(compilo, "totallylazy-test.jar");
-        TestProcessor testProcessor = testProcessor();
+        Tests tests = Tests.tests();
         Sequence<File> productionDependencies = dependencies.cons(output);
-        compiler = compiler(productionDependencies, options).add(testProcessor);
+        compiler = compiler(productionDependencies, options).add(tests);
         assertThat(compiler.compile(test, testJar).size(), is(greaterThan(0)));
 
-        assertThat(testProcessor.execute(productionDependencies.cons(testJar)), is(true));
+        assertThat(tests.execute(productionDependencies.cons(testJar)), is(true));
     }
 
 

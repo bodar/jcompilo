@@ -34,11 +34,11 @@ public class Compiler {
         return compiler(dependancies, sequence(CompileOption.Debug));
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions)  {
+    public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions)  {
         return compiler(dependancies, compileOptions, getSystemJavaCompiler());
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Sequence<CompileOption> compileOptions, JavaCompiler javaCompiler) {
+    public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(constructors.<Processor>empty()).
                 add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
                 add(CopyProcessor.copy(not(endsWith(".java"))));
@@ -54,6 +54,7 @@ public class Compiler {
 
     public Map<Processor, List<Pair<String, InputStream>>> compile(final File sourceDirectory, File destinationJar) throws Exception {
         Source source = source(sourceDirectory);
+        if(source.sources().isEmpty()) return Maps.map();
         Destination destination = zipDestination(new FileOutputStream(destinationJar));
         try {
             return compile(source, destination);

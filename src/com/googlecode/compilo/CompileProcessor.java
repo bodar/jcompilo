@@ -24,14 +24,14 @@ public class CompileProcessor implements Processor {
     private final Sequence<CompileOption> options;
     private final StandardJavaFileManager standardFileManager;
 
-    private CompileProcessor(JavaCompiler compiler, Sequence<CompileOption> options, Iterable<File> dependancies) {
+    private CompileProcessor(JavaCompiler compiler, Iterable<CompileOption> options, Iterable<File> dependancies) {
         this.compiler = compiler;
-        this.options = options;
+        this.options = sequence(options);
         standardFileManager = compiler.getStandardFileManager(null, null, Compiler.UTF8);
         setDependencies(dependancies);
     }
 
-    public static CompileProcessor compile(final Sequence<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) {
+    public static CompileProcessor compile(final Iterable<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) {
         return new CompileProcessor(compiler, options, dependancies);
     }
 
