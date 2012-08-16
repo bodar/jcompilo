@@ -16,6 +16,7 @@ import static com.googlecode.compilo.CompileOption.Target;
 import static com.googlecode.compilo.CompileOption.UncheckedWarnings;
 import static com.googlecode.compilo.CompileOption.WarningAsErrors;
 import static com.googlecode.compilo.Compiler.compiler;
+import static com.googlecode.compilo.junit.Tests.tests;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -77,12 +78,11 @@ public class CompilerTest {
 
         File test = directory(totallylazy, "test");
         File testJar = file(compilo, "totallylazy-test.jar");
-        Tests tests = Tests.tests();
         Sequence<File> productionDependencies = dependencies.cons(output);
+        Tests tests = tests(productionDependencies);
         compiler = compiler(productionDependencies, options).add(tests);
         assertThat(compiler.compile(test, testJar).size(), is(greaterThan(0)));
-
-        tests.execute(productionDependencies.cons(testJar));
+        tests.execute(testJar);
     }
 
 

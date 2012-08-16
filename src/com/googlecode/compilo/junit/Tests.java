@@ -30,17 +30,25 @@ public class Tests implements Processor {
     public static final int DEFAULT_THREADS = Runtime.getRuntime().availableProcessors();
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
+    private final Sequence<File> dependencies;
+    private final int numberOfThreads;
 
-    private Tests(Predicate<? super String> predicate) {
+    private Tests(Predicate<? super String> predicate, Sequence<File> dependencies, int threads) {
         this.predicate = predicate;
+        this.dependencies = dependencies;
+        this.numberOfThreads = threads;
     }
 
-    public static Tests tests() {
-        return testProcessor(endsWith("Test.java"));
+    public static Tests tests(final Sequence<File> dependencies) {
+        return tests(dependencies, DEFAULT_THREADS);
     }
 
-    public static Tests testProcessor(Predicate<? super String> predicate) {
-        return new Tests(predicate);
+    public static Tests tests(final Sequence<File> dependencies, final int threads) {
+        return tests(dependencies, threads, endsWith("Test.java"));
+    }
+
+    public static Tests tests(final Sequence<File> dependencies, final int threads, Predicate<? super String> predicate) {
+        return new Tests(predicate, dependencies, threads);
     }
 
     @Override
@@ -56,12 +64,8 @@ public class Tests implements Processor {
         return matched;
     }
 
-    public String execute(Sequence<File> dependencies) throws Exception {
-        return execute(dependencies, DEFAULT_THREADS);
-    }
-
-    public String execute(Sequence<File> dependencies, int numberOfThreads) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
-        final URLClassLoader classLoader = new URLClassLoader(asUrls(dependencies.cons(testExecutor())), null);
+    public String execute(File testJar) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
+        final URLClassLoader classLoader = new URLClassLoader(asUrls(dependencies.cons(testJar).cons(testExecutor())), null);
 
         Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
         Method execute = Methods.method(executor, "execute", List.class, int.class).get();

@@ -53,11 +53,11 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build test() throws Exception {
         stage("test");
-        Tests tests = tests();
         Sequence<File> productionJars = cons(mainJar(), dependencies());
+        Tests tests = tests(productionJars, testThreads());
         compiler(productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
-        out.println(tests.execute(cons(testJar(), productionJars), testThreads()));
+        out.println(tests.execute(testJar()));
         return this;
     }
 
@@ -69,8 +69,6 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build Package() throws IOException {
         stage("package");
-        zip(srcDir(), sourcesJar());
-//        zip(testDir(), testSourcesJar());
         return this;
     }
 
@@ -79,11 +77,9 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         out.printf("      [zip] Zipped %s files: %s%n", size, destination.getAbsoluteFile());
     }
 
-    @Override
-    public Iterable<CompileOption> compileOptions() { return sequence(CompileOption.Debug); }
+    @Override public Iterable<CompileOption> compileOptions() { return sequence(CompileOption.Debug); }
 
-    @Override
-    public Iterable<File> dependencies() { return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise(); }
+    @Override public Iterable<File> dependencies() { return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise(); }
 
     public Build stage(String name) {out.println(name + ":"); return this; }
 }

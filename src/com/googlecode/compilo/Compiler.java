@@ -18,6 +18,7 @@ import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
+import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
@@ -41,7 +42,7 @@ public class Compiler {
     public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(constructors.<Processor>empty()).
                 add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
-                add(CopyProcessor.copy(not(endsWith(".java"))));
+                add(CopyProcessor.copy(not(startsWith("."))));
     }
 
     public static Compiler compiler(ImmutableList<Processor> processors) {
