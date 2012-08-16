@@ -14,8 +14,8 @@ public class ByteClassLoader extends URLClassLoader {
 
     @Override
     protected Class<?> findClass(final String name) throws ClassNotFoundException {
-        byte[] classBytes = data.get(name.replace('.', '/').concat(".class"));
-        if (classBytes == null) {return super.findClass(name);}
-        return defineClass(name, classBytes, 0, classBytes.length);
+        byte[] bytes = data.get(name.replace('.', '/').concat(".class"));
+        if (bytes == null) return super.findClass(name);
+        return defineClass(name, bytes, 0, bytes.length);
     }
 }

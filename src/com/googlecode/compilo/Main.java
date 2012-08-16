@@ -7,7 +7,7 @@ import com.googlecode.totallylazy.callables.TimeCallable;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static com.googlecode.compilo.CompileProcessor.compile;
@@ -19,7 +19,6 @@ import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.empty;
 import static com.googlecode.totallylazy.Sequences.one;
-import static com.googlecode.totallylazy.Source.methods.copyAndClose;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static java.lang.System.getProperty;
 import static java.lang.System.nanoTime;
@@ -34,11 +33,10 @@ public class Main {
         System.out.println("using: " + buildFile.getAbsolutePath());
 
         String name = relativePath(workingDirectory(), buildFile);
-        Source source = source(buildFile, name);
 
         final MemoryStore compiledBuild = MemoryStore.memoryStore();
         compile(empty(File.class),
-                source,
+                fileSource(buildFile, name),
                 compiledBuild);
 
         ClassLoader loader = new ByteClassLoader(compiledBuild.data());
@@ -50,12 +48,8 @@ public class Main {
         System.out.printf("Total time: %s milliseconds%n", TimeCallable.calculateMilliseconds(start, nanoTime()));
     }
 
-    private static Source source(File buildFile, String name) throws IOException {FileInputStream input = new FileInputStream(buildFile);
-        Source source = iterableSource(one(Pair.<String, InputStream>pair(name, input)));
-        MemoryStore copy = MemoryStore.memoryStore();
-        copyAndClose(source, copy);
-        input.close();
-        return copy;
+    private static Source fileSource(File buildFile, String name) throws FileNotFoundException {
+        return iterableSource(one(Pair.<String, InputStream>pair(name, new FileInputStream(buildFile))));
     }
 
     private static String className(String build) {
