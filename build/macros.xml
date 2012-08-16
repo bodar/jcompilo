@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 
-    <macrodef name="embed.totallylazy">
+    <macrodef name="embed.libs">
         <sequential>
             <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
                      classpathref="all.dependancies"/>
-            <property name="release.no.totallylazy.jar" value="${artifacts}/${release.name}-nototallylazy.jar"/>
+            <property name="release.no.deps.jar" value="${artifacts}/${release.name}-nodeps.jar"/>
 
-            <jarjar jarfile="${release.no.totallylazy.jar}" manifest="${release.jar.path}.mf">
+            <jarjar jarfile="${release.no.deps.jar}" manifest="${release.jar.path}.mf">
                 <zipfileset src="${release.jar.path}"/>
                 <zipgroupfileset dir="${runtime.dependencies.dir}" includes="totallylazy-*.jar"/>
                 <rule pattern="com.googlecode.totallylazy.*" result="${group.id}.internal.totallylazy.$@1"/>
                 <rule pattern="com.googlecode.totallylazy.**.*" result="${group.id}.internal.totallylazy.@1.$@2"/>
+                <rule pattern="com.googlecode.yadic.*" result="${group.id}.internal.yadic.$@1"/>
+                <rule pattern="com.googlecode.yadic.**.*" result="${group.id}.internal.yadic.@1.$@2"/>
             </jarjar>
             <delete file="${release.jar.path}"/>
-            <move file="${release.no.totallylazy.jar}" tofile="${release.jar.path}"/>
+            <move file="${release.no.deps.jar}" tofile="${release.jar.path}"/>
         </sequential>
     </macrodef>
 

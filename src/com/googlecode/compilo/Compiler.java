@@ -9,10 +9,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
+import static com.googlecode.compilo.MemoryStore.copy;
+import static com.googlecode.compilo.MemoryStore.memoryStore;
+import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
@@ -21,7 +23,6 @@ import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
-import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
@@ -41,8 +42,9 @@ public class Compiler {
 
     public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(constructors.<Processor>empty()).
-                add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies)).
-                add(CopyProcessor.copy(not(startsWith("."))));
+                add(CopyProcessor.copy(not(startsWith(".")))).
+                add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies))
+                ;
     }
 
     public static Compiler compiler(ImmutableList<Processor> processors) {
@@ -53,12 +55,12 @@ public class Compiler {
         return compiler(processors.add(processor));
     }
 
-    public Map<Processor, List<Pair<String, InputStream>>> compile(final File sourceDirectory, File destinationJar) throws Exception {
-        Source source = source(sourceDirectory);
-        if(source.sources().isEmpty()) return Maps.map();
+    public void compile(final File sourceDirectory, File destinationJar) throws Exception {
+        Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
+        if(source.sources().isEmpty()) return;
         Destination destination = zipDestination(new FileOutputStream(destinationJar));
         try {
-            return compile(source, destination);
+            compile(source, destination);
         } finally {
             source.close();
             destination.close();
@@ -66,38 +68,32 @@ public class Compiler {
         }
     }
 
-    public Map<Processor, List<Pair<String, InputStream>>> compile(Source source, Destination destination) throws Exception {
-        final Map<Processor, List<Pair<String, InputStream>>> matchedSources = partition(source);
+    public void compile(Source source, Destination destination) throws Exception {
+        final Map<Processor, Map<String, byte[]>> matchedSources = partition(copy(source).data());
 
         for (final Processor processor : processors) {
-            List<Pair<String, InputStream>> matched = matchedSources.get(processor);
+            Map<String, byte[]> matched = matchedSources.get(processor);
             if(matched.isEmpty()) continue;
-            String result = processor.call(iterableSource(matched), destination);
+            String result = processor.call(memoryStore(matched), destination);
             System.out.print(result);
         }
-
-        return matchedSources;
     }
 
-    private Map<Processor, List<Pair<String, InputStream>>> partition(Source source) {
-        final Map<Processor, List<Pair<String, InputStream>>> matchedSources = Maps.map();
+    private Map<Processor, Map<String, byte[]>> partition(Map<String,byte[]> source) {
+        final Map<Processor, Map<String, byte[]>> matchedSources = Maps.map();
 
         for (Processor processor : processors) {
-            matchedSources.put(processor, new ArrayList<Pair<String, InputStream>>());
+            matchedSources.put(processor, new HashMap<String, byte[]>());
         }
 
-        for (Pair<String, InputStream> pair : source.sources()) {
+        for (Map.Entry<String, byte[]> entry : source.entrySet()) {
             for (Processor processor : processors) {
-                if (processor.matches(pair.first())) {
-                    matchedSources.get(processor).add(pair);
+                if (processor.matches(entry.getKey())) {
+                    matchedSources.get(processor).put(entry.getKey(), entry.getValue());
                 }
             }
         }
         return matchedSources;
-    }
-
-    private MemoryStore source(File sourceDirectory) {
-        return MemoryStore.copy(FileSource.fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile())));
     }
 
     public static Source iterableSource(final Iterable<Pair<String, InputStream>> sequence) {

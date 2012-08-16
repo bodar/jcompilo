@@ -22,7 +22,6 @@ import static com.googlecode.totallylazy.Files.*;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 public class CompilerTest {
@@ -41,13 +40,14 @@ public class CompilerTest {
     public void canCompilerADirectory() throws Exception {
         File input = directory(workingDirectory, "example/src");
         File output = file(compilo, "example.jar");
-        assertThat(compiler.compile(input, output).size(), is(greaterThan(0)));
-        assertThat(jarContains(output, "HelloWorld.class"), is(true));
-        assertThat(jarContains(output, "resource.txt"), is(true));
-        assertThat(jarContains(output, "sub/another.txt"), is(true));
+        compiler.compile(input, output);
+        assertThat(jarContains(output, "com/example/HelloWorld.class"), is(true));
+        assertThat(jarContains(output, "com/example/HelloWorld.java"), is(true));
+        assertThat(jarContains(output, "com/example/resource.txt"), is(true));
+        assertThat(jarContains(output, "com/example/sub/another.txt"), is(true));
     }
 
-    private static boolean jarContains(File jar, final String name) throws FileNotFoundException {
+    public static boolean jarContains(File jar, final String name) throws FileNotFoundException {
         return using(new ZipInputStream(new FileInputStream(jar)), new Function1<ZipInputStream, Boolean>() {
             @Override
             public Boolean call(ZipInputStream zipInputStream) throws Exception {
@@ -56,7 +56,7 @@ public class CompilerTest {
         });
     }
 
-    private static Function1<ZipEntry, String> name() {
+    public static Function1<ZipEntry, String> name() {
         return new Function1<ZipEntry, String>() {
             @Override
             public String call(ZipEntry zipEntry) throws Exception {
@@ -74,20 +74,20 @@ public class CompilerTest {
         Compiler compiler = compiler(dependencies, options);
         File src = directory(totallylazy, "src");
         File output = file(compilo, "totallylazy.jar");
-        assertThat(compiler.compile(src, output).size(), is(greaterThan(0)));
+        compiler.compile(src, output);
 
         File test = directory(totallylazy, "test");
         File testJar = file(compilo, "totallylazy-test.jar");
         Sequence<File> productionDependencies = dependencies.cons(output);
         Tests tests = tests(productionDependencies);
         compiler = compiler(productionDependencies, options).add(tests);
-        assertThat(compiler.compile(test, testJar).size(), is(greaterThan(0)));
+        compiler.compile(test, testJar);
         tests.execute(testJar);
     }
 
 
-    private Sequence<File> jars(File totallylazy, final String name) {
-        return recursiveFiles(directory(totallylazy, name)).filter(hasSuffix("jar")).realise();
+    private Sequence<File> jars(File libDir, final String name) {
+        return recursiveFiles(directory(libDir, name)).filter(hasSuffix("jar")).realise();
     }
 
 }

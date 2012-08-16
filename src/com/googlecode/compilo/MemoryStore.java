@@ -7,12 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryStore implements Source, Destination {
-    private final Map<String, byte[]> data = new HashMap<String, byte[]>();
+    private final Map<String, byte[]> data;
 
-    private MemoryStore() {}
+    public MemoryStore(Map<String, byte[]> data) {
+        this.data = data;
+    }
 
     public static MemoryStore memoryStore() {
-        return new MemoryStore();
+        return memoryStore(new HashMap<String, byte[]>());
+    }
+
+    public static MemoryStore memoryStore(Map<String, byte[]> data) {
+        return new MemoryStore(data);
     }
 
     public static MemoryStore copy(Source source) {
