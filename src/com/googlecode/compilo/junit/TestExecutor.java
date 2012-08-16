@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TestExecutor {
-    public static boolean execute(final List<String> testNames, final int numberOfThreads) throws Exception {
+    public static boolean execute(final List<String> testNames, final int numberOfThreads, PrintStream out) throws Exception {
         PrintStream original = System.out;
         System.setOut(nullPrintStream());
         JUnitCore junit = new JUnitCore();
@@ -27,10 +27,10 @@ public class TestExecutor {
 
         boolean success = result.wasSuccessful();
         if (!success) {
-            System.out.printf("%d%n Tests FAILED", result.getFailureCount());
+            out.printf("    [junit] %s tests failed:%n%n", result.getFailureCount());
             for (Failure failure : result.getFailures()) {
-                System.out.println(failure.getTestHeader());
-                System.out.println(failure.getTrace());
+                out.println(failure.getTestHeader());
+                out.println(failure.getTrace());
             }
         }
 

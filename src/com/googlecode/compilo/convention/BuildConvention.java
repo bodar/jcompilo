@@ -57,7 +57,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         Tests tests = tests(productionJars, testThreads());
         compiler(productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
-        out.println(tests.execute(testJar()));
+        tests.execute(testJar(), out);
         return this;
     }
 

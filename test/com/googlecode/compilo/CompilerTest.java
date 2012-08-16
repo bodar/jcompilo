@@ -82,7 +82,7 @@ public class CompilerTest {
         Tests tests = tests(productionDependencies);
         compiler = compiler(productionDependencies, options).add(tests);
         compiler.compile(test, testJar);
-        tests.execute(testJar);
+        tests.execute(testJar, System.out);
     }
 
 

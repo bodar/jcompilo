@@ -11,6 +11,7 @@ import com.googlecode.totallylazy.Source;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -64,13 +65,14 @@ public class Tests implements Processor {
         return matched;
     }
 
-    public String execute(File testJar) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
+    public void execute(File testJar, PrintStream out) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
         final URLClassLoader classLoader = new URLClassLoader(asUrls(dependencies.cons(testJar).cons(testExecutor())), null);
 
         Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
-        Method execute = Methods.method(executor, "execute", List.class, int.class).get();
-        Boolean result = Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads);
-        return format("    [junit] Running %s tests", tests.size());
+        Method execute = Methods.method(executor, "execute", List.class, int.class, PrintStream.class).get();
+        out.printf("    [junit] Running %s tests%n", tests.size());
+        Boolean success = Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads, out);
+        if(!success) throw new IllegalStateException("BUILD FAILED");
     }
 
     private File testExecutor() throws FileNotFoundException {
