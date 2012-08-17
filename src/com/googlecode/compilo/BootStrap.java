@@ -47,12 +47,14 @@ public class BootStrap {
 
     public void build() throws Exception {
         long start = nanoTime();
+        Option<File> buildFile = buildFile();
+        env.out().printf("build: %s%n", buildFile.isEmpty() ? AutoBuild.class : buildFile.get());
         update();
-        Class<?> buildClass = findBuildClass();
-        env.out().printf("buildfile: %s%n", buildClass);
+        Class<?> buildClass = findBuildClass(buildFile);
         Build build = createBuildClass(buildClass);
         build.build();
 
+        env.out().println();
         env.out().println("BUILD SUCCESSFUL");
         env.out().printf("Total time: %s milliseconds%n", TimeCallable.calculateMilliseconds(start, nanoTime()));
     }
@@ -78,8 +80,8 @@ public class BootStrap {
                 create(aClass);
     }
 
-    public Class<?> findBuildClass() throws Exception {
-        return buildFile().map(new Function1<File, Class<?>>() {
+    public Class<?> findBuildClass(final Option<File> buildFile) throws Exception {
+        return buildFile.map(new Function1<File, Class<?>>() {
             @Override
             public Class<?> call(File buildFile) throws Exception {
                 String name = relativePath(env.workingDirectory(), buildFile);

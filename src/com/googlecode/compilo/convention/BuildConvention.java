@@ -80,6 +80,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     public Iterable<File> dependencies() { return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise(); }
 
     public Build stage(String name) {
+        env.out().println();
         env.out().println(name + ":");
         return this;
     }
