@@ -1,6 +1,8 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Callables;
+import com.googlecode.compilo.convention.AutoBuild;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Source;
 import com.googlecode.totallylazy.callables.TimeCallable;
@@ -42,18 +44,16 @@ public class Main {
 
     public void build() throws Exception {
         long start = nanoTime();
-        File buildFile = buildFile();
-        out.println("using: " + buildFile.getAbsolutePath());
-
-        Class<?> aClass = buildClass(buildFile);
-        Build build = newBuildClass(aClass);
+        Class<?> buildClass = findBuildClass();
+        out.printf("using: %s%n", buildClass);
+        Build build = createBuildClass(buildClass);
         build.build();
 
         out.println("BUILD SUCCESSFUL");
         out.printf("Total time: %s milliseconds%n", TimeCallable.calculateMilliseconds(start, nanoTime()));
     }
 
-    private Build newBuildClass(Class<?> aClass) throws Exception {
+    private Build createBuildClass(Class<?> aClass) throws Exception {
         return (Build) new SimpleContainer().
                 addInstance(File.class, root).
                 addInstance(Properties.class, properties).
@@ -61,22 +61,28 @@ public class Main {
                 create(aClass);
     }
 
-    public Class<?> buildClass(File buildFile) throws Exception {
-        String name = relativePath(root, buildFile);
+    public Class<?> findBuildClass() throws Exception {
+        return buildFile().map(new Function1<File, Class<?>>() {
+            @Override
+            public Class<?> call(File buildFile) throws Exception {
+                String name = relativePath(root, buildFile);
 
-        final MemoryStore compiledBuild = MemoryStore.memoryStore();
-        compile(empty(File.class),
-                fileSource(buildFile, name),
-                compiledBuild);
+                final MemoryStore compiledBuild = MemoryStore.memoryStore();
+                compile(empty(File.class),
+                        fileSource(buildFile, name),
+                        compiledBuild);
 
-        ClassLoader loader = new ByteClassLoader(compiledBuild.data());
-        return loader.loadClass(className(name));
+                ClassLoader loader = new ByteClassLoader(compiledBuild.data());
+                return loader.loadClass(className(name));
+
+            }
+        }).getOrElse(AutoBuild.class);
+
     }
 
-    public File buildFile() {
+    public Option<File> buildFile() {
         return files(root).
-                find(where(name(), endsWith("uild.java"))).
-                getOrElse(Callables.<File>callThrows(new IllegalStateException("Can not find build file")));
+                find(where(name(), endsWith("uild.java")));
     }
 
     private static Source fileSource(File buildFile, String name) throws FileNotFoundException {

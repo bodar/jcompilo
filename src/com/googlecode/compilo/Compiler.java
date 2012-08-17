@@ -14,10 +14,12 @@ import java.util.Map;
 
 import static com.googlecode.compilo.MemoryStore.copy;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
+import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
+import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;
@@ -55,20 +57,18 @@ public class Compiler {
         return compiler(processors.add(processor));
     }
 
-    public void compile(final File sourceDirectory, File destinationJar) throws Exception {
+    public Void compile(final File sourceDirectory, final File destinationJar) throws Exception {
         Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
-        if(source.sources().isEmpty()) return;
-        Destination destination = zipDestination(new FileOutputStream(destinationJar));
-        try {
-            compile(source, destination);
-        } finally {
-            source.close();
-            destination.close();
-            System.out.printf("      [zip] Created: %s%n", destinationJar.getAbsoluteFile());
-        }
+        if(source.sources().isEmpty()) return VOID;
+        System.out.printf("      [zip] Creating: %s%n", destinationJar.getAbsoluteFile());
+        return using(source, zipDestination(new FileOutputStream(destinationJar)), new Function2<Source, Destination, Void>() {
+            public Void call(Source source, Destination destination) throws Exception {
+                return compile(source, destination);
+            }
+        });
     }
 
-    public void compile(Source source, Destination destination) throws Exception {
+    public Void compile(Source source, Destination destination) throws Exception {
         final Map<Processor, Map<String, byte[]>> matchedSources = partition(copy(source).data());
 
         for (final Processor processor : processors) {
@@ -77,6 +77,7 @@ public class Compiler {
             String result = processor.call(memoryStore(matched), destination);
             System.out.print(result);
         }
+        return VOID;
     }
 
     private Map<Processor, Map<String, byte[]>> partition(Map<String,byte[]> source) {
