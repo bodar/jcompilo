@@ -54,19 +54,18 @@
 
     <target name="compile">
         <compile.and.jar src="${src}" jar="${release.jar.path}" classpathref="all.dependancies"
-                         version="${release.version}" main.class="com.googlecode.compilo.Main"/>
-        <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars"
-                         version="${release.version}" main.class="com.googlecode.compilo.Main"/>
+                         version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
     </target>
 
     <target name="test">
+        <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars"
+                         version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
         <test jar="${test.jar.path}" classpathref="all.jars" reports="${reports}"/>
+        <embed.libs/>
     </target>
 
     <target name="package">
         <mkdir dir="${artifacts}"/>
-
-        <embed.libs/>
 
         <zip destfile="${artifacts}/${release.src}" basedir="src"/>
 

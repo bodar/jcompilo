@@ -5,9 +5,9 @@ import org.junit.Test;
 import static com.googlecode.totallylazy.Files.directory;
 import static com.googlecode.totallylazy.Files.workingDirectory;
 
-public class MainTest {
+public class BootStrapTest {
     @Test
     public void canBuildExampleProject() throws Exception {
-        new Main(directory(workingDirectory(), "example"), System.getProperties(), System.out).build();
+        new BootStrap(directory(workingDirectory(), "example"), System.getProperties(), System.out).build();
     }
 }

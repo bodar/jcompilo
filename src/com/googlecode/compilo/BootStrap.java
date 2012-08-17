@@ -1,9 +1,11 @@
 package com.googlecode.compilo;
 
 import com.googlecode.compilo.convention.AutoBuild;
+import com.googlecode.shavenmaven.Dependencies;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Source;
 import com.googlecode.totallylazy.callables.TimeCallable;
 import com.googlecode.yadic.SimpleContainer;
@@ -17,7 +19,9 @@ import java.util.Properties;
 
 import static com.googlecode.compilo.CompileProcessor.compile;
 import static com.googlecode.compilo.Compiler.iterableSource;
+import static com.googlecode.totallylazy.Files.directory;
 import static com.googlecode.totallylazy.Files.files;
+import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.relativePath;
 import static com.googlecode.totallylazy.Files.workingDirectory;
@@ -27,30 +31,44 @@ import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static java.lang.System.nanoTime;
 
-public class Main {
+public class BootStrap {
     private final File root;
     private final Properties properties;
     private final PrintStream out;
 
-    public Main(File root, Properties properties, final PrintStream out) {
+    public BootStrap(File root, Properties properties, final PrintStream out) {
         this.root = root;
         this.properties = properties;
         this.out = out;
     }
 
     public static void main(String[] args) throws Exception {
-        new Main(workingDirectory(), System.getProperties(), System.out).build();
+        new BootStrap(workingDirectory(), System.getProperties(), System.out).build();
     }
 
     public void build() throws Exception {
         long start = nanoTime();
+        loadLibs(root);
         Class<?> buildClass = findBuildClass();
-        out.printf("using: %s%n", buildClass);
+        out.printf("buildfile: %s%n", buildClass);
         Build build = createBuildClass(buildClass);
         build.build();
 
         out.println("BUILD SUCCESSFUL");
         out.printf("Total time: %s milliseconds%n", TimeCallable.calculateMilliseconds(start, nanoTime()));
+    }
+
+    private void loadLibs(File root) {
+        Sequence<File> dependencies = files(directory(root, "build")).filter(hasSuffix("dependencies"));
+        if(dependencies.isEmpty()) return;
+        out.printf("update:%n");
+        final File libDir = directory(root, "lib");
+        dependencies.mapConcurrently(new Function1<File, Boolean>() {
+            @Override
+            public Boolean call(File file) throws Exception {
+                return  Dependencies.load(file).update(directory(libDir, file.getName().replace(".dependencies", "")));
+            }
+        }).realise();
     }
 
     private Build createBuildClass(Class<?> aClass) throws Exception {
