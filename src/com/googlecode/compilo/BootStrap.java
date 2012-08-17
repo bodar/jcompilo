@@ -56,7 +56,11 @@ public class BootStrap {
 
         env.out().println();
         env.out().println("BUILD SUCCESSFUL");
-        env.out().printf("Total time: %s milliseconds%n", TimeCallable.calculateMilliseconds(start, nanoTime()));
+        env.out().printf("Total time: %s seconds%n", calculateSeconds(start));
+    }
+
+    private long calculateSeconds(long start) {
+        return (nanoTime() - start) / 1000000000;
     }
 
     private void update() {

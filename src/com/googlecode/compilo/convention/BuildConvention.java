@@ -35,6 +35,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build clean() throws Exception {
         stage("clean");
+        env.out().printf("   [delete] Deleting directory: %s%n", artifactsDir());
         delete(artifactsDir());
         return this;
     }
