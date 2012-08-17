@@ -1,5 +1,6 @@
 package com.googlecode.compilo.convention;
 
+import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.Identifiers;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ import static org.hamcrest.Matchers.is;
 public class AutoBuildTest {
     @Test
     public void canGuessGroupIdentifier() throws Exception {
-        Identifiers identifiers = new AutoBuild(directory(workingDirectory(), "example"), System.getProperties(), System.out);
+        Identifiers identifiers = new AutoBuild(Environment.constructors.environment(directory(workingDirectory(), "example")));
         assertThat(identifiers.group(), is("com.example"));
         assertThat(identifiers.artifact(), is("example"));
     }

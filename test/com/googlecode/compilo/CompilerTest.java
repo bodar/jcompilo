@@ -65,27 +65,6 @@ public class CompilerTest {
         };
     }
 
-    @Test
-    @Ignore("Manual")
-    public void canCompileTL() throws Exception {
-        Sequence<CompileOption> options = sequence(Debug, UncheckedWarnings, WarningAsErrors, Target(6), Source(6));
-        File totallylazy = directory(workingDirectory, "../totallylazy/");
-        Sequence<File> dependencies = jars(totallylazy, "lib");
-        Compiler compiler = compiler(dependencies, options);
-        File src = directory(totallylazy, "src");
-        File output = file(compilo, "totallylazy.jar");
-        compiler.compile(src, output);
-
-        File test = directory(totallylazy, "test");
-        File testJar = file(compilo, "totallylazy-test.jar");
-        Sequence<File> productionDependencies = dependencies.cons(output);
-        Tests tests = tests(productionDependencies);
-        compiler = compiler(productionDependencies, options).add(tests);
-        compiler.compile(test, testJar);
-        tests.execute(testJar, System.out);
-    }
-
-
     private Sequence<File> jars(File libDir, final String name) {
         return recursiveFiles(directory(libDir, name)).filter(hasSuffix("jar")).realise();
     }

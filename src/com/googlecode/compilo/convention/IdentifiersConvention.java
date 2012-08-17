@@ -1,21 +1,20 @@
 package com.googlecode.compilo.convention;
 
+import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.Identifiers;
-
-import java.util.Properties;
 
 import static java.lang.String.format;
 
 public abstract class IdentifiersConvention implements Identifiers {
-    protected final Properties properties;
+    protected final Environment env;
 
-    protected IdentifiersConvention(Properties properties) {
-        this.properties = properties;
+    protected IdentifiersConvention(Environment env) {
+        this.env = env;
     }
 
     @Override
     public String version() {
-        return properties.getProperty("build.number", "dev.build");
+        return env.properties().getProperty("build.number", "dev.build");
     }
 
     @Override

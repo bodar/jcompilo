@@ -1,3 +1,4 @@
+import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.convention.AutoBuild;
 import com.googlecode.compilo.convention.BuildConvention;
 
@@ -10,7 +11,7 @@ import static com.googlecode.totallylazy.Files.workingDirectory;
 
 public class build extends AutoBuild {
     // We only need this constructor for testing the build!
-    public build(File root, Properties properties, PrintStream out) {
-        super(root, properties, out);
+    public build(Environment environment) {
+        super(environment);
     }
 }

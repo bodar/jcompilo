@@ -1,5 +1,6 @@
 package com.googlecode.compilo.convention;
 
+import com.googlecode.compilo.Environment;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Lazy;
 import com.googlecode.totallylazy.Sequence;
@@ -22,13 +23,18 @@ public class AutoBuild extends BuildConvention {
     public AutoBuild() {
     }
 
-    public AutoBuild(File root, Properties properties, PrintStream out) {
-        super(root, properties, out);
+    public AutoBuild(Environment environment) {
+        super(environment);
     }
 
     @Override
     public String group() {
         return Files.relativePath(srcDir(), rootPackage.value()).replace('/', '.').replaceFirst(".$", "");
+    }
+
+    @Override
+    public String artifact() {
+        return rootPackage.value().getName();
     }
 
     private File rootPackage(File root) {
@@ -38,10 +44,5 @@ public class AutoBuild extends BuildConvention {
         Sequence<File> subPackages = children.filter(isDirectory());
         if(subPackages.size() > 1) throw new IllegalStateException("Unable to auto detect root package");
         return rootPackage(subPackages.head());
-    }
-
-    @Override
-    public String artifact() {
-        return rootPackage.value().getName();
     }
 }

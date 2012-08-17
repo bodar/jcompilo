@@ -2,34 +2,29 @@ package com.googlecode.compilo.convention;
 
 import com.googlecode.compilo.Build;
 import com.googlecode.compilo.CompileOption;
+import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.junit.Tests;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Properties;
 
 import static com.googlecode.compilo.Compiler.compiler;
 import static com.googlecode.compilo.junit.Tests.tests;
 import static com.googlecode.totallylazy.Files.delete;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
-import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
 
 public abstract class BuildConvention extends LocationsConvention implements Build {
-    protected final PrintStream out;
-
     protected BuildConvention() {
-        this(workingDirectory(), System.getProperties(), System.out);
+        this(Environment.constructors.environment());
     }
 
-    protected BuildConvention(File root, Properties properties, PrintStream out) {
-        super(root, properties);
-        this.out = out;
+    protected BuildConvention(Environment environment) {
+        super(environment);
     }
 
     @Override
@@ -40,7 +35,8 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build clean() throws Exception {
         stage("clean");
-        delete(artifactsDir()); return this;
+        delete(artifactsDir());
+        return this;
     }
 
     @Override
@@ -57,7 +53,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         Tests tests = tests(productionJars, testThreads());
         compiler(productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
-        tests.execute(testJar(), out);
+        tests.execute(testJar(), env.out());
         return this;
     }
 
@@ -74,12 +70,17 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     private void zip(File source, File destination) throws IOException {
         Number size = Zip.zip(source, destination);
-        out.printf("      [zip] Zipped %s files: %s%n", size, destination.getAbsoluteFile());
+        env.out().printf("      [zip] Zipped %s files: %s%n", size, destination.getAbsoluteFile());
     }
 
-    @Override public Iterable<CompileOption> compileOptions() { return sequence(CompileOption.Debug); }
+    @Override
+    public Iterable<CompileOption> compileOptions() { return sequence(CompileOption.Debug); }
 
-    @Override public Iterable<File> dependencies() { return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise(); }
+    @Override
+    public Iterable<File> dependencies() { return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise(); }
 
-    public Build stage(String name) {out.println(name + ":"); return this; }
+    public Build stage(String name) {
+        env.out().println(name + ":");
+        return this;
+    }
 }

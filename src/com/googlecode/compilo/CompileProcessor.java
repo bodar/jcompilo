@@ -2,6 +2,7 @@ package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
@@ -16,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.LazyException.lazyException;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
@@ -42,13 +44,13 @@ public class CompileProcessor implements Processor {
         return new CompileProcessor(compiler, options, dependancies);
     }
 
-    public static String compile(Iterable<File> dependancies, Source source, Destination destination) throws Exception {
-        try {
-            return compile(DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(source, destination);
-        } finally {
-            source.close();
-            destination.close();
-        }
+    public static String compile(final Iterable<File> dependancies, Source source, Destination destination) throws Exception {
+        return using(source, destination, new Function2<Source, Destination, String>() {
+            @Override
+            public String call(Source source, Destination destination) throws Exception {
+                return compile(DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(source, destination);
+            }
+        });
     }
 
     @Override
