@@ -22,7 +22,11 @@ public class TestExecutor {
         Result result = new Result();
         junit.addListener(result.createListener());
 
-        execute(numberOfThreads, tests(testNames, junit));
+        if(numberOfThreads == 1 ) {
+            junit.run(asClasses(testNames));
+        } else {
+            execute(numberOfThreads, tests(testNames, junit));
+        }
         System.setOut(original);
 
         boolean success = result.wasSuccessful();
