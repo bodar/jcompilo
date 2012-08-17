@@ -1,5 +1,6 @@
 package com.googlecode.compilo.junit;
 
+import com.googlecode.compilo.FileUrls;
 import com.googlecode.compilo.Processor;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function1;
@@ -65,8 +66,8 @@ public class Tests implements Processor {
         return matched;
     }
 
-    public void execute(File testJar, PrintStream out) throws MalformedURLException, FileNotFoundException, ClassNotFoundException {
-        final URLClassLoader classLoader = new URLClassLoader(asUrls(dependencies.cons(testJar).cons(testExecutor())), null);
+    public void execute(File testJar, PrintStream out) throws FileNotFoundException, ClassNotFoundException {
+        final URLClassLoader classLoader = new URLClassLoader(FileUrls.asUrls(dependencies.cons(testJar).cons(testExecutor())), null);
 
         Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
         Method execute = Methods.method(executor, "execute", List.class, int.class, PrintStream.class).get();
@@ -84,12 +85,4 @@ public class Tests implements Processor {
         return testExecutor;
     }
 
-    private static URL[] asUrls(Sequence<File> jars) throws MalformedURLException {
-        return jars.map(new Function1<File, URL>() {
-            @Override
-            public URL call(File file) throws Exception {
-                return file.toURI().toURL();
-            }
-        }).toArray(URL.class);
-    }
 }

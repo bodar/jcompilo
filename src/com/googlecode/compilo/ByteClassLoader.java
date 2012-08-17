@@ -1,14 +1,27 @@
 package com.googlecode.compilo;
 
+import com.googlecode.totallylazy.Sequences;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Map;
+
+import static com.googlecode.totallylazy.Sequences.sequence;
 
 public class ByteClassLoader extends URLClassLoader {
     private final Map<String, byte[]> data;
 
     public ByteClassLoader(Map<String, byte[]> data) {
-        super(new URL[0]);
+        this(data, Sequences.empty(URL.class));
+    }
+
+    public ByteClassLoader(Map<String, byte[]> data, Iterable<? extends URL> urls) {
+        super(sequence(urls).toArray(URL.class));
+        this.data = data;
+    }
+
+    public ByteClassLoader(Map<String, byte[]> data, Iterable<? extends URL> urls, ClassLoader parent) {
+        super(sequence(urls).toArray(URL.class), parent);
         this.data = data;
     }
 
