@@ -1,5 +1,6 @@
 package com.googlecode.compilo.junit;
 
+import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -18,14 +19,12 @@ public class TestExecutor {
     public static boolean execute(final List<String> testNames, final int numberOfThreads, PrintStream out) throws Exception {
         PrintStream original = System.out;
         System.setOut(nullPrintStream());
-        JUnitCore junit = new JUnitCore();
         Result result = new Result();
-        junit.addListener(result.createListener());
 
         if(numberOfThreads == 1 ) {
-            junit.run(asClasses(testNames));
+            junit(result).run(asClasses(testNames));
         } else {
-            execute(numberOfThreads, tests(testNames, junit));
+            execute(numberOfThreads, tests(testNames, result));
         }
         System.setOut(original);
 
@@ -33,18 +32,26 @@ public class TestExecutor {
         if (!success) {
             out.printf("    [junit] %s tests failed:%n%n", result.getFailureCount());
             for (Failure failure : result.getFailures()) {
-                out.println(failure.getTestHeader());
-                out.println(failure.getTrace());
+                Description description = failure.getDescription();
+                Throwable throwable = failure.getException();
+                out.printf("%s.%s %s %s%n", description.getClassName(), description.getMethodName(), throwable.getClass().getName(), throwable.getMessage());
+//                out.println(failure.getTrace());
             }
         }
 
         return success;
     }
 
-    private static List<Callable<Result>> tests(List<String> testNames, JUnitCore junit) throws ClassNotFoundException {
+    private static JUnitCore junit(Result result) {
+        JUnitCore junit = new JUnitCore();
+        junit.addListener(result.createListener());
+        return junit;
+    }
+
+    private static List<Callable<Result>> tests(List<String> testNames, Result result) throws ClassNotFoundException {
         List<Callable<Result>> tests = new ArrayList<Callable<Result>>();
         for (Class<?> testClass : asClasses(testNames)) {
-            tests.add(new ResultCallable(junit, testClass));
+            tests.add(new ResultCallable(result, testClass));
         }
         return tests;
     }
@@ -74,17 +81,17 @@ public class TestExecutor {
 
 
     static class ResultCallable implements Callable<Result> {
-        private final JUnitCore junit;
+        private final Result result;
         private final Class<?> testClass;
 
-        public ResultCallable(JUnitCore junit, Class<?> testClass) {
-            this.junit = junit;
+        public ResultCallable(Result result, Class<?> testClass) {
+            this.result = result;
             this.testClass = testClass;
         }
 
         @Override
         public Result call() {
-            return junit.run(testClass);
+            return junit(result).run(testClass);
         }
     }
 

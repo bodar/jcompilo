@@ -60,7 +60,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public int testThreads() {
-        return Tests.DEFAULT_THREADS;
+        return Integer.valueOf(env.properties().getProperty("compilo.test.threads",String.valueOf(Tests.DEFAULT_THREADS)));
     }
 
     @Override

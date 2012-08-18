@@ -71,7 +71,7 @@ public class Tests implements Processor {
 
         Class<?> executor = classLoader.loadClass(TestExecutor.class.getName());
         Method execute = Methods.method(executor, "execute", List.class, int.class, PrintStream.class).get();
-        out.printf("    [junit] Running %s tests%n", tests.size());
+        out.printf("    [junit] Running %s tests on %s threads%n", tests.size(), numberOfThreads);
         Boolean success = Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads, out);
         if(!success) throw new IllegalStateException("BUILD FAILED");
     }
