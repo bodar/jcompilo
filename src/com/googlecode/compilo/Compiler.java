@@ -28,39 +28,41 @@ import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 
 public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
+    private final Environment env;
     private final ImmutableList<Processor> processors;
 
-    private Compiler(ImmutableList<Processor> processors) {
+    private Compiler(Environment env, ImmutableList<Processor> processors) {
+        this.env = env;
         this.processors = processors;
     }
 
-    public static Compiler compiler(Iterable<File> dependancies) {
-        return compiler(dependancies, CompileProcessor.DEFAULT_OPTIONS);
+    public static Compiler compiler(Environment env, Iterable<File> dependancies) {
+        return compiler(env, dependancies, CompileProcessor.DEFAULT_OPTIONS);
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions)  {
-        return compiler(dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER);
+    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions)  {
+        return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER);
     }
 
-    public static Compiler compiler(Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
-        return compiler(constructors.<Processor>empty()).
-                add(CopyProcessor.copy(not(startsWith(".")))).
-                add(CompileProcessor.compile(compileOptions, javaCompiler, dependancies))
+    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
+        return compiler(env, constructors.<Processor>empty()).
+                add(CopyProcessor.copy(env, not(startsWith(".")))).
+                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies))
                 ;
     }
 
-    public static Compiler compiler(ImmutableList<Processor> processors) {
-        return new Compiler(processors);
+    public static Compiler compiler(Environment env, ImmutableList<Processor> processors) {
+        return new Compiler(env, processors);
     }
 
     public Compiler add(Processor processor) {
-        return compiler(processors.add(processor));
+        return compiler(env, processors.add(processor));
     }
 
     public Void compile(final File sourceDirectory, final File destinationJar) throws Exception {
         Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
         if(source.sources().isEmpty()) return VOID;
-        System.out.printf("      [zip] Creating: %s%n", destinationJar.getAbsoluteFile());
+        env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
         return using(source, zipDestination(new FileOutputStream(destinationJar)), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
                 return compile(source, destination);
@@ -74,8 +76,7 @@ public class Compiler {
         for (final Processor processor : processors) {
             Map<String, byte[]> matched = matchedSources.get(processor);
             if(matched.isEmpty()) continue;
-            String result = processor.call(memoryStore(matched), destination);
-            System.out.print(result);
+            Boolean result = processor.call(memoryStore(matched), destination);
         }
         return VOID;
     }

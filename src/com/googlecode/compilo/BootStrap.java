@@ -1,12 +1,16 @@
 package com.googlecode.compilo;
 
 import com.googlecode.compilo.convention.AutoBuild;
-import com.googlecode.shavenmaven.Dependencies;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Function2;
+import com.googlecode.totallylazy.Methods;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Runnables;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.Strings;
+import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.googlecode.yadic.SimpleContainer;
 
 import java.io.File;
@@ -14,22 +18,42 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Properties;
 
 import static com.googlecode.compilo.CompileProcessor.compile;
 import static com.googlecode.compilo.Compiler.iterableSource;
 import static com.googlecode.compilo.Environment.constructors.environment;
+import static com.googlecode.shavenmaven.Dependencies.load;
+import static com.googlecode.totallylazy.Arrays.empty;
 import static com.googlecode.totallylazy.Files.directory;
 import static com.googlecode.totallylazy.Files.files;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Files.relativePath;
+import static com.googlecode.totallylazy.Lists.list;
+import static com.googlecode.totallylazy.Methods.genericParameterTypes;
+import static com.googlecode.totallylazy.Methods.methodName;
+import static com.googlecode.totallylazy.Methods.modifier;
+import static com.googlecode.totallylazy.Methods.returnType;
+import static com.googlecode.totallylazy.Predicates.and;
+import static com.googlecode.totallylazy.Predicates.classAssignableTo;
+import static com.googlecode.totallylazy.Predicates.is;
+import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Runnables.printLine;
 import static com.googlecode.totallylazy.Sequences.one;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
+import static com.googlecode.totallylazy.Strings.toLowerCase;
+import static com.googlecode.yadic.generics.Types.matches;
+import static java.lang.String.format;
 import static java.lang.System.nanoTime;
+import static java.lang.reflect.Modifier.PUBLIC;
+import static java.lang.reflect.Modifier.STATIC;
 
 public class BootStrap {
     private final Environment env;
@@ -41,26 +65,54 @@ public class BootStrap {
     }
 
     public static void main(String[] args) throws Exception {
-        System.exit(new BootStrap(environment()).build());
+        System.exit(new BootStrap(environment()).build(list(args)));
     }
 
-    public int build() {
+    public int build(List<String> targets) {
         long start = nanoTime();
         try {
             Option<File> buildFile = buildFile();
             env.out().printf("build: %s%n", buildFile.isEmpty() ? AutoBuild.class : buildFile.get());
-            update();
             Class<?> buildClass = findBuildClass(buildFile);
-            Build build = createBuildClass(buildClass);
-            build.build();
+            if(sequence(targets).contains("-p")) {
+                printTargets(buildClass);
+                return 0;
+            }
+            update();
+            call(targets, createBuildClass(buildClass));
 
             report("SUCCESSFUL", start);
             return 0;
         } catch (Exception e) {
-            report(String.format("FAILED: %s %s%n", e.getClass().getName(), e.getMessage()), start);
+            report(format("FAILED: %s%n", e.getMessage()), start);
             return -1;
         }
 
+    }
+
+    private void printTargets(Class<?> buildClass) {
+        env.out().printf("targets:%n");
+        env.out().prefix("            ");
+        sequence(buildClass.getMethods()).filter(targets()).map(methodName()).each(printLine(env.out(), "%s"));
+    }
+
+    private void call(List<String> targets, Build build) {
+        sequence(targets.isEmpty() ? one("build") : targets).fold(build, new Function2<Build, String, Build>() {
+            @Override
+            public Build call(Build build, String target) throws Exception {
+                Option<Method> method = sequence(build.getClass().getMethods()).
+                        find(targets().and(where(methodName(), is(target.toLowerCase()))));
+                if(method.isEmpty()) return build;
+                return Methods.invoke(method.get(), build);
+            }
+        });
+    }
+
+    private LogicalPredicate<Method> targets() {
+        return and(
+                modifier(PUBLIC), not(modifier(STATIC)),
+                where(returnType(), classAssignableTo(Build.class)),
+                where(genericParameterTypes(), empty()));
     }
 
     private void report(String message, long start) {
@@ -77,12 +129,14 @@ public class BootStrap {
         Sequence<File> dependencies = files(directory(env.workingDirectory(), "build")).filter(hasSuffix("dependencies"));
         if (dependencies.isEmpty()) return;
         env.out().printf("update:%n");
+        env.out().prefix("      [lib] ");
         dependencies.mapConcurrently(new Function1<File, Boolean>() {
             @Override
             public Boolean call(File file) throws Exception {
-                return Dependencies.load(file).update(directory(libDir, file.getName().replace(".dependencies", "")));
+                return load(file).update(directory(libDir, file.getName().replace(".dependencies", "")));
             }
         }).realise();
+        env.out().clearPrefix();
     }
 
     private Build createBuildClass(Class<?> aClass) throws Exception {
@@ -102,7 +156,7 @@ public class BootStrap {
 
                 Sequence<File> libs = libs();
                 final MemoryStore compiledBuild = MemoryStore.memoryStore();
-                compile(libs,
+                compile(env, libs,
                         fileSource(buildFile, name),
                         compiledBuild);
 

@@ -27,18 +27,18 @@ import static org.hamcrest.Matchers.is;
 public class CompilerTest {
     private Compiler compiler;
     private File compilo;
-    private File workingDirectory;
+    private Environment env;
 
     @Before
     public void setUp() throws Exception {
-        workingDirectory = workingDirectory();
-        compiler = compiler(jars(workingDirectory, "lib"));
+        env = Environment.constructors.environment();
+        compiler = compiler(env, jars(env.workingDirectory(), "lib"));
         compilo = emptyTemporaryDirectory("compilo");
     }
 
     @Test
     public void canCompilerADirectory() throws Exception {
-        File input = directory(workingDirectory, "example/src");
+        File input = directory(env.workingDirectory(), "example/src");
         File output = file(compilo, "example.jar");
         compiler.compile(input, output);
         assertThat(jarContains(output, "com/example/HelloWorld.class"), is(true));

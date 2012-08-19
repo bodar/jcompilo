@@ -29,7 +29,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public Build build() throws Exception {
-        return clean().compile().test();
+        return clean().compile().test().Package();
     }
 
     @Override
@@ -43,7 +43,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build compile() throws Exception {
         stage("compile");
-        compiler(dependencies(), compileOptions()).compile(srcDir(), mainJar());
+        compiler(env, dependencies(), compileOptions()).compile(srcDir(), mainJar());
         return this;
     }
 
@@ -51,10 +51,10 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     public Build test() throws Exception {
         stage("test");
         Sequence<File> productionJars = cons(mainJar(), dependencies());
-        Tests tests = tests(productionJars, testThreads());
-        compiler(productionJars, compileOptions()).
+        Tests tests = tests(env, productionJars, testThreads());
+        compiler(env, productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
-        tests.execute(testJar(), env.out());
+        tests.execute(testJar());
         return this;
     }
 

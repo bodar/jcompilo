@@ -19,27 +19,33 @@ public class TestExecutor {
     public static boolean execute(final List<String> testNames, final int numberOfThreads, PrintStream out) throws Exception {
         PrintStream original = System.out;
         System.setOut(nullPrintStream());
-        Result result = new Result();
 
-        if(numberOfThreads == 1 ) {
-            junit(result).run(asClasses(testNames));
-        } else {
-            execute(numberOfThreads, tests(testNames, result));
-        }
+        Result result = execute(asClasses(testNames), numberOfThreads);
         System.setOut(original);
 
         boolean success = result.wasSuccessful();
         if (!success) {
-            out.printf("    [junit] %s tests failed:%n%n", result.getFailureCount());
+            out.printf("%s tests failed:%n%n", result.getFailureCount());
             for (Failure failure : result.getFailures()) {
                 Description description = failure.getDescription();
                 Throwable throwable = failure.getException();
-                out.printf("%s.%s %s %s%n", description.getTestClass().getSimpleName(), description.getMethodName(), throwable.getClass().getName(), throwable.getMessage());
-//                out.println(failure.getTrace());
+                out.printf("%s.%s %s: %s%n", description.getTestClass().getSimpleName(), description.getMethodName(), throwable.getClass().getName(), throwable.getMessage());
             }
         }
 
         return success;
+    }
+
+    public static Result execute(Class<?>[] classes, int numberOfThreads) throws InterruptedException, ClassNotFoundException {
+        Result result = new Result();
+
+        if(numberOfThreads == 1 ) {
+            junit(result).run(classes);
+        } else {
+            execute(numberOfThreads, tests(result, classes));
+        }
+
+        return result;
     }
 
     private static JUnitCore junit(Result result) {
@@ -48,9 +54,9 @@ public class TestExecutor {
         return junit;
     }
 
-    private static List<Callable<Result>> tests(List<String> testNames, Result result) throws ClassNotFoundException {
+    private static List<Callable<Result>> tests(Result result, final Class<?>[] classes) throws ClassNotFoundException {
         List<Callable<Result>> tests = new ArrayList<Callable<Result>>();
-        for (Class<?> testClass : asClasses(testNames)) {
+        for (Class<?> testClass : classes) {
             tests.add(new ResultCallable(result, testClass));
         }
         return tests;

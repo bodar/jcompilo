@@ -6,10 +6,14 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.Properties;
 
+import static com.googlecode.compilo.PrefixPrintStream.prefixPrintStream;
+
 public interface Environment {
     File workingDirectory();
+
     Properties properties();
-    PrintStream out();
+
+    PrefixPrintStream out();
 
     class constructors {
         public static Environment environment() {
@@ -26,6 +30,8 @@ public interface Environment {
 
         public static Environment environment(final File workingDirectory, final Properties properties, final PrintStream out) {
             return new Environment() {
+                private final PrefixPrintStream prefixPrintStream = prefixPrintStream(out);
+
                 @Override
                 public File workingDirectory() {
                     return workingDirectory;
@@ -37,11 +43,10 @@ public interface Environment {
                 }
 
                 @Override
-                public PrintStream out() {
-                    return out;
+                public PrefixPrintStream out() {
+                    return prefixPrintStream;
                 }
             };
         }
     }
-
 }
