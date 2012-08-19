@@ -73,7 +73,7 @@ public class Tests implements Processor {
         Method execute = Methods.method(executor, "execute", List.class, int.class, PrintStream.class).get();
         out.printf("    [junit] Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
         Boolean success = Methods.<TestExecutor, Boolean>invoke(execute, null, tests, numberOfThreads, out);
-        if(!success) throw new IllegalStateException("BUILD FAILED");
+        if(!success) throw new IllegalStateException("Tests failed");
     }
 
     private File testExecutor() throws FileNotFoundException {

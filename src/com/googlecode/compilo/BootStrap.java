@@ -7,7 +7,6 @@ import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Source;
-import com.googlecode.totallylazy.callables.TimeCallable;
 import com.googlecode.yadic.SimpleContainer;
 
 import java.io.File;
@@ -42,20 +41,31 @@ public class BootStrap {
     }
 
     public static void main(String[] args) throws Exception {
-        new BootStrap(environment()).build();
+        System.exit(new BootStrap(environment()).build());
     }
 
-    public void build() throws Exception {
+    public int build() {
         long start = nanoTime();
-        Option<File> buildFile = buildFile();
-        env.out().printf("build: %s%n", buildFile.isEmpty() ? AutoBuild.class : buildFile.get());
-        update();
-        Class<?> buildClass = findBuildClass(buildFile);
-        Build build = createBuildClass(buildClass);
-        build.build();
+        try {
+            Option<File> buildFile = buildFile();
+            env.out().printf("build: %s%n", buildFile.isEmpty() ? AutoBuild.class : buildFile.get());
+            update();
+            Class<?> buildClass = findBuildClass(buildFile);
+            Build build = createBuildClass(buildClass);
+            build.build();
 
+            report("SUCCESSFUL", start);
+            return 0;
+        } catch (Exception e) {
+            report(String.format("FAILED: %s %s%n", e.getClass().getName(), e.getMessage()), start);
+            return -1;
+        }
+
+    }
+
+    private void report(String message, long start) {
         env.out().println();
-        env.out().println("BUILD SUCCESSFUL");
+        env.out().println("BUILD " + message);
         env.out().printf("Total time: %s seconds%n", calculateSeconds(start));
     }
 

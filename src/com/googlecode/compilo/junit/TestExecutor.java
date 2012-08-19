@@ -34,7 +34,7 @@ public class TestExecutor {
             for (Failure failure : result.getFailures()) {
                 Description description = failure.getDescription();
                 Throwable throwable = failure.getException();
-                out.printf("%s.%s %s %s%n", description.getClassName(), description.getMethodName(), throwable.getClass().getName(), throwable.getMessage());
+                out.printf("%s.%s %s %s%n", description.getTestClass().getSimpleName(), description.getMethodName(), throwable.getClass().getName(), throwable.getMessage());
 //                out.println(failure.getTrace());
             }
         }
