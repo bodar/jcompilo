@@ -78,7 +78,6 @@ public class BootStrap {
                 printTargets(buildClass);
                 return 0;
             }
-            update();
             call(targets, createBuildClass(buildClass));
 
             report("SUCCESSFUL", start);
@@ -149,6 +148,7 @@ public class BootStrap {
     }
 
     public Class<?> findBuildClass(final Option<File> buildFile) throws Exception {
+        update();
         return buildFile.map(new Function1<File, Class<?>>() {
             @Override
             public Class<?> call(File buildFile) throws Exception {
