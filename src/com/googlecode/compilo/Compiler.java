@@ -1,16 +1,29 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Closeables;
+import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.Function2;
+import com.googlecode.totallylazy.Maps;
+import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Source;
 import com.googlecode.totallylazy.collections.ImmutableList;
 
 import javax.tools.JavaCompiler;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.googlecode.compilo.MemoryStore.copy;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
@@ -21,7 +34,6 @@ import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
@@ -40,7 +52,7 @@ public class Compiler {
         return compiler(env, dependancies, CompileProcessor.DEFAULT_OPTIONS);
     }
 
-    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions)  {
+    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions) {
         return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER);
     }
 
@@ -61,13 +73,51 @@ public class Compiler {
 
     public Void compile(final File sourceDirectory, final File destinationJar) throws Exception {
         Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
-        if(source.sources().isEmpty()) return VOID;
+        if (source.sources().isEmpty()) return VOID;
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
-        return using(source, zipDestination(new FileOutputStream(destinationJar)), new Function2<Source, Destination, Void>() {
+        return using(source, backgroundZip(destinationJar), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
                 return compile(source, destination);
             }
         });
+    }
+
+    private Destination directZip(File jar) throws FileNotFoundException {
+        return zipDestination(new FileOutputStream(jar));
+    }
+
+    private Destination backgroundZip(File destinationJar) throws FileNotFoundException {
+        final ExecutorService zipWriter = Executors.newSingleThreadExecutor();
+        final Destination zipDestination = directZip(destinationJar);
+        return new MemoryStore(new HashMap<String, byte[]>() {
+            @Override
+            public byte[] put(final String key, final byte[] value) {
+                zipWriter.submit(new Callable<Integer>() {
+                    @Override
+                    public Integer call() throws IOException {
+                        return Closeables.using(zipDestination.destination(key), new Callable1<OutputStream, Integer>() {
+                            @Override
+                            public Integer call(OutputStream outputStream) throws Exception {
+                                outputStream.write(value);
+                                return value.length;
+                            }
+                        });
+                    }
+                });
+                return super.put(key, value);
+            }
+        }) {
+            @Override
+            public void close() throws IOException {
+                try {
+                    zipWriter.shutdown();
+                    zipWriter.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+                    zipDestination.close();
+                } catch (InterruptedException e) {
+                    throw new UnsupportedOperationException(e);
+                }
+            }
+        };
     }
 
     public Void compile(Source source, Destination destination) throws Exception {
@@ -75,13 +125,13 @@ public class Compiler {
 
         for (final Processor processor : processors) {
             Map<String, byte[]> matched = matchedSources.get(processor);
-            if(matched.isEmpty()) continue;
+            if (matched.isEmpty()) continue;
             Boolean result = processor.call(memoryStore(matched), destination);
         }
         return VOID;
     }
 
-    private Map<Processor, Map<String, byte[]>> partition(Map<String,byte[]> source) {
+    private Map<Processor, Map<String, byte[]>> partition(Map<String, byte[]> source) {
         final Map<Processor, Map<String, byte[]>> matchedSources = Maps.map();
 
         for (Processor processor : processors) {
