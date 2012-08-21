@@ -5,4 +5,6 @@ public interface Identifiers {
     String artifact();
     String version();
     String versionedArtifact();
+
+    String artifactUri();
 }

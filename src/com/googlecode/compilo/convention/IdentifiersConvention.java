@@ -21,4 +21,10 @@ public abstract class IdentifiersConvention implements Identifiers {
     public String versionedArtifact() {
         return format("%s-%s", artifact(), version());
     }
+
+    @Override
+    public String artifactUri() {
+        return String.format("mvn:%s:%s:jar:%s", group(), artifact(), version());
+    }
+
 }

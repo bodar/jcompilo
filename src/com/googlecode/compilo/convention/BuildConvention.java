@@ -4,6 +4,8 @@ import com.googlecode.compilo.Build;
 import com.googlecode.compilo.CompileOption;
 import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.junit.Tests;
+import com.googlecode.shavenmaven.PomGenerator;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
@@ -13,10 +15,14 @@ import java.io.IOException;
 import static com.googlecode.compilo.Compiler.compiler;
 import static com.googlecode.compilo.junit.Tests.tests;
 import static com.googlecode.totallylazy.Files.delete;
+import static com.googlecode.totallylazy.Files.files;
 import static com.googlecode.totallylazy.Files.hasSuffix;
+import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
+import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 
 public abstract class BuildConvention extends LocationsConvention implements Build {
     protected BuildConvention() {
@@ -66,6 +72,11 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build Package() throws IOException {
         stage("package");
+        Option<File> dependencies = files(buildDir()).find(where(name(), is("runtime.dependencies")));
+        if(!dependencies.isEmpty()) {
+            env.out().printf("      [pom] Generating pom from: %s%n", dependencies.get());
+            PomGenerator.generate(artifactUri(), dependencies.get(), artifactsDir());
+        }
         return this;
     }
 

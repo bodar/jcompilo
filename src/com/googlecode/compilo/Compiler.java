@@ -1,6 +1,6 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Bytes;
 import com.googlecode.totallylazy.Closeables;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
@@ -59,8 +59,7 @@ public class Compiler {
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(env, constructors.<Processor>empty()).
                 add(CopyProcessor.copy(env, not(startsWith(".")))).
-                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies))
-                ;
+                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies));
     }
 
     public static Compiler compiler(Environment env, ImmutableList<Processor> processors) {
@@ -75,49 +74,11 @@ public class Compiler {
         Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
         if (source.sources().isEmpty()) return VOID;
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
-        return using(source, backgroundZip(destinationJar), new Function2<Source, Destination, Void>() {
+        return using(source, BackgroundZip.backgroundZip(destinationJar), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
                 return compile(source, destination);
             }
         });
-    }
-
-    private Destination directZip(File jar) throws FileNotFoundException {
-        return zipDestination(new FileOutputStream(jar));
-    }
-
-    private Destination backgroundZip(File destinationJar) throws FileNotFoundException {
-        final ExecutorService zipWriter = Executors.newSingleThreadExecutor();
-        final Destination zipDestination = directZip(destinationJar);
-        return new MemoryStore(new HashMap<String, byte[]>() {
-            @Override
-            public byte[] put(final String key, final byte[] value) {
-                zipWriter.submit(new Callable<Integer>() {
-                    @Override
-                    public Integer call() throws IOException {
-                        return Closeables.using(zipDestination.destination(key), new Callable1<OutputStream, Integer>() {
-                            @Override
-                            public Integer call(OutputStream outputStream) throws Exception {
-                                outputStream.write(value);
-                                return value.length;
-                            }
-                        });
-                    }
-                });
-                return super.put(key, value);
-            }
-        }) {
-            @Override
-            public void close() throws IOException {
-                try {
-                    zipWriter.shutdown();
-                    zipWriter.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-                    zipDestination.close();
-                } catch (InterruptedException e) {
-                    throw new UnsupportedOperationException(e);
-                }
-            }
-        };
     }
 
     public Void compile(Source source, Destination destination) throws Exception {
@@ -160,5 +121,4 @@ public class Compiler {
             }
         };
     }
-
 }

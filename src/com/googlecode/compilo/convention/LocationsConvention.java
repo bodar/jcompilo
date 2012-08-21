@@ -13,7 +13,8 @@ public abstract class LocationsConvention extends IdentifiersConvention implemen
     protected LocationsConvention(Environment environment) { super(environment); }
 
     public File rootDir() { return env.workingDirectory(); }
-    public File artifactsDir() { return directory(rootDir(), "build/artifacts"); }
+    public File buildDir() { return directory(rootDir(), "build"); }
+    public File artifactsDir() { return directory(buildDir(), "artifacts"); }
     public File srcDir() { return directory(rootDir(), "src"); }
     public File testDir() { return directory(rootDir(), "test"); }
     public File libDir() { return directory(rootDir(), "lib"); }

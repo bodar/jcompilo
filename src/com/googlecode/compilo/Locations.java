@@ -13,4 +13,6 @@ public interface Locations {
     File sourcesJar();
     File testJar();
     File testSourcesJar();
+
+    File buildDir();
 }
