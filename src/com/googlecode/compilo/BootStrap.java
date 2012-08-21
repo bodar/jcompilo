@@ -133,7 +133,7 @@ public class BootStrap {
         dependencies.mapConcurrently(new Function1<File, Boolean>() {
             @Override
             public Boolean call(File file) throws Exception {
-                return load(file).update(directory(libDir, file.getName().replace(".dependencies", "")));
+                return load(file, env.out()).update(directory(libDir, file.getName().replace(".dependencies", "")));
             }
         }).realise();
         env.out().clearPrefix();
