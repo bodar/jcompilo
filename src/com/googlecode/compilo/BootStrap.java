@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
@@ -174,10 +175,19 @@ public class BootStrap {
 
     private File compiloJar() {
         try {
-            return new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+            Class<?> aClass = getClass();
+            return jarFile(aClass);
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Can't find compilo.jar");
         }
+    }
+
+    public static File jarFile(Class<?> aClass) throws URISyntaxException {
+        return new File(jarUrl(aClass));
+    }
+
+    public static URI jarUrl(Class<?> aClass) throws URISyntaxException {
+        return aClass.getProtectionDomain().getCodeSource().getLocation().toURI();
     }
 
     public Option<File> buildFile() {

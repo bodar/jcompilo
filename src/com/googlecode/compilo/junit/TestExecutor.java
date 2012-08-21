@@ -1,5 +1,6 @@
 package com.googlecode.compilo.junit;
 
+import com.googlecode.totallylazy.Sequence;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -15,13 +16,25 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.googlecode.totallylazy.Lists.list;
+import static com.googlecode.totallylazy.Sequences.sequence;
+
 public class TestExecutor {
+    public static void main(String[] arguments) {
+        try {
+            Sequence<String> values = sequence(arguments);
+            boolean success = execute(values.tail().toList(), Integer.valueOf(values.head()), System.out);
+            System.exit(success ? 0 : -1);
+        } catch (Exception e) {
+            System.exit(-1);
+        }
+    }
+
     public static boolean execute(final List<String> testNames, final int numberOfThreads, PrintStream out) throws Exception {
-        PrintStream original = System.out;
         System.setOut(nullPrintStream());
+        System.setErr(nullPrintStream());
 
         Result result = execute(asClasses(testNames), numberOfThreads);
-        System.setOut(original);
 
         boolean success = result.wasSuccessful();
         if (!success) {
@@ -29,7 +42,7 @@ public class TestExecutor {
             for (Failure failure : result.getFailures()) {
                 Description description = failure.getDescription();
                 Throwable throwable = failure.getException();
-                out.printf("%s.%s %s: %s%n", description.getTestClass().getSimpleName(), description.getMethodName(), throwable.getClass().getName(), throwable.getMessage());
+                out.printf("%s.%s %s%n", description.getTestClass().getSimpleName(), description.getMethodName(), throwable.getClass().getName());
             }
         }
 
@@ -81,10 +94,9 @@ public class TestExecutor {
         return result;
     }
 
-    private static String className(String filename) {
+    public static String className(String filename) {
         return filename.replace('/', '.').replace(".java", "");
     }
-
 
     static class ResultCallable implements Callable<Result> {
         private final Result result;
