@@ -1,12 +1,19 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.Source;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-public class MemoryStore implements Source, Destination {
+import static com.googlecode.compilo.Resource.functions.resource;
+import static com.googlecode.totallylazy.Maps.pairs;
+
+public class MemoryStore implements Inputs, Destination, Outputs {
     private final Map<String, byte[]> data;
 
     public MemoryStore(Map<String, byte[]> data) {
@@ -21,10 +28,16 @@ public class MemoryStore implements Source, Destination {
         return new MemoryStore(data);
     }
 
-    public static MemoryStore copy(Source source) {
+    public static MemoryStore memoryStore(Source source) {
         MemoryStore result = memoryStore();
         Source.methods.copyAndClose(source, result);
         return result;
+    }
+
+    public static MemoryStore memoryStore(Iterable<? extends Resource> resources) {
+        MemoryStore memoryStore = memoryStore();
+        Inputs.methods.copy(resources, memoryStore);
+        return memoryStore;
     }
 
     @Override
@@ -38,24 +51,30 @@ public class MemoryStore implements Source, Destination {
     }
 
     @Override
-    public Sequence<Pair<String, InputStream>> sources() {
-        return Maps.pairs(data).map(Callables.<String, byte[], InputStream>second(inputStream()));
-    }
-
-    @Override
     public void close() throws IOException {
-    }
-
-    private static  Function1<byte[], InputStream> inputStream() {
-        return new Function1<byte[], InputStream>() {
-            @Override
-            public InputStream call(byte[] bytes) throws Exception {
-                return new ByteArrayInputStream(bytes);
-            }
-        };
     }
 
     public Map<String, byte[]> data() {
         return data;
+    }
+
+    @Override
+    public int size() {
+        return data.size();
+    }
+
+    @Override
+    public void copyTo(Outputs outputs) {
+        Inputs.methods.copy(this, outputs);
+    }
+
+    @Override
+    public Iterator<Resource> iterator() {
+        return pairs(data).map(resource).iterator();
+    }
+
+    @Override
+    public void put(Resource resource) {
+        data.put(resource.name(), resource.bytes());
     }
 }

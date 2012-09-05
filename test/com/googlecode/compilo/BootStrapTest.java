@@ -6,7 +6,6 @@ import org.junit.Test;
 import static com.googlecode.compilo.Environment.constructors.environment;
 import static com.googlecode.totallylazy.Files.directory;
 import static com.googlecode.totallylazy.Files.workingDirectory;
-import static com.googlecode.totallylazy.Lists.list;
 import static com.googlecode.totallylazy.matchers.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 

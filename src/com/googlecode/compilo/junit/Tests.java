@@ -1,11 +1,11 @@
 package com.googlecode.compilo.junit;
 
 import com.googlecode.compilo.Environment;
+import com.googlecode.compilo.Inputs;
 import com.googlecode.compilo.Processor;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Source;
 import com.googlecode.totallylazy.Streams;
 
 import java.io.File;
@@ -45,8 +45,8 @@ public class Tests implements Processor {
     }
 
     @Override
-    public Boolean call(Source source, Destination destination) throws Exception {
-        source.sources().size();
+    public Boolean call(Inputs source, Destination destination) throws Exception {
+        source.size();
         return true;
     }
 

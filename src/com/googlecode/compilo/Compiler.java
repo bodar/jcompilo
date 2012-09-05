@@ -1,7 +1,5 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Bytes;
-import com.googlecode.totallylazy.Closeables;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
@@ -12,20 +10,12 @@ import com.googlecode.totallylazy.collections.ImmutableList;
 
 import javax.tools.JavaCompiler;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import static com.googlecode.compilo.MemoryStore.copy;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.FileSource.fileSource;
@@ -35,7 +25,6 @@ import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
-import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 
 public class Compiler {
@@ -82,7 +71,7 @@ public class Compiler {
     }
 
     public Void compile(Source source, Destination destination) throws Exception {
-        final Map<Processor, Map<String, byte[]>> matchedSources = partition(copy(source).data());
+        final Map<Processor, Map<String, byte[]>> matchedSources = partition(memoryStore(source).data());
 
         for (final Processor processor : processors) {
             Map<String, byte[]> matched = matchedSources.get(processor);

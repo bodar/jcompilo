@@ -1,25 +1,25 @@
 package com.googlecode.compilo;
 
-import com.googlecode.compilo.junit.Tests;
-import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicates;
+import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Zip;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.googlecode.compilo.CompileOption.Debug;
-import static com.googlecode.compilo.CompileOption.Source;
-import static com.googlecode.compilo.CompileOption.Target;
-import static com.googlecode.compilo.CompileOption.UncheckedWarnings;
-import static com.googlecode.compilo.CompileOption.WarningAsErrors;
 import static com.googlecode.compilo.Compiler.compiler;
-import static com.googlecode.compilo.junit.Tests.tests;
 import static com.googlecode.totallylazy.Closeables.using;
-import static com.googlecode.totallylazy.Files.*;
-import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Files.directory;
+import static com.googlecode.totallylazy.Files.emptyTemporaryDirectory;
+import static com.googlecode.totallylazy.Files.file;
+import static com.googlecode.totallylazy.Files.hasSuffix;
+import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

@@ -3,7 +3,6 @@ package com.googlecode.compilo;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
-import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Source;
@@ -15,14 +14,12 @@ import javax.tools.StandardJavaFileManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.LazyException.lazyException;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
-import static java.lang.String.format;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
@@ -51,15 +48,14 @@ public class CompileProcessor implements Processor {
         return using(source, destination, new Function2<Source, Destination, Boolean>() {
             @Override
             public Boolean call(Source source, Destination destination) throws Exception {
-                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(source, destination);
+                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(Inputs.constructors.inputs(source), destination);
             }
         });
     }
 
     @Override
-    public Boolean call(Source source, Destination destination) throws Exception {
+    public Boolean call(Inputs sources, Destination destination) throws Exception {
         env.out().prefix("    [javac] ");
-        Sequence<Pair<String, InputStream>> sources = source.sources();
         env.out().printf("Compiling %s source files%n", sources.size());
         Boolean success = compiler.getTask(new OutputStreamWriter(env.out()), manager(destination), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
         env.out().clearPrefix();
@@ -71,8 +67,8 @@ public class CompileProcessor implements Processor {
         return new ZipFileManager(standardFileManager, destination);
     }
 
-    private Sequence<JavaFileObject> javaFileObjects(Sequence<Pair<String, InputStream>> javaFiles) {
-        return javaFiles.map(SourceFileObject.sourceFileObject());
+    private Sequence<JavaFileObject> javaFileObjects(Inputs javaFiles) {
+        return sequence(javaFiles).map(SourceFileObject.sourceFileObject());
     }
 
     private void setDependencies(Iterable<File> dependancies) {

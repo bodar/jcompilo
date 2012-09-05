@@ -2,7 +2,6 @@ package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Lazy;
-import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Strings;
 
 import javax.tools.JavaFileObject;
@@ -12,27 +11,27 @@ import java.io.InputStream;
 import java.net.URI;
 
 public class SourceFileObject extends SimpleJavaFileObject {
-    private final Pair<String, InputStream> pair;
+    private final Resource resource;
     private final Lazy<CharSequence> charContent;
 
-    private SourceFileObject(final Pair<String, InputStream> pair) {
-        super(URI.create(pair.first()), Kind.SOURCE);
-        this.pair = pair;
+    private SourceFileObject(final Resource resource) {
+        super(URI.create(resource.name()), Kind.SOURCE);
+        this.resource = resource;
         charContent = new Lazy<CharSequence>() {
             public CharSequence get() {
-                return Strings.toString(pair.second());
+                return Strings.toString(resource.bytes());
             }
         };
     }
 
-    public static SourceFileObject sourceFileObject(Pair<String, InputStream> pair) {
-        return new SourceFileObject(pair);
+    public static SourceFileObject sourceFileObject(Resource resource) {
+        return new SourceFileObject(resource);
     }
 
-    public static Function1<Pair<String, InputStream>, JavaFileObject> sourceFileObject() {
-        return new Function1<Pair<String, InputStream>, JavaFileObject>() {
+    public static Function1<Resource, JavaFileObject> sourceFileObject() {
+        return new Function1<Resource, JavaFileObject>() {
             @Override
-            public JavaFileObject call(final Pair<String, InputStream> pair) throws Exception {
+            public JavaFileObject call(final Resource pair) throws Exception {
                 return sourceFileObject(pair);
             }
         };
@@ -40,7 +39,7 @@ public class SourceFileObject extends SimpleJavaFileObject {
 
     @Override
     public InputStream openInputStream() throws IOException {
-        return pair.second();
+        throw new UnsupportedOperationException();
     }
 
     @Override
