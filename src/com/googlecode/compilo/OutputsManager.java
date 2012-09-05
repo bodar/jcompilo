@@ -17,6 +17,6 @@ public class OutputsManager extends ForwardingJavaFileManager<JavaFileManager> {
 
     @Override
     public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
-        return new ZipFileObject(className, super.getJavaFileForOutput(location, className, kind, sibling), outputs);
+        return new OutputsObject(className, super.getJavaFileForOutput(location, className, kind, sibling), outputs);
     }
 }

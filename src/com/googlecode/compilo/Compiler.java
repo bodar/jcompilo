@@ -67,31 +67,30 @@ public class Compiler {
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
         return using(source, backgroundDestination(zipDestination(new FileOutputStream(destinationJar))), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
-                return compile(source, destination);
+                return compile(memoryStore(source), Outputs.constructors.output(destination));
             }
         });
     }
 
-    public Void compile(Source source, Destination destination) throws Exception {
-        Outputs output = Outputs.constructors.output(destination);
-        final Map<Processor, MemoryStore> partitions = partition(memoryStore(source));
+    public Void compile(final Inputs inputs, final Outputs outputs) throws Exception {
+        final Map<Processor, MemoryStore> partitions = partition(inputs);
 
         for (final Processor processor : processors) {
             Inputs matched = partitions.get(processor);
             if (matched.isEmpty()) continue;
-            Boolean result = processor.process(matched, output);
+            Boolean result = processor.process(matched, outputs);
         }
         return VOID;
     }
 
-    private Map<Processor, MemoryStore> partition(MemoryStore source) {
+    private Map<Processor, MemoryStore> partition(Inputs inputs) {
         final Map<Processor, MemoryStore> partitions = Maps.map();
 
         for (Processor processor : processors) {
             partitions.put(processor, memoryStore());
         }
 
-        for (Resource resource : source) {
+        for (Resource resource : inputs) {
             for (Processor processor : processors) {
                 if (processor.matches(resource.name())) {
                     partitions.get(processor).put(resource);

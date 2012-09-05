@@ -18,4 +18,8 @@ public class MoveToTL {
     public static String className(String fileName) {
         return fileName.replace(".java", "").replace('.', '/');
     }
+
+    public static String classFilename(String className) {
+        return className.replace('.', '/') + ".class";
+    }
 }
