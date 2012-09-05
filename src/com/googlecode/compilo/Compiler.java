@@ -10,12 +10,14 @@ import com.googlecode.totallylazy.collections.ImmutableList;
 
 import javax.tools.JavaCompiler;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.googlecode.compilo.BackgroundDestination.backgroundDestination;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.FileSource.fileSource;
@@ -25,6 +27,7 @@ import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
+import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 
 public class Compiler {
@@ -63,7 +66,7 @@ public class Compiler {
         Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
         if (source.sources().isEmpty()) return VOID;
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
-        return using(source, BackgroundZip.backgroundZip(destinationJar), new Function2<Source, Destination, Void>() {
+        return using(source, backgroundDestination(zipDestination(new FileOutputStream(destinationJar))), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
                 return compile(source, destination);
             }
