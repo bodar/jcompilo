@@ -77,7 +77,7 @@ public class Compiler {
         final Map<Processor, MemoryStore> partitions = partition(memoryStore(source));
 
         for (final Processor processor : processors) {
-            MemoryStore matched = partitions.get(processor);
+            Inputs matched = partitions.get(processor);
             if (matched.isEmpty()) continue;
             Boolean result = processor.call(matched, destination);
         }
@@ -85,20 +85,20 @@ public class Compiler {
     }
 
     private Map<Processor, MemoryStore> partition(MemoryStore source) {
-        final Map<Processor, MemoryStore> matchedSources = Maps.map();
+        final Map<Processor, MemoryStore> partitions = Maps.map();
 
         for (Processor processor : processors) {
-            matchedSources.put(processor, MemoryStore.memoryStore());
+            partitions.put(processor, memoryStore());
         }
 
-        for (Resource entry : source) {
+        for (Resource resource : source) {
             for (Processor processor : processors) {
-                if (processor.matches(entry.name())) {
-                    matchedSources.get(processor).put(entry);
+                if (processor.matches(resource.name())) {
+                    partitions.get(processor).put(resource);
                 }
             }
         }
-        return matchedSources;
+        return partitions;
     }
 
     public static Source iterableSource(final Iterable<Pair<String, InputStream>> sequence) {
