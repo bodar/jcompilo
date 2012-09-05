@@ -48,23 +48,23 @@ public class CompileProcessor implements Processor {
         return using(source, destination, new Function2<Source, Destination, Boolean>() {
             @Override
             public Boolean call(Source source, Destination destination) throws Exception {
-                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).call(Inputs.constructors.inputs(source), destination);
+                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
             }
         });
     }
 
     @Override
-    public Boolean call(Inputs sources, Destination destination) throws Exception {
+    public boolean process(Inputs sources, Outputs outputs) throws Exception {
         env.out().prefix("    [javac] ");
         env.out().printf("Compiling %s source files%n", sources.size());
-        Boolean success = compiler.getTask(new OutputStreamWriter(env.out()), manager(destination), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
+        Boolean success = compiler.getTask(new OutputStreamWriter(env.out()), manager(outputs), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
         env.out().clearPrefix();
         if (!success) throw new IllegalStateException("Compile failed");
         return success;
     }
 
-    private JavaFileManager manager(final Destination destination) throws FileNotFoundException {
-        return new ZipFileManager(standardFileManager, destination);
+    private JavaFileManager manager(final Outputs outputs) throws FileNotFoundException {
+        return new OutputsManager(standardFileManager, outputs);
     }
 
     private Sequence<JavaFileObject> javaFileObjects(Inputs javaFiles) {

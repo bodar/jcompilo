@@ -14,7 +14,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.googlecode.compilo.BackgroundDestination.backgroundDestination;
@@ -74,12 +73,13 @@ public class Compiler {
     }
 
     public Void compile(Source source, Destination destination) throws Exception {
+        Outputs output = Outputs.constructors.output(destination);
         final Map<Processor, MemoryStore> partitions = partition(memoryStore(source));
 
         for (final Processor processor : processors) {
             Inputs matched = partitions.get(processor);
             if (matched.isEmpty()) continue;
-            Boolean result = processor.call(matched, destination);
+            Boolean result = processor.process(matched, output);
         }
         return VOID;
     }

@@ -1,7 +1,6 @@
 package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Bytes;
-import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Predicate;
 
 import static com.googlecode.totallylazy.Closeables.using;
@@ -20,12 +19,10 @@ public class CopyProcessor implements Processor {
     }
 
     @Override
-    public Boolean call(Inputs source, Destination destination) throws Exception {
+    public boolean process(Inputs inputs, Outputs outputs) throws Exception {
         env.out().prefix("     [copy] ");
-        env.out().printf("Copying %s files%n", source.size());
-        for (final Resource resource : source) {
-            using(destination.destination(resource.name()), Bytes.write(resource.bytes()));
-        }
+        env.out().printf("Copying %s files%n", inputs.size());
+        Inputs.methods.copy(inputs, outputs);
         env.out().clearPrefix();
         return true;
     }
