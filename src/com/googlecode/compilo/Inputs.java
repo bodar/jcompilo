@@ -6,6 +6,8 @@ import static com.googlecode.compilo.Resource.constructors.resource;
 import static com.googlecode.totallylazy.Sequences.one;
 
 public interface Inputs extends Iterable<Resource> {
+    boolean isEmpty();
+
     int size();
 
     void copyTo(Outputs outputs);

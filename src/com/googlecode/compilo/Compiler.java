@@ -74,27 +74,27 @@ public class Compiler {
     }
 
     public Void compile(Source source, Destination destination) throws Exception {
-        final Map<Processor, Map<String, byte[]>> matchedSources = partition(memoryStore(source).data());
+        final Map<Processor, MemoryStore> partitions = partition(memoryStore(source));
 
         for (final Processor processor : processors) {
-            Map<String, byte[]> matched = matchedSources.get(processor);
+            MemoryStore matched = partitions.get(processor);
             if (matched.isEmpty()) continue;
-            Boolean result = processor.call(memoryStore(matched), destination);
+            Boolean result = processor.call(matched, destination);
         }
         return VOID;
     }
 
-    private Map<Processor, Map<String, byte[]>> partition(Map<String, byte[]> source) {
-        final Map<Processor, Map<String, byte[]>> matchedSources = Maps.map();
+    private Map<Processor, MemoryStore> partition(MemoryStore source) {
+        final Map<Processor, MemoryStore> matchedSources = Maps.map();
 
         for (Processor processor : processors) {
-            matchedSources.put(processor, new HashMap<String, byte[]>());
+            matchedSources.put(processor, MemoryStore.memoryStore());
         }
 
-        for (Map.Entry<String, byte[]> entry : source.entrySet()) {
+        for (Resource entry : source) {
             for (Processor processor : processors) {
-                if (processor.matches(entry.getKey())) {
-                    matchedSources.get(processor).put(entry.getKey(), entry.getValue());
+                if (processor.matches(entry.name())) {
+                    matchedSources.get(processor).put(entry);
                 }
             }
         }

@@ -59,6 +59,11 @@ public class MemoryStore implements Inputs, Destination, Outputs {
     }
 
     @Override
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+
+    @Override
     public int size() {
         return data.size();
     }

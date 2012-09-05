@@ -23,7 +23,7 @@ public class BackgroundDestination implements Destination {
         this.destination = destination;
     }
 
-    public static BackgroundDestination backgroundDestination(Destination destination){
+    public static BackgroundDestination backgroundDestination(Destination destination) {
         return backgroundDestination(destination, newSingleThreadExecutor());
     }
 
