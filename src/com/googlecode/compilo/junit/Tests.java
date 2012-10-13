@@ -46,7 +46,6 @@ public class Tests implements Processor {
 
     @Override
     public boolean process(Inputs inputs, Outputs outputs) throws Exception {
-        inputs.size();
         return true;
     }
 
