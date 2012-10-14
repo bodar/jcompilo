@@ -18,6 +18,8 @@ import java.util.Map;
 
 import static com.googlecode.compilo.BackgroundDestination.backgroundDestination;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
+import static com.googlecode.compilo.Outputs.constructors.output;
+import static com.googlecode.compilo.ResourceHandler.methods.decorate;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
@@ -28,15 +30,26 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
+import static com.googlecode.totallylazy.collections.ImmutableList.constructors.reverse;
 
 public class Compiler {
     public static final Charset UTF8 = Charset.forName("UTF-8");
     private final Environment env;
     private final ImmutableList<Processor> processors;
+    private final ImmutableList<ResourceHandler> resourceHandlers;
 
-    private Compiler(Environment env, ImmutableList<Processor> processors) {
+    private Compiler(Environment env, ImmutableList<Processor> processors, ImmutableList<ResourceHandler> resourceHandlers) {
         this.env = env;
         this.processors = processors;
+        this.resourceHandlers = resourceHandlers;
+    }
+
+    public static Compiler compiler(Environment env, ImmutableList<Processor> processors, final ImmutableList<ResourceHandler> resourceHandlers1) {
+        return new Compiler(env, processors, resourceHandlers1);
+    }
+
+    public static Compiler compiler(Environment env) {
+        return new Compiler(env, constructors.<Processor>empty(), constructors.<ResourceHandler>empty());
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies) {
@@ -48,17 +61,17 @@ public class Compiler {
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
-        return compiler(env, constructors.<Processor>empty()).
+        return compiler(env).
                 add(CopyProcessor.copy(env, not(startsWith(".")))).
                 add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies));
     }
 
-    public static Compiler compiler(Environment env, ImmutableList<Processor> processors) {
-        return new Compiler(env, processors);
+    public Compiler add(Processor processor) {
+        return compiler(env, processors.cons(processor), resourceHandlers);
     }
 
-    public Compiler add(Processor processor) {
-        return compiler(env, processors.add(processor));
+    public Compiler add(ResourceHandler resourceHandler) {
+        return compiler(env, processors, resourceHandlers.cons(resourceHandler));
     }
 
     public Void compile(final File sourceDirectory, final File destinationJar) throws Exception {
@@ -67,7 +80,7 @@ public class Compiler {
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
         return using(source, backgroundDestination(zipDestination(new FileOutputStream(destinationJar))), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
-                return compile(memoryStore(source), Outputs.constructors.output(destination));
+                return compile(memoryStore(source), decorate(output(destination), resourceHandlers));
             }
         });
     }
@@ -78,7 +91,7 @@ public class Compiler {
         for (final Processor processor : processors) {
             Inputs matched = partitions.get(processor);
             if (matched.isEmpty()) continue;
-            Boolean result = processor.process(matched, outputs);
+            processor.process(matched, outputs);
         }
         return VOID;
     }
