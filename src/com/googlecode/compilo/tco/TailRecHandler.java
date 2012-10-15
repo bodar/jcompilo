@@ -2,9 +2,11 @@ package com.googlecode.compilo.tco;
 
 import com.googlecode.compilo.Resource;
 import com.googlecode.compilo.ResourceHandler;
+import com.googlecode.totallylazy.Debug;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -15,9 +17,12 @@ import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.CheckClassAdapter;
+import sun.org.mozilla.javascript.internal.debug.Debugger;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -28,6 +33,7 @@ import static com.googlecode.compilo.tco.Asm.functions.name;
 import static com.googlecode.compilo.tco.Asm.functions.nextInstruction;
 import static com.googlecode.compilo.tco.Asm.functions.opcode;
 import static com.googlecode.compilo.tco.Asm.functions.owner;
+import static com.googlecode.totallylazy.Debug.debugging;
 import static com.googlecode.totallylazy.Predicates.between;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
@@ -61,15 +67,16 @@ public class TailRecHandler implements ResourceHandler {
 
                 InsnList instructions = method.instructions;
                 for (AbstractInsnNode insnNode : instructions(method)) {
-                    if(insnNode instanceof VarInsnNode) {
-                        VarInsnNode varInsnNode = (VarInsnNode) insnNode;
-                        instructions.set(varInsnNode, new VarInsnNode(varInsnNode.getOpcode(), varInsnNode.var + numberOfArguments));
-                    }
+//                    if(insnNode instanceof VarInsnNode) {
+//                        VarInsnNode varInsnNode = (VarInsnNode) insnNode;
+//                        instructions.set(varInsnNode, new VarInsnNode(varInsnNode.getOpcode(), varInsnNode.var + numberOfArguments));
+//                    }
                     if(insnNode instanceof MethodInsnNode) {
                         MethodInsnNode methodInsnNode = (MethodInsnNode) insnNode;
                         if(methodInsnNode.owner.equals(classNode.name) && methodInsnNode.name.equals(method.name)) {
-                            instructions.insert(methodInsnNode, end(recur));
                             instructions.remove(methodInsnNode.getNext());
+                            instructions.remove(methodInsnNode);
+                            instructions.insert(methodInsnNode, end(recur));
                         }
                     }
                 }
@@ -78,23 +85,24 @@ public class TailRecHandler implements ResourceHandler {
         }
 
         ClassWriter writer = new ClassWriter(0);
-        classNode.accept(writer);
+        classNode.accept(debugging() ? new CheckClassAdapter(writer) : writer);
         return resource(resource.name(), writer.toByteArray());
-    }
-
-    private InsnList end(LabelNode recur) {
-        InsnList insnList = new InsnList();
-        insnList.add(new VarInsnNode(ASTORE, 1));
-        insnList.add(new JumpInsnNode(Opcodes.GOTO, recur));
-        return insnList;
     }
 
     private InsnList start(ClassNode classNode, LabelNode recur) {
         InsnList insnList = new InsnList();
-        insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        insnList.add(new VarInsnNode(Opcodes.ASTORE, 1));
+//        insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
+//        insnList.add(new VarInsnNode(Opcodes.ASTORE, 1));
         insnList.add(recur);
-        insnList.add(new FrameNode(Opcodes.F_APPEND, 1, new Object[]{classNode.name}, 0, null));
+//        insnList.add(new FrameNode(Opcodes.F_APPEND, 1, new Object[]{classNode.name}, 0, null));
+        insnList.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+        return insnList;
+    }
+
+    private InsnList end(LabelNode recur) {
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ASTORE, 0));
+        insnList.add(new JumpInsnNode(Opcodes.GOTO, recur));
         return insnList;
     }
 

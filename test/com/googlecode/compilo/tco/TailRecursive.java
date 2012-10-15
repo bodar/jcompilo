@@ -12,7 +12,7 @@ public class TailRecursive {
         TailRecursive tailRecursive = this;
         while (true) {
             if (tailRecursive.isTop()) return tailRecursive;
-            tailRecursive = tailRecursive.up().iterativeTop();
+            tailRecursive = tailRecursive.up();
         }
     }
 

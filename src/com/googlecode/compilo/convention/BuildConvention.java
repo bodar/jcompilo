@@ -75,7 +75,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         Option<File> dependencies = files(buildDir()).find(where(name(), is("runtime.dependencies")));
         if(!dependencies.isEmpty()) {
             env.out().printf("      [pom] Generating pom from: %s%n", dependencies.get());
-            PomGenerator.generate(artifactUri(), dependencies.get(), artifactsDir());
+            PomGenerator.generate(artifactUri(), dependencies, artifactsDir());
         }
         return this;
     }

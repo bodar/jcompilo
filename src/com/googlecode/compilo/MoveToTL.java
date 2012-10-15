@@ -15,8 +15,12 @@ public class MoveToTL {
         };
     }
 
-    public static String className(String fileName) {
-        return fileName.replace(".java", "").replace('.', '/');
+    public static String classNameForSource(String sourceFilename) {
+        return sourceFilename.replace(".java", "").replace('/', '.');
+    }
+
+    public static String classNameForByteCode(String sourceFilename) {
+        return sourceFilename.replace(".class", "").replace('/', '.');
     }
 
     public static String classFilename(String className) {
