@@ -2,18 +2,22 @@ package com.googlecode.compilo.tco;
 
 import com.googlecode.compilo.AsmMethodHandler;
 import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Unchecked;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.annotation.Annotation;
+import java.util.List;
 
 import static com.googlecode.compilo.tco.Asm.annotations;
 import static com.googlecode.compilo.tco.Asm.functions.name;
@@ -47,7 +51,7 @@ public class TailRecHandler implements AsmMethodHandler {
                 MethodInsnNode methodInsnNode = (MethodInsnNode) insnNode;
                 if (methodInsnNode.owner.equals(classNode.name) && methodInsnNode.name.equals(methodNode.name)) {
                     instructions.remove(methodInsnNode.getNext()); // Remove Return
-                    instructions.insert(methodInsnNode, end(recur)); // Insert Goto
+                    instructions.insert(methodInsnNode, end(recur, Unchecked.<List<LocalVariableNode>>cast(methodNode.localVariables))); // Insert Goto
                     instructions.remove(methodInsnNode); // finally remove recursive call
                 }
             }
@@ -63,9 +67,11 @@ public class TailRecHandler implements AsmMethodHandler {
         return insnList;
     }
 
-    private InsnList end(LabelNode recur) {
+    private InsnList end(LabelNode recur, List<LocalVariableNode> localVariableNodes) {
         InsnList insnList = new InsnList();
-        insnList.add(new VarInsnNode(Opcodes.ASTORE, 0));
+        for (int i = 0, localVariableNodesSize = localVariableNodes.size(); i < localVariableNodesSize; i++) {
+            insnList.insert(new VarInsnNode(Asm.store(localVariableNodes.get(i)), i));
+        }
         insnList.add(new JumpInsnNode(Opcodes.GOTO, recur));
         return insnList;
     }

@@ -22,7 +22,7 @@ public class TailRecHandlerTest {
     @Test
     public void canProcessAResource() throws Exception {
         Resource resource = asmResourceHandler(true).add(defaultAnnotation, tailRecHandler()).
-                handle(resourceFor(RecursiveZipper.class));
+                handle(resourceFor(Gcd.class));
         Files.write(resource.bytes(), file(new File("out/hacked/"), resource.name()));
     }
 

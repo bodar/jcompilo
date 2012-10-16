@@ -4,8 +4,11 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
+import com.tonicsystems.jarjar.asm.Type;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -34,6 +37,14 @@ public final class Asm {
     @SuppressWarnings("unchecked")
     public static Sequence<AbstractInsnNode> instructions(MethodNode method) {
         return Sequences.<AbstractInsnNode>forwardOnly(method.instructions.iterator());
+    }
+
+    public static Sequence<LocalVariableNode> localVariables(MethodNode methodNode) {
+        return Asm.<LocalVariableNode>seq(methodNode.localVariables);
+    }
+
+    public static int store(LocalVariableNode localVariableNode) {
+        return Type.getType(localVariableNode.desc).getOpcode(Opcodes.ISTORE);
     }
 
     public static class predicates {
