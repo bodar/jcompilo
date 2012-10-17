@@ -1,8 +1,8 @@
-package com.googlecode.compilo.tco;
+package com.example;
 
 import org.junit.Test;
 
-import static com.googlecode.compilo.tco.RecursiveZipper.zipper;
+import static com.example.RecursiveZipper.zipper;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors.list;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

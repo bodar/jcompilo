@@ -4,7 +4,6 @@ import com.googlecode.compilo.AsmMethodHandler;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Unchecked;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -33,11 +32,10 @@ import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
 
 public class TailRecHandler implements AsmMethodHandler {
-    public static Class<? extends Annotation> defaultAnnotation = tailrec.class;
+    private final Class<? extends Annotation> annotation;
+    private TailRecHandler(Class<? extends Annotation> annotation) {this.annotation = annotation;}
 
-    private TailRecHandler() {}
-
-    public static TailRecHandler tailRecHandler() {return new TailRecHandler();}
+    public static TailRecHandler tailRecHandler(Class<? extends Annotation> annotation) {return new TailRecHandler(annotation);}
 
     @Override
     public void process(ClassNode classNode, MethodNode methodNode) {
@@ -57,7 +55,7 @@ public class TailRecHandler implements AsmMethodHandler {
             }
         }
         instructions.insert(start(recur));
-        methodNode.invisibleAnnotations.remove(annotations(methodNode).find(annotation(defaultAnnotation)).get());
+        methodNode.invisibleAnnotations.remove(annotations(methodNode).find(annotation(annotation)).get());
     }
 
     private InsnList start(LabelNode recur) {

@@ -1,10 +1,7 @@
-package com.googlecode.compilo.tco;
+package com.example;
 
-import com.googlecode.totallylazy.Callable1;
-import com.googlecode.totallylazy.Functions;
+import com.googlecode.totallylazy.annotations.tailrec;
 import com.googlecode.totallylazy.collections.ImmutableList;
-
-import static com.googlecode.totallylazy.collections.ImmutableList.functions;
 
 public class RecursiveZipper<T> {
     public final ImmutableList<T> focus;
@@ -50,34 +47,6 @@ public class RecursiveZipper<T> {
     @Override
     public String toString() {
         return String.format("focus(%s), breadcrumbs(%s)", focus, breadcrumbs);
-    }
-
-    public RecursiveZipper<T> modify(Callable1<? super ImmutableList<T>, ? extends ImmutableList<T>> callable) {
-        return zipper(Functions.call(callable, focus), breadcrumbs);
-    }
-
-    public ImmutableList<T> toList() {
-        return top().focus;
-    }
-
-    public RecursiveZipper<T> insert(T instance) {
-        return modify(functions.cons(instance));
-    }
-
-    public RecursiveZipper<T> remove() {
-        return delete();
-    }
-
-    public RecursiveZipper<T> delete() {
-        return modify(functions.<T>tail());
-    }
-
-    public T current() {
-        return focus.head();
-    }
-
-    public boolean isBottom() {
-        return focus.isEmpty();
     }
 
     public boolean isTop() {
