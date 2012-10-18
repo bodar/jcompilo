@@ -4,8 +4,8 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
-import com.tonicsystems.jarjar.asm.Type;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.LocalVariableNode;
@@ -44,8 +44,10 @@ public final class Asm {
     }
 
     public static int store(LocalVariableNode localVariableNode) {
-        return Type.getType(localVariableNode.desc).getOpcode(Opcodes.ISTORE);
+        return store(Type.getType(localVariableNode.desc));
     }
+
+    public static int store(Type type) {return type.getOpcode(Opcodes.ISTORE);}
 
     public static class predicates {
         public static LogicalPredicate<AnnotationNode> annotation(Class<? extends Annotation> aClass) {
@@ -87,6 +89,13 @@ public final class Asm {
                 return methodInsnNode.name;
             }
         };
+        public static final Function1<LocalVariableNode,Type> localVariableType = new Function1<LocalVariableNode, Type>() {
+            @Override
+            public Type call(LocalVariableNode localVariableNode) throws Exception {
+                return Type.getType(localVariableNode.desc);
+            }
+        };
+
     }
 
 }
