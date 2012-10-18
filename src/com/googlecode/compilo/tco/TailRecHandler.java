@@ -17,6 +17,7 @@ import static com.googlecode.compilo.tco.Asm.functions.name;
 import static com.googlecode.compilo.tco.Asm.functions.nextInstruction;
 import static com.googlecode.compilo.tco.Asm.functions.opcode;
 import static com.googlecode.compilo.tco.Asm.functions.owner;
+import static com.googlecode.compilo.tco.Asm.initialLocalVariables;
 import static com.googlecode.compilo.tco.Asm.instructions;
 import static com.googlecode.compilo.tco.Asm.store;
 import static com.googlecode.totallylazy.Predicates.and;
@@ -40,8 +41,8 @@ public class TailRecHandler implements AsmMethodHandler {
         if (!tailRecursive(classNode, methodNode))
             throw new UnsupportedOperationException(format("%s.%s is not tail recursive", classNode.name, methodNode.name));
 
-        insertStart(methodNode);
-        InsnList gotoStart = gotoStart(methodNode);
+        insertStartFrame(methodNode);
+        InsnList gotoStart = gotoStart(classNode, methodNode);
         for (MethodInsnNode recursiveCall : instructions(methodNode).safeCast(MethodInsnNode.class).filter(sameMethod(classNode, methodNode))) {
             methodNode.instructions.remove(recursiveCall.getNext()); // Remove Return
             methodNode.instructions.insert(recursiveCall, gotoStart);
@@ -49,17 +50,17 @@ public class TailRecHandler implements AsmMethodHandler {
         }
     }
 
-    private void insertStart(MethodNode methodNode) {
+    private void insertStartFrame(MethodNode methodNode) {
         InsnList insnList = new InsnList();
         insnList.add(new LabelNode());
         insnList.add(new FrameNode(F_SAME, 0, null, 0, null));
         methodNode.instructions.insert(insnList);
     }
 
-    private InsnList gotoStart(MethodNode methodNode) {
+    private InsnList gotoStart(ClassNode classNode, MethodNode methodNode) {
         InsnList insnList = new InsnList();
         int index = 0;
-        for (Type variable : Asm.arguments(methodNode)) {
+        for (Type variable : initialLocalVariables(classNode, methodNode)) {
             insnList.insert(new VarInsnNode(store(variable), index));
             index += variable.getSize();
         }

@@ -8,6 +8,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -50,10 +51,10 @@ public final class Asm {
 
     public static int store(Type type) {return type.getOpcode(Opcodes.ISTORE);}
 
-    public static Sequence<Type> arguments(MethodNode methodNode) {
+    public static Sequence<Type> initialLocalVariables(ClassNode classNode, MethodNode methodNode) {
         Type type = Type.getType(methodNode.desc);
         Sequence<Type> sequence = sequence(type.getArgumentTypes());
-        return (methodNode.access & Opcodes.ACC_STATIC) == 0 ? sequence.cons(type.getReturnType()) : sequence;
+        return (methodNode.access & Opcodes.ACC_STATIC) == 0 ? sequence.cons(Type.getType(classNode.name)) : sequence;
     }
 
     public static class predicates {
@@ -96,7 +97,7 @@ public final class Asm {
                 return methodInsnNode.name;
             }
         };
-        public static final Function1<LocalVariableNode,Type> localVariableType = new Function1<LocalVariableNode, Type>() {
+        public static final Function1<LocalVariableNode, Type> localVariableType = new Function1<LocalVariableNode, Type>() {
             @Override
             public Type call(LocalVariableNode localVariableNode) throws Exception {
                 return Type.getType(localVariableNode.desc);
