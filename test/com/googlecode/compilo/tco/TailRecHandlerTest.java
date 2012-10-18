@@ -8,8 +8,6 @@ import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.annotations.tailrec;
 import org.junit.Test;
 
-import java.io.File;
-
 import static com.googlecode.compilo.MoveToTL.classFilename;
 import static com.googlecode.compilo.MoveToTL.classNameForByteCode;
 import static com.googlecode.compilo.Resource.constructors.resource;
@@ -21,7 +19,7 @@ import static com.googlecode.totallylazy.Files.file;
 public class TailRecHandlerTest {
     @Test
     public void canProcessAResource() throws Exception {
-        Resource resource = asmResourceHandler(true).add(tailrec.class, tailRecHandler(tailrec.class)).
+        Resource resource = asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
                 handle(resourceFor(TailRecursive.class));
         Files.write(resource.bytes(), file(Files.temporaryDirectory(TailRecHandlerTest.class.getSimpleName()), resource.name()));
     }

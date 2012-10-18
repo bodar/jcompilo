@@ -15,7 +15,9 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import java.lang.annotation.Annotation;
 
 import static com.googlecode.compilo.Resource.constructors.resource;
+import static com.googlecode.compilo.tco.Asm.annotations;
 import static com.googlecode.compilo.tco.Asm.hasAnnotation;
+import static com.googlecode.compilo.tco.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Debug.debugging;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors.list;
@@ -65,6 +67,7 @@ public class AsmResourceHandler implements ResourceHandler {
             for (Pair<Class<? extends Annotation>, AsmMethodHandler> p : processors) {
                 if (hasAnnotation(method, p.first())) {
                     p.second().process(classNode, method);
+                    method.invisibleAnnotations.remove(annotations(method).find(annotation(p.first())).get());
                 }
             }
         }

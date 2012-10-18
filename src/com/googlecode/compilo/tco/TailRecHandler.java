@@ -18,12 +18,10 @@ import org.objectweb.asm.tree.VarInsnNode;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import static com.googlecode.compilo.tco.Asm.annotations;
 import static com.googlecode.compilo.tco.Asm.functions.name;
 import static com.googlecode.compilo.tco.Asm.functions.nextInstruction;
 import static com.googlecode.compilo.tco.Asm.functions.opcode;
 import static com.googlecode.compilo.tco.Asm.functions.owner;
-import static com.googlecode.compilo.tco.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Predicates.between;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
@@ -32,10 +30,9 @@ import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
 
 public class TailRecHandler implements AsmMethodHandler {
-    private final Class<? extends Annotation> annotation;
-    private TailRecHandler(Class<? extends Annotation> annotation) {this.annotation = annotation;}
+    private TailRecHandler() {}
 
-    public static TailRecHandler tailRecHandler(Class<? extends Annotation> annotation) {return new TailRecHandler(annotation);}
+    public static TailRecHandler tailRecHandler() {return new TailRecHandler();}
 
     @Override
     public void process(ClassNode classNode, MethodNode methodNode) {
@@ -55,7 +52,6 @@ public class TailRecHandler implements AsmMethodHandler {
             }
         }
         instructions.insert(start(recur));
-        methodNode.invisibleAnnotations.remove(annotations(methodNode).find(annotation(annotation)).get());
     }
 
     private InsnList start(LabelNode recur) {
