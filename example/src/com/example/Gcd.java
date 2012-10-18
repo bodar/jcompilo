@@ -32,4 +32,14 @@ public class Gcd {
             y = remainder;
         }
     }
+
+    @tailrec
+    public static int gcdWithLocalVariable(int x, int y) {
+        if (y == 0) return x;
+        int remainder = x % y;
+        return gcdWithLocalVariable(y, remainder);
+    }
+
+
+
 }

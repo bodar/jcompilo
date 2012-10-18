@@ -18,6 +18,7 @@ import java.util.List;
 import static com.googlecode.compilo.tco.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static org.objectweb.asm.Type.getDescriptor;
 
 public final class Asm {
@@ -48,6 +49,12 @@ public final class Asm {
     }
 
     public static int store(Type type) {return type.getOpcode(Opcodes.ISTORE);}
+
+    public static Sequence<Type> arguments(MethodNode methodNode) {
+        Type type = Type.getType(methodNode.desc);
+        Sequence<Type> sequence = sequence(type.getArgumentTypes());
+        return (methodNode.access & Opcodes.ACC_STATIC) == 0 ? sequence.cons(type.getReturnType()) : sequence;
+    }
 
     public static class predicates {
         public static LogicalPredicate<AnnotationNode> annotation(Class<? extends Annotation> aClass) {

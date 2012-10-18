@@ -9,12 +9,10 @@ import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import static com.googlecode.compilo.tco.Asm.functions.localVariableType;
 import static com.googlecode.compilo.tco.Asm.functions.name;
 import static com.googlecode.compilo.tco.Asm.functions.nextInstruction;
 import static com.googlecode.compilo.tco.Asm.functions.opcode;
@@ -25,6 +23,7 @@ import static com.googlecode.totallylazy.Predicates.and;
 import static com.googlecode.totallylazy.Predicates.between;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.String.format;
 import static org.objectweb.asm.Opcodes.F_SAME;
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -43,10 +42,10 @@ public class TailRecHandler implements AsmMethodHandler {
 
         insertStart(methodNode);
         InsnList gotoStart = gotoStart(methodNode);
-        for (MethodInsnNode methodInsnNode : instructions(methodNode).safeCast(MethodInsnNode.class).filter(sameMethod(classNode, methodNode))) {
-            methodNode.instructions.remove(methodInsnNode.getNext()); // Remove Return
-            methodNode.instructions.insert(methodInsnNode, gotoStart);
-            methodNode.instructions.remove(methodInsnNode); // finally remove recursive call
+        for (MethodInsnNode recursiveCall : instructions(methodNode).safeCast(MethodInsnNode.class).filter(sameMethod(classNode, methodNode))) {
+            methodNode.instructions.remove(recursiveCall.getNext()); // Remove Return
+            methodNode.instructions.insert(recursiveCall, gotoStart);
+            methodNode.instructions.remove(recursiveCall); // finally remove recursive call
         }
     }
 
@@ -60,16 +59,12 @@ public class TailRecHandler implements AsmMethodHandler {
     private InsnList gotoStart(MethodNode methodNode) {
         InsnList insnList = new InsnList();
         int index = 0;
-        for (Type variable : arguments(methodNode)) {
+        for (Type variable : Asm.arguments(methodNode)) {
             insnList.insert(new VarInsnNode(store(variable), index));
             index += variable.getSize();
         }
         insnList.add(new JumpInsnNode(GOTO, (LabelNode) methodNode.instructions.getFirst()));
         return insnList;
-    }
-
-    private Sequence<Type> arguments(MethodNode methodNode) {
-        return Asm.<LocalVariableNode>seq(methodNode.localVariables).map(localVariableType);
     }
 
     private boolean tailRecursive(ClassNode classNode, MethodNode method) {
