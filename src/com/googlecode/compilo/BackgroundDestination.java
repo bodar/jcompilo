@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
@@ -54,12 +53,7 @@ public class BackgroundDestination implements Destination {
 
     @Override
     public void close() throws IOException {
-        try {
-            executor.shutdown();
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-            destination.close();
-        } catch (InterruptedException e) {
-            throw new UnsupportedOperationException(e);
-        }
+        BackgroundOutputs.close(executor);
+        destination.close();
     }
 }

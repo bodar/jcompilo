@@ -1,8 +1,6 @@
 package com.googlecode.compilo.convention;
 
-import com.googlecode.compilo.Build;
-import com.googlecode.compilo.CompileOption;
-import com.googlecode.compilo.Environment;
+import com.googlecode.compilo.*;
 import com.googlecode.compilo.asm.AsmMethodHandler;
 import com.googlecode.compilo.junit.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
@@ -17,11 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import static com.googlecode.compilo.Compiler.CPUS;
 import static com.googlecode.compilo.Compiler.compiler;
 import static com.googlecode.compilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.compilo.junit.Tests.tests;
 import static com.googlecode.compilo.tco.TailRecHandler.tailRecHandler;
-import static com.googlecode.totallylazy.Debug.debugging;
 import static com.googlecode.totallylazy.Files.delete;
 import static com.googlecode.totallylazy.Files.files;
 import static com.googlecode.totallylazy.Files.hasSuffix;
@@ -86,7 +84,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     protected int testThreads() {
-        return Integer.valueOf(env.properties().getProperty("compilo.test.threads",String.valueOf(Tests.DEFAULT_THREADS)));
+        return Integer.valueOf(env.properties().getProperty("compilo.test.threads",String.valueOf(CPUS)));
     }
 
     @Override
