@@ -3,8 +3,10 @@ package com.googlecode.compilo.tco;
 import com.googlecode.compilo.asm.AsmMethodHandler;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -51,7 +53,6 @@ public class TailRecHandler implements AsmMethodHandler {
     private void insertStartFrame(MethodNode methodNode) {
         InsnList insnList = new InsnList();
         insnList.add(new LabelNode());
-//        insnList.add(new FrameNode(F_SAME, 0, null, 0, null));
         methodNode.instructions.insert(insnList);
     }
 

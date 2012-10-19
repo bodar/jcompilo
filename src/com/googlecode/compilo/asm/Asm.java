@@ -27,6 +27,10 @@ public final class Asm {
         return annotations(method).exists(annotation(aClass));
     }
 
+    public static boolean hasAnnotation(MethodNode method, final Type aClass) {
+        return annotations(method).exists(annotation(aClass));
+    }
+
     public static Sequence<AnnotationNode> annotations(MethodNode method) {
         return Asm.<AnnotationNode>seq(method.visibleAnnotations).join(Asm.<AnnotationNode>seq(method.invisibleAnnotations));
     }
@@ -60,6 +64,9 @@ public final class Asm {
     public static class predicates {
         public static LogicalPredicate<AnnotationNode> annotation(Class<? extends Annotation> aClass) {
             return where(functions.desc, is(getDescriptor(aClass)));
+        }
+        public static LogicalPredicate<AnnotationNode> annotation(Type aClass) {
+            return where(functions.desc, is(aClass.getDescriptor()));
         }
     }
 

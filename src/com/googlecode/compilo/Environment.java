@@ -3,6 +3,7 @@ package com.googlecode.compilo;
 import com.googlecode.totallylazy.Files;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
 
@@ -21,7 +22,17 @@ public interface Environment {
         }
 
         public static Environment environment(File workingDirectory) {
-            return environment(workingDirectory, System.getProperties());
+            return environment(workingDirectory, properties());
+        }
+
+        private static Properties properties() {
+            try {
+                Properties properties = new Properties(System.getProperties());
+                properties.load(Environment.class.getResourceAsStream("compilo.properties"));
+                return properties;
+            } catch (Exception e) {
+                throw new UnsupportedOperationException(e);
+            }
         }
 
         public static Environment environment(File workingDirectory, Properties properties) {

@@ -11,34 +11,39 @@ import java.util.List;
 
 import static com.googlecode.compilo.BootStrap.jarFile;
 import static com.googlecode.compilo.Compiler.CPUS;
+import static com.googlecode.totallylazy.Sequences.cons;
+import static com.googlecode.totallylazy.Sequences.empty;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static java.io.File.pathSeparator;
 
 public class Tests implements Processor {
+    public static final Sequence<String> debugJvm = sequence("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
     private final Sequence<File> dependencies;
-    private final int numberOfThreads;
     private final Environment environment;
+    private final int numberOfThreads;
+    private final boolean debug;
 
-    private Tests(Environment environment, Sequence<File> dependencies, int threads, Predicate<? super String> predicate) {
+    private Tests(Environment environment, Sequence<File> dependencies, int threads, Predicate<? super String> predicate, boolean debug) {
         this.environment = environment;
         this.dependencies = dependencies;
         this.numberOfThreads = threads;
         this.predicate = predicate;
+        this.debug = debug;
     }
 
     public static Tests tests(Environment env, final Sequence<File> dependencies) {
-        return tests(env, dependencies, CPUS);
+        return tests(env, dependencies, CPUS, false);
     }
 
-    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads) {
-        return tests(env, dependencies, threads, endsWith("Test.java"));
+    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, final boolean debug) {
+        return tests(env, dependencies, threads, endsWith("Test.java"), debug);
     }
 
-    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, Predicate<? super String> predicate) {
-        return new Tests(env, dependencies, threads, predicate);
+    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, Predicate<? super String> predicate, final boolean debug) {
+        return new Tests(env, dependencies, threads, predicate, debug);
     }
 
     @Override
@@ -57,8 +62,8 @@ public class Tests implements Processor {
         try {
             environment.out().prefix("    [junit] ");
             environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
-            List<String> arguments = sequence("java", "-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
-                    "com.googlecode.compilo.junit.TestExecutor", String.valueOf(numberOfThreads)).toList();
+            List<String> arguments = cons("java", debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
+                    "com.googlecode.compilo.junit.TestExecutor", String.valueOf(numberOfThreads)))).toList();
             arguments.addAll(sequence(tests).toList());
             ProcessBuilder builder = new ProcessBuilder(arguments);
             builder.directory(environment.workingDirectory());
@@ -72,5 +77,13 @@ public class Tests implements Processor {
             environment.out().clearPrefix();
 
         }
+    }
+
+    private Sequence<String> debug() {
+        if (debug) {
+            environment.out().println("Debugging tests running with " + debugJvm.toString(" "));
+            return debugJvm;
+        }
+        else return empty(String.class);
     }
 }

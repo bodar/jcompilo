@@ -16,7 +16,7 @@ public class RecursiveZipper<T> {
         return zipper(focus, ImmutableList.constructors.<T>empty());
     }
 
-    private static <T> RecursiveZipper<T> zipper(ImmutableList<T> focus, ImmutableList<T> breadcrumbs) {
+    public static <T> RecursiveZipper<T> zipper(ImmutableList<T> focus, ImmutableList<T> breadcrumbs) {
         return new RecursiveZipper<T>(focus, breadcrumbs);
     }
 
