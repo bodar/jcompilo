@@ -12,14 +12,4 @@ public class build extends AutoBuild {
     public build(Environment environment) {
         super(environment);
     }
-
-    @Override
-    public Build compile() throws Exception {
-        stage("compile");
-        compiler(env, dependencies(), compileOptions()).
-                add(asmResourceHandler(true).add(tailrec.class, tailRecHandler())).
-                compile(srcDir(), mainJar());
-        return this;
-
-    }
 }

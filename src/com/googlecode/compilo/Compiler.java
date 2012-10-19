@@ -80,7 +80,7 @@ public class Compiler {
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
         return using(source, backgroundDestination(zipDestination(new FileOutputStream(destinationJar))), new Function2<Source, Destination, Void>() {
             public Void call(Source source, Destination destination) throws Exception {
-                return compile(memoryStore(source), decorate(output(destination), resourceHandlers));
+                return compile(memoryStore(source), decorate(resourceHandlers, output(destination)));
             }
         });
     }
