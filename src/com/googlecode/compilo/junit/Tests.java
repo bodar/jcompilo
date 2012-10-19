@@ -1,9 +1,6 @@
 package com.googlecode.compilo.junit;
 
-import com.googlecode.compilo.Environment;
-import com.googlecode.compilo.Inputs;
-import com.googlecode.compilo.Outputs;
-import com.googlecode.compilo.Processor;
+import com.googlecode.compilo.*;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Streams;
@@ -13,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.googlecode.compilo.BootStrap.jarFile;
+import static com.googlecode.compilo.Compiler.CPUS;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static java.io.File.pathSeparator;
 
 public class Tests implements Processor {
-    public static final int DEFAULT_THREADS = Runtime.getRuntime().availableProcessors();
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
     private final Sequence<File> dependencies;
@@ -33,7 +30,7 @@ public class Tests implements Processor {
     }
 
     public static Tests tests(Environment env, final Sequence<File> dependencies) {
-        return tests(env, dependencies, DEFAULT_THREADS);
+        return tests(env, dependencies, CPUS);
     }
 
     public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads) {

@@ -1,7 +1,9 @@
 package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Lists;
+import com.googlecode.totallylazy.Xml;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 import static com.googlecode.compilo.Environment.constructors.environment;
 import static com.googlecode.totallylazy.Files.directory;
