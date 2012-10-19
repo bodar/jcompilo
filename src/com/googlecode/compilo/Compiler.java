@@ -1,6 +1,7 @@
 package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Pair;
@@ -25,8 +26,10 @@ import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Predicates.not;
+import static com.googlecode.totallylazy.Predicates.or;
 import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
@@ -62,7 +65,7 @@ public class Compiler {
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(env).
-                add(CopyProcessor.copy(env, not(startsWith(".")))).
+                add(CopyProcessor.copy(env, not(or(startsWith("."), endsWith(".java"))))).
                 add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies));
     }
 
@@ -80,7 +83,12 @@ public class Compiler {
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
         return using(source, backgroundDestination(zipDestination(new FileOutputStream(destinationJar))), new Function2<Source, Destination, Void>() {
             public Void call(final Source source, Destination destination) throws Exception {
-                return compile(memoryStore(source), decorate(resourceHandlers, output(destination)));
+                return using(BackgroundOutputs.backgroundOutputs(env, decorate(resourceHandlers, output(destination))), new Function1<BackgroundOutputs, Void>() {
+                    @Override
+                    public Void call(BackgroundOutputs backgroundOutputs) throws Exception {
+                        return compile(memoryStore(source), backgroundOutputs);
+                    }
+                });
             }
         });
     }
