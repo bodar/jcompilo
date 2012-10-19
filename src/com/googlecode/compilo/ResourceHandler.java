@@ -5,7 +5,7 @@ public interface ResourceHandler {
     Resource handle(Resource resource);
 
     class methods {
-        public static Outputs decorate(final Outputs outputs, final Iterable<ResourceHandler> resourceHandlers) {
+        public static Outputs decorate(final Iterable<ResourceHandler> resourceHandlers, final Outputs outputs) {
             return new Outputs() {
                 @Override
                 public void put(Resource resource) {
