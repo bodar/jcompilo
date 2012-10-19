@@ -1,6 +1,8 @@
 package com.googlecode.compilo.convention;
 
-import com.googlecode.compilo.*;
+import com.googlecode.compilo.Build;
+import com.googlecode.compilo.CompileOption;
+import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.asm.AsmMethodHandler;
 import com.googlecode.compilo.junit.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
@@ -9,7 +11,7 @@ import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Zip;
-import com.googlecode.totallylazy.annotations.tailrec;
+import org.objectweb.asm.Type;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.String.format;
 
 public abstract class BuildConvention extends LocationsConvention implements Build {
     protected BuildConvention() {
@@ -62,36 +65,45 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         return this;
     }
 
-    private Sequence<Pair<Class<? extends Annotation>, AsmMethodHandler>> asmProcessors() {
+    private Sequence<Pair<Type, AsmMethodHandler>> asmProcessors() {
         return postProcess() ?
-                sequence(Pair.<Class<? extends Annotation>, AsmMethodHandler>pair(tailrec.class, tailRecHandler())) :
-                Sequences.<Pair<Class<? extends Annotation>, AsmMethodHandler>>empty();
-    }
-
-    protected boolean postProcess() {
-        return parseBoolean(env.properties().getProperty("compilo.post.process"));
+                sequence(Pair.<Type, AsmMethodHandler>pair(tailRecClass(), tailRecHandler())) :
+                Sequences.<Pair<Type, AsmMethodHandler>>empty();
     }
 
     @Override
     public Build test() throws Exception {
         stage("test");
         Sequence<File> productionJars = cons(mainJar(), dependencies());
-        Tests tests = tests(env, productionJars, testThreads());
+        Tests tests = tests(env, productionJars, testThreads(), debug());
         compiler(env, productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
         tests.execute(testJar());
         return this;
     }
 
+    protected Type tailRecClass() {
+        String property = env.properties().getProperty("compilo.tailrec");
+        return Type.getType(format("L%s;", property.replace('.', '/')));
+    }
+
+    protected boolean postProcess() {
+        return parseBoolean(env.properties().getProperty("compilo.post.process", "true"));
+    }
+
+    private boolean debug() {
+        return parseBoolean(env.properties().getProperty("compilo.debug"));
+    }
+
     protected int testThreads() {
-        return Integer.valueOf(env.properties().getProperty("compilo.test.threads",String.valueOf(CPUS)));
+        return Integer.valueOf(env.properties().getProperty("compilo.test.threads", String.valueOf(CPUS)));
     }
 
     @Override
     public Build Package() throws IOException {
         stage("package");
         Option<File> dependencies = files(buildDir()).find(where(name(), is("runtime.dependencies")));
-        if(!dependencies.isEmpty()) {
+        if (!dependencies.isEmpty()) {
             env.out().printf("      [pom] Generating pom from: %s%n", dependencies.get());
             PomGenerator.generate(artifactUri(), dependencies, artifactsDir());
         }
@@ -104,10 +116,14 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     @Override
-    public Iterable<CompileOption> compileOptions() { return sequence(CompileOption.Debug); }
+    public Iterable<CompileOption> compileOptions() {
+        return sequence(CompileOption.Debug);
+    }
 
     @Override
-    public Iterable<File> dependencies() { return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise(); }
+    public Iterable<File> dependencies() {
+        return recursiveFiles(libDir()).filter(hasSuffix("jar")).realise();
+    }
 
     public Build stage(String name) {
         env.out().println();

@@ -10,11 +10,18 @@ import static com.example.Gcd.gcdLong;
 import static com.example.Gcd.gcdLongIterative;
 import static com.example.Gcd.gcdWithLocalVariable;
 import static com.example.RecursiveZipper.zipper;
+import static com.googlecode.totallylazy.collections.ImmutableList.constructors.empty;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors.list;
 import static com.googlecode.totallylazy.matchers.Matchers.is;
+import static com.googlecode.totallylazy.numbers.Numbers.range;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TailRecAcceptanceTest {
+    @Test
+    public void doesNotBlowStack() {
+        zipper(empty(Number.class), range(0, 20000).toImmutableList()).top();
+    }
+
     @Test
     public void supportsInstanceMethods() {
         RecursiveZipper<String> zipper = zipper(list("A", "B", "C", "D"));

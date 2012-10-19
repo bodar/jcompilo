@@ -1,7 +1,6 @@
 package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Pair;
@@ -18,7 +17,6 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 import static com.googlecode.compilo.BackgroundDestination.backgroundDestination;
-import static com.googlecode.compilo.BackgroundOutputs.backgroundOutputs;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
 import static com.googlecode.compilo.Outputs.constructors.output;
 import static com.googlecode.compilo.ResourceHandler.methods.decorate;
@@ -82,12 +80,7 @@ public class Compiler {
         env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
         return using(source, backgroundDestination(zipDestination(new FileOutputStream(destinationJar))), new Function2<Source, Destination, Void>() {
             public Void call(final Source source, Destination destination) throws Exception {
-                return using(backgroundOutputs(env, decorate(resourceHandlers, output(destination))), new Function1<Outputs, Void>() {
-                    @Override
-                    public Void call(Outputs outputs) throws Exception {
-                        return compile(memoryStore(source), outputs);
-                    }
-                });
+                return compile(memoryStore(source), decorate(resourceHandlers, output(destination)));
             }
         });
     }
