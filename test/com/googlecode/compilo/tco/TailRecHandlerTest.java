@@ -11,7 +11,7 @@ import org.junit.Test;
 import static com.googlecode.compilo.MoveToTL.classFilename;
 import static com.googlecode.compilo.MoveToTL.classNameForByteCode;
 import static com.googlecode.compilo.Resource.constructors.resource;
-import static com.googlecode.compilo.tco.AsmResourceHandler.asmResourceHandler;
+import static com.googlecode.compilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.compilo.tco.TailRecHandler.tailRecHandler;
 import static com.googlecode.totallylazy.Bytes.bytes;
 import static com.googlecode.totallylazy.Files.file;

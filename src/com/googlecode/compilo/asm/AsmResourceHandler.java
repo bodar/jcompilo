@@ -1,6 +1,5 @@
-package com.googlecode.compilo.tco;
+package com.googlecode.compilo.asm;
 
-import com.googlecode.compilo.AsmMethodHandler;
 import com.googlecode.compilo.Resource;
 import com.googlecode.compilo.ResourceHandler;
 import com.googlecode.totallylazy.Pair;
@@ -15,9 +14,9 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import java.lang.annotation.Annotation;
 
 import static com.googlecode.compilo.Resource.constructors.resource;
-import static com.googlecode.compilo.tco.Asm.annotations;
-import static com.googlecode.compilo.tco.Asm.hasAnnotation;
-import static com.googlecode.compilo.tco.Asm.predicates.annotation;
+import static com.googlecode.compilo.asm.Asm.annotations;
+import static com.googlecode.compilo.asm.Asm.hasAnnotation;
+import static com.googlecode.compilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Debug.debugging;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors.list;

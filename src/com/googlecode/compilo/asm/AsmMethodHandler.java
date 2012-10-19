@@ -1,4 +1,4 @@
-package com.googlecode.compilo;
+package com.googlecode.compilo.asm;
 
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;

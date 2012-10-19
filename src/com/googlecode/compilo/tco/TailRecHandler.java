@@ -1,11 +1,10 @@
 package com.googlecode.compilo.tco;
 
-import com.googlecode.compilo.AsmMethodHandler;
+import com.googlecode.compilo.asm.AsmMethodHandler;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -13,20 +12,19 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import static com.googlecode.compilo.tco.Asm.functions.name;
-import static com.googlecode.compilo.tco.Asm.functions.nextInstruction;
-import static com.googlecode.compilo.tco.Asm.functions.opcode;
-import static com.googlecode.compilo.tco.Asm.functions.owner;
-import static com.googlecode.compilo.tco.Asm.initialLocalVariables;
-import static com.googlecode.compilo.tco.Asm.instructions;
-import static com.googlecode.compilo.tco.Asm.store;
+import static com.googlecode.compilo.asm.Asm.functions.name;
+import static com.googlecode.compilo.asm.Asm.functions.nextInstruction;
+import static com.googlecode.compilo.asm.Asm.functions.opcode;
+import static com.googlecode.compilo.asm.Asm.functions.owner;
+import static com.googlecode.compilo.asm.Asm.initialLocalVariables;
+import static com.googlecode.compilo.asm.Asm.instructions;
+import static com.googlecode.compilo.asm.Asm.store;
 import static com.googlecode.totallylazy.Predicates.and;
 import static com.googlecode.totallylazy.Predicates.between;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.String.format;
-import static org.objectweb.asm.Opcodes.F_SAME;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -53,7 +51,7 @@ public class TailRecHandler implements AsmMethodHandler {
     private void insertStartFrame(MethodNode methodNode) {
         InsnList insnList = new InsnList();
         insnList.add(new LabelNode());
-        insnList.add(new FrameNode(F_SAME, 0, null, 0, null));
+//        insnList.add(new FrameNode(F_SAME, 0, null, 0, null));
         methodNode.instructions.insert(insnList);
     }
 

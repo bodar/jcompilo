@@ -1,4 +1,4 @@
-package com.googlecode.compilo.tco;
+package com.googlecode.compilo.asm;
 
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
@@ -16,7 +16,7 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import static com.googlecode.compilo.tco.Asm.predicates.annotation;
+import static com.googlecode.compilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;

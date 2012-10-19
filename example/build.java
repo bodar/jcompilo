@@ -4,7 +4,7 @@ import com.googlecode.compilo.convention.AutoBuild;
 import com.googlecode.totallylazy.annotations.tailrec;
 
 import static com.googlecode.compilo.Compiler.compiler;
-import static com.googlecode.compilo.tco.AsmResourceHandler.asmResourceHandler;
+import static com.googlecode.compilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.compilo.tco.TailRecHandler.tailRecHandler;
 
 public class build extends AutoBuild {
