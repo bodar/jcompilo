@@ -18,6 +18,7 @@ import static com.googlecode.compilo.asm.Asm.annotations;
 import static com.googlecode.compilo.asm.Asm.hasAnnotation;
 import static com.googlecode.compilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Debug.debugging;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors.list;
 
@@ -57,22 +58,27 @@ public class AsmResourceHandler implements ResourceHandler {
 
     @Override
     public Resource handle(Resource resource) {
+        if(processors.isEmpty()) return resource;
+
         ClassReader reader = new ClassReader(resource.bytes());
         ClassNode classNode = new ClassNode();
         reader.accept(classNode, 0);
 
-        Sequence<MethodNode> methods = Asm.<MethodNode>seq(classNode.methods);
-        for (MethodNode method : methods) {
+        boolean foundMatch = false;
+        for (MethodNode method : Asm.<MethodNode>seq(classNode.methods)) {
             for (Pair<Class<? extends Annotation>, AsmMethodHandler> p : processors) {
                 if (hasAnnotation(method, p.first())) {
+                    foundMatch = true;
                     p.second().process(classNode, method);
                     method.invisibleAnnotations.remove(annotations(method).find(annotation(p.first())).get());
                 }
             }
         }
 
+        if (!foundMatch) return resource;
+
         ClassWriter writer = new ClassWriter(0);
         classNode.accept(verify ? new CheckClassAdapter(writer) : writer);
         return resource(resource.name(), writer.toByteArray());
+        }
     }
-}
