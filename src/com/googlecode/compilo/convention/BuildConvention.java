@@ -31,6 +31,7 @@ import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.predicates.WherePredicate.where;
+import static java.lang.Boolean.parseBoolean;
 
 public abstract class BuildConvention extends LocationsConvention implements Build {
     protected BuildConvention() {
@@ -64,9 +65,13 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     private Sequence<Pair<Class<? extends Annotation>, AsmMethodHandler>> asmProcessors() {
-        return env.properties().getProperty("compilo.post.process", "true").equals("true") ?
+        return postProcess() ?
                 sequence(Pair.<Class<? extends Annotation>, AsmMethodHandler>pair(tailrec.class, tailRecHandler())) :
                 Sequences.<Pair<Class<? extends Annotation>, AsmMethodHandler>>empty();
+    }
+
+    protected boolean postProcess() {
+        return parseBoolean(env.properties().getProperty("compilo.post.process"));
     }
 
     @Override
@@ -80,7 +85,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         return this;
     }
 
-    private int testThreads() {
+    protected int testThreads() {
         return Integer.valueOf(env.properties().getProperty("compilo.test.threads",String.valueOf(Tests.DEFAULT_THREADS)));
     }
 
