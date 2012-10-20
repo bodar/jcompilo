@@ -5,6 +5,7 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Source;
 import com.googlecode.totallylazy.collections.ImmutableList;
@@ -25,6 +26,8 @@ import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
+import static com.googlecode.totallylazy.Functions.and;
+import static com.googlecode.totallylazy.Functions.unpair;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Predicates.or;
 import static com.googlecode.totallylazy.Runnables.VOID;
@@ -35,8 +38,8 @@ import static com.googlecode.totallylazy.ZipDestination.zipDestination;
 import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
 
 public class Compiler {
-    public static final Charset UTF8 = Charset.forName("UTF-8");
     public static final int CPUS = Runtime.getRuntime().availableProcessors();
+    public static final Predicate<String> JAVA_FILES = endsWith(".java");
     private final Environment env;
     private final ImmutableList<Processor> processors;
     private final ImmutableList<ResourceHandler> resourceHandlers;
@@ -66,7 +69,7 @@ public class Compiler {
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(env).
                 add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies)).
-                add(CopyProcessor.copy(env, not(or(startsWith("."), endsWith(".java")))));
+                add(CopyProcessor.copy(env, not(or(startsWith("."), JAVA_FILES))));
     }
 
     public Compiler add(Processor processor) {
