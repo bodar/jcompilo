@@ -81,13 +81,15 @@
             <entry key="project.name" value="${ant.project.name}"/>
             <entry key="release.name" value="${release.name}"/>
             <entry key="release.path" value="com/googlecode/${ant.project.name}/${ant.project.name}/${release.version}/"/>
-            <entry key="release.files" value="${release.jar},${release.pom},${release.src}"/>
+            <entry key="release.files" value="${release.jar},${release.pom},${release.src},${release.dep}"/>
             <entry key="${release.jar}.description" value="${hg.summary} build:${build.number} "/>
             <entry key="${release.jar}.labels" value="Jar"/>
             <entry key="${release.pom}.description" value="Maven POM file build:${build.number}"/>
             <entry key="${release.pom}.labels" value="POM"/>
             <entry key="${release.src}.description" value="Source file build:${build.number}"/>
             <entry key="${release.src}.labels" value="Source"/>
+            <entry key="${release.dep}.description" value="Dependency required version build:${build.number}"/>
+            <entry key="${release.dep}.labels" value="Source"/>
         </propertyfile>
 
         <generate.pom artifact.uri="mvn:${group.id}:${ant.project.name}:jar:${release.version}"
