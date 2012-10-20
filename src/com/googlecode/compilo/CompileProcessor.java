@@ -1,9 +1,9 @@
 package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.Characters;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
-import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Source;
 
@@ -26,7 +26,6 @@ import static javax.tools.ToolProvider.getSystemJavaCompiler;
 public class CompileProcessor implements Processor {
     public static final JavaCompiler DEFAULT_COMPILER = getSystemJavaCompiler();
     public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(CompileOption.Debug);
-    private static final Predicate<String> JAVA_FILES = endsWith(".java");
     private final Environment env;
     private final JavaCompiler compiler;
     private final Sequence<CompileOption> options;
@@ -36,7 +35,7 @@ public class CompileProcessor implements Processor {
         this.env = env;
         this.compiler = compiler;
         this.options = sequence(options);
-        standardFileManager = compiler.getStandardFileManager(null, null, Compiler.UTF8);
+        standardFileManager = compiler.getStandardFileManager(null, null, Characters.UTF8);
         setDependencies(dependancies);
     }
 
@@ -82,6 +81,6 @@ public class CompileProcessor implements Processor {
 
     @Override
     public boolean matches(String other) {
-        return JAVA_FILES.matches(other);
+        return Compiler.JAVA_FILES.matches(other);
     }
 }
