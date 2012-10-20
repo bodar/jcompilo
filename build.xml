@@ -39,7 +39,7 @@
     </path>
 
     <target name="update">
-        <install version="49"/>
+        <!--<install version="49"/>-->
         <parallel>
             <update dependencies="build/build.dependencies"
                     directory="${build.dependencies.dir}"/>

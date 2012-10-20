@@ -65,8 +65,8 @@ public class Compiler {
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
         return compiler(env).
-                add(CopyProcessor.copy(env, not(or(startsWith("."), endsWith(".java"))))).
-                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies));
+                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies)).
+                add(CopyProcessor.copy(env, not(or(startsWith("."), endsWith(".java")))));
     }
 
     public Compiler add(Processor processor) {
@@ -96,11 +96,13 @@ public class Compiler {
     public Void compile(final Inputs inputs, final Outputs outputs) throws Exception {
         final Map<Processor, MemoryStore> partitions = partition(inputs);
 
-        for (final Processor processor : processors) {
-            Inputs matched = partitions.get(processor);
-            if (matched.isEmpty()) continue;
-            processor.process(matched, outputs);
-        }
+        sequence(processors).mapConcurrently(new Function1<Processor, Boolean>() {
+            @Override
+            public Boolean call(Processor processor) throws Exception {
+                Inputs matched = partitions.get(processor);
+                return matched.isEmpty() || processor.process(matched, outputs);
+            }
+        }).realise();
         return VOID;
     }
 
