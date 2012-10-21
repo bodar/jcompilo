@@ -60,16 +60,10 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     public Build compile() throws Exception {
         stage("compile");
         compiler(env, dependencies(), compileOptions()).
-                add(asmResourceHandler(asmProcessors())).
                 compile(srcDir(), mainJar());
         return this;
     }
 
-    private Sequence<Pair<Type, AsmMethodHandler>> asmProcessors() {
-        return postProcess() ?
-                sequence(Pair.<Type, AsmMethodHandler>pair(tailRecClass(), tailRecHandler())) :
-                Sequences.<Pair<Type, AsmMethodHandler>>empty();
-    }
 
     @Override
     public Build test() throws Exception {
@@ -80,15 +74,6 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
                 add(tests).compile(testDir(), testJar());
         tests.execute(testJar());
         return this;
-    }
-
-    protected Type tailRecClass() {
-        String property = env.properties().getProperty("compilo.tailrec");
-        return Type.getType(format("L%s;", property.replace('.', '/')));
-    }
-
-    protected boolean postProcess() {
-        return parseBoolean(env.properties().getProperty("compilo.post.process", "true"));
     }
 
     private boolean debug() {
