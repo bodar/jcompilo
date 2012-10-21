@@ -53,6 +53,7 @@ public class TailRecHandler implements AsmMethodHandler {
     private void insertStartFrame(MethodNode methodNode) {
         InsnList insnList = new InsnList();
         insnList.add(new LabelNode());
+        insnList.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null)); // Needed for Java 7+
         methodNode.instructions.insert(insnList);
     }
 
