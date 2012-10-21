@@ -62,10 +62,11 @@ public class Tests implements Processor {
         try {
             environment.out().prefix("    [junit] ");
             environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
-            List<String> arguments = cons("java", debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
+            List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
                     "com.googlecode.compilo.junit.TestExecutor", String.valueOf(numberOfThreads)))).toList();
             arguments.addAll(sequence(tests).toList());
             ProcessBuilder builder = new ProcessBuilder(arguments);
+            builder.redirectErrorStream(true);
             builder.directory(environment.workingDirectory());
             Process process = builder.start();
             int exitCode = process.waitFor();
@@ -77,6 +78,10 @@ public class Tests implements Processor {
             environment.out().clearPrefix();
 
         }
+    }
+
+    private String javaProcess() {
+        return environment.properties().getProperty("java.home") + "/bin/java";
     }
 
     private Sequence<String> debug() {
