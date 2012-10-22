@@ -1,36 +1,34 @@
 package com.googlecode.compilo;
 
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.Sources;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.googlecode.compilo.Resource.functions.resource;
-import static com.googlecode.totallylazy.Maps.pairs;
-
 public class MemoryStore implements Inputs, Destination, Outputs {
-    private final Map<String, byte[]> data;
+    private final Map<String, Resource> data;
 
-    public MemoryStore(Map<String, byte[]> data) {
+    public MemoryStore(Map<String, Resource> data) {
         this.data = data;
     }
 
     public static MemoryStore memoryStore() {
-        return memoryStore(new HashMap<String, byte[]>());
+        return memoryStore(new HashMap<String, Resource>());
     }
 
-    public static MemoryStore memoryStore(Map<String, byte[]> data) {
+    public static MemoryStore memoryStore(Map<String, Resource> data) {
         return new MemoryStore(data);
     }
 
-    public static MemoryStore memoryStore(Source source) {
+    public static MemoryStore memoryStore(Sources source) {
         MemoryStore result = memoryStore();
-        Source.methods.copyAndClose(source, result);
+        Sources.methods.copyAndClose(source, result);
         return result;
     }
 
@@ -41,11 +39,11 @@ public class MemoryStore implements Inputs, Destination, Outputs {
     }
 
     @Override
-    public OutputStream destination(final String name) throws IOException {
+    public OutputStream destination(final String name, final Date modified) throws IOException {
         return new ByteArrayOutputStream() {
             @Override
             public void close() throws IOException {
-                data.put(name, toByteArray());
+                data.put(name, Resource.constructors.resource(name, modified, toByteArray()));
             }
         };
     }
@@ -54,7 +52,7 @@ public class MemoryStore implements Inputs, Destination, Outputs {
     public void close() throws IOException {
     }
 
-    public Map<String, byte[]> data() {
+    public Map<String, Resource> data() {
         return data;
     }
 
@@ -69,17 +67,12 @@ public class MemoryStore implements Inputs, Destination, Outputs {
     }
 
     @Override
-    public void copyTo(Outputs outputs) {
-        Inputs.methods.copy(this, outputs);
-    }
-
-    @Override
     public Iterator<Resource> iterator() {
-        return pairs(data).map(resource).iterator();
+        return data.values().iterator();
     }
 
     @Override
     public void put(Resource resource) {
-        data.put(resource.name(), resource.bytes());
+        data.put(resource.name(), resource);
     }
 }

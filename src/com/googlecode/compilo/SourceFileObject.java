@@ -38,12 +38,12 @@ public class SourceFileObject extends SimpleJavaFileObject {
     }
 
     @Override
-    public InputStream openInputStream() throws IOException {
-        throw new UnsupportedOperationException();
+    public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+        return charContent.value();
     }
 
     @Override
-    public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-        return charContent.value();
+    public long getLastModified() {
+        return resource.modified().getTime();
     }
 }

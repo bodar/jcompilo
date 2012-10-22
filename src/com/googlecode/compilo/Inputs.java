@@ -1,6 +1,8 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.Sources;
+
+import java.util.Date;
 
 import static com.googlecode.compilo.Resource.constructors.resource;
 import static com.googlecode.totallylazy.Sequences.one;
@@ -10,10 +12,8 @@ public interface Inputs extends Iterable<Resource> {
 
     int size();
 
-    void copyTo(Outputs outputs);
-
     class constructors {
-        public static Inputs inputs(final Source source) {
+        public static Inputs inputs(final Sources source) {
             return MemoryStore.memoryStore(source);
         }
 
@@ -21,8 +21,8 @@ public interface Inputs extends Iterable<Resource> {
             return MemoryStore.memoryStore(resources);
         }
 
-        public static Inputs inputs(final String name, byte[] bytes) {
-            return inputs(one(resource(name, bytes)));
+        public static Inputs inputs(final String name, final Date modified, byte[] bytes) {
+            return inputs(one(resource(name, modified, bytes)));
         }
     }
 

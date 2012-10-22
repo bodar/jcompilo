@@ -8,6 +8,8 @@ import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.annotations.tailrec;
 import org.junit.Test;
 
+import java.util.Date;
+
 import static com.googlecode.compilo.MoveToTL.classFilename;
 import static com.googlecode.compilo.MoveToTL.classNameForByteCode;
 import static com.googlecode.compilo.Resource.constructors.resource;
@@ -34,6 +36,6 @@ public class TailRecHandlerTest {
     }
 
     private Resource resourceFor(Class<?> aClass) {
-        return resource(classFilename(aClass.getName()), bytes(aClass.getResourceAsStream(aClass.getSimpleName() + ".class")));
+        return resource(classFilename(aClass.getName()), new Date(), bytes(aClass.getResourceAsStream(aClass.getSimpleName() + ".class")));
     }
 }

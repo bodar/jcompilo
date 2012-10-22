@@ -16,7 +16,7 @@ public interface Outputs {
                 @Override
                 public void put(Resource resource) {
                     try {
-                        using(destination.destination(resource.name()), write(resource.bytes()));
+                        using(destination.destination(resource.name(), resource.modified()), write(resource.bytes()));
                     } catch (IOException e) {
                         throw new UnsupportedOperationException(e);
                     }

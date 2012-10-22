@@ -3,7 +3,7 @@ mvn:org.hamcrest:hamcrest-library:jar:1.2
 mvn:junit:junit-dep:jar|sources:4.8.2
 
 http://jarjar.googlecode.com/files/jarjar-1.1.jar
-mvn://repo.bodar.com.s3.amazonaws.com/com.googlecode.totallylazy:totallylazy:jar|sources:840
+mvn://repo.bodar.com.s3.amazonaws.com/com.googlecode.totallylazy:totallylazy:jar|sources:845
 mvn://repo.bodar.com.s3.amazonaws.com/com.googlecode.yadic:yadic:jar|sources:151
 mvn://repo.bodar.com.s3.amazonaws.com/com.googlecode.shavenmaven:shavenmaven:dep:52
 mvn:org.ow2.asm:asm-all:jar|sources:4.0

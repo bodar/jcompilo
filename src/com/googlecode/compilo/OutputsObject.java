@@ -5,6 +5,7 @@ import javax.tools.JavaFileObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 import static com.googlecode.compilo.MoveToTL.classFilename;
 
@@ -23,8 +24,10 @@ public class OutputsObject extends ForwardingJavaFileObject<JavaFileObject> {
         return new ByteArrayOutputStream(){
             @Override
             public void close() throws IOException {
-                outputs.put(Resource.constructors.resource(filename, toByteArray()));
+                outputs.put(Resource.constructors.resource(filename, new Date(), toByteArray()));
             }
         };
     }
+
+
 }

@@ -1,14 +1,16 @@
 package com.googlecode.compilo;
 
 import com.googlecode.compilo.convention.AutoBuild;
+import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
+import com.googlecode.totallylazy.Maps;
 import com.googlecode.totallylazy.Methods;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Runnables;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.Sources;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.googlecode.yadic.SimpleContainer;
@@ -21,12 +23,14 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import static com.googlecode.compilo.CompileProcessor.compile;
 import static com.googlecode.compilo.Compiler.iterableSource;
 import static com.googlecode.compilo.Environment.constructors.environment;
+import static com.googlecode.compilo.Resource.functions.bytes;
 import static com.googlecode.shavenmaven.Dependencies.load;
 import static com.googlecode.totallylazy.Arrays.empty;
 import static com.googlecode.totallylazy.Files.directory;
@@ -161,13 +165,14 @@ public class BootStrap {
                         fileSource(buildFile, name),
                         compiledBuild);
 
-                ClassLoader loader = new ByteClassLoader(compiledBuild.data(), FileUrls.urls(libs));
+                ClassLoader loader = new ByteClassLoader(Maps.mapValues(compiledBuild.data(), bytes()), FileUrls.urls(libs));
                 return loader.loadClass(className(name));
 
             }
         }).getOrElse(AutoBuild.class);
 
     }
+
 
     private Sequence<File> libs() {
         return recursiveFiles(libDir).filter(hasSuffix("jar")).realise().add(compiloJar());
@@ -195,8 +200,8 @@ public class BootStrap {
                 find(where(name(), endsWith("uild.java")));
     }
 
-    private static Source fileSource(File buildFile, String name) throws FileNotFoundException {
-        return iterableSource(one(Pair.<String, InputStream>pair(name, new FileInputStream(buildFile))));
+    private static Sources fileSource(File buildFile, String name) throws FileNotFoundException {
+        return iterableSource(one(new Sources.Source(name, new Date(buildFile.lastModified()), new FileInputStream(buildFile))));
     }
 
     private static String className(String build) {
