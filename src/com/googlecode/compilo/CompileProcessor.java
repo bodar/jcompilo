@@ -16,16 +16,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import static com.googlecode.compilo.CompileOption.Debug;
+import static com.googlecode.compilo.CompileOption.Implicit;
+import static com.googlecode.compilo.CompileOption.Implicit.None;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.LazyException.lazyException;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.Strings.endsWith;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class CompileProcessor implements Processor {
     public static final JavaCompiler DEFAULT_COMPILER = getSystemJavaCompiler();
-    public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(CompileOption.Debug);
+    public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(Debug, Implicit(None));
     private final Environment env;
     private final JavaCompiler compiler;
     private final Sequence<CompileOption> options;
