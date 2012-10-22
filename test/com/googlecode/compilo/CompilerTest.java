@@ -38,7 +38,7 @@ public class CompilerTest {
     }
 
     @Test
-    public void canCompilerADirectory() throws Exception {
+    public void canCompilerADirectoryDirectltToAJar() throws Exception {
         File input = directory(env.workingDirectory(), "example/src");
         File output = file(compilo, "example.jar");
         compiler.compile(input, output);
@@ -46,6 +46,21 @@ public class CompilerTest {
 //        assertThat(jarContains(output, "com/example/HelloWorld.java"), is(true));
         assertThat(jarContains(output, "com/example/resource.txt"), is(true));
         assertThat(jarContains(output, "com/example/sub/another.txt"), is(true));
+    }
+
+    @Test
+    public void canCompilerADirectoryToAnotherDirectory() throws Exception {
+        File input = directory(env.workingDirectory(), "example/src");
+        File output = directory(env.workingDirectory(), "example/build/artifacts/compiled");
+        compiler.compile(input, output);
+        assertThat(dirContains(output, "com/example/HelloWorld.class"), is(true));
+//        assertThat(dirContains(output, "com/example/HelloWorld.java"), is(true));
+        assertThat(dirContains(output, "com/example/resource.txt"), is(true));
+        assertThat(dirContains(output, "com/example/sub/another.txt"), is(true));
+    }
+
+    public static boolean dirContains(File directory, final String name) throws FileNotFoundException {
+        return file(directory, name).exists();
     }
 
     public static boolean jarContains(File jar, final String name) throws FileNotFoundException {

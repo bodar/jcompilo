@@ -5,7 +5,7 @@ import com.googlecode.totallylazy.Characters;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.Sources;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
@@ -45,10 +45,10 @@ public class CompileProcessor implements Processor {
         return new CompileProcessor(env, compiler, options, dependancies);
     }
 
-    public static boolean compile(final Environment env, final Iterable<File> dependancies, Source source, Destination destination) throws Exception {
-        return using(source, destination, new Function2<Source, Destination, Boolean>() {
+    public static boolean compile(final Environment env, final Iterable<File> dependancies, Sources source, Destination destination) throws Exception {
+        return using(source, destination, new Function2<Sources, Destination, Boolean>() {
             @Override
-            public Boolean call(Source source, Destination destination) throws Exception {
+            public Boolean call(Sources source, Destination destination) throws Exception {
                 return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
             }
         });

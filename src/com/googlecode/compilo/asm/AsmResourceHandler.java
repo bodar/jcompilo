@@ -82,6 +82,6 @@ public class AsmResourceHandler implements ResourceHandler {
 
         ClassWriter writer = new ClassWriter(0);
         classNode.accept(verify ? new CheckClassAdapter(writer) : writer);
-        return resource(resource.name(), writer.toByteArray());
+        return resource(resource.name(), resource.modified(), writer.toByteArray());
     }
 }

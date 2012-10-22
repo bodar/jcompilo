@@ -2,6 +2,7 @@ package com.googlecode.compilo;
 
 import com.googlecode.compilo.asm.AsmMethodHandler;
 import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
@@ -9,7 +10,8 @@ import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
-import com.googlecode.totallylazy.Source;
+import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.ZipDestination;
 import com.googlecode.totallylazy.collections.ImmutableList;
 import org.objectweb.asm.Type;
 
@@ -18,7 +20,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 import static com.googlecode.compilo.BackgroundDestination.backgroundDestination;
@@ -102,19 +103,22 @@ public class Compiler {
         return compiler(env, processors, resourceHandlers.cons(resourceHandler));
     }
 
-    public Void compile(final File sourceDirectory, final File destinationJar) throws Exception {
-        Source source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
+    public Void compile(final File sourceDirectory, final File destination) throws Exception {
+        Sources source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
         if (source.sources().isEmpty()) return VOID;
-        return using(source, destination(destinationJar), new Function2<Source, Destination, Void>() {
-            public Void call(final Source source, Destination destination) throws Exception {
+        return using(source, backgroundDestination(destination(destination)), new Function2<Sources, Destination, Void>() {
+            public Void call(final Sources source, Destination destination) throws Exception {
                 return compile(memoryStore(source), output(destination));
             }
         });
     }
 
-    private Destination destination(File destinationJar) throws FileNotFoundException {
-        env.out().prefix("      [zip] ").printf("Creating: %s%n", destinationJar.getAbsoluteFile());
-        return backgroundDestination(zipDestination(new FileOutputStream(destinationJar)));
+    private Destination destination(File destination) throws FileNotFoundException {
+        if (destination.getPath().endsWith(".jar") || destination.getPath().endsWith(".zip")) {
+            env.out().prefix("      [zip] ").printf("Creating: %s%n", destination.getAbsoluteFile());
+            return zipDestination(new FileOutputStream(destination));
+        }
+        return FileDestination.fileDestination(destination);
     }
 
     public Void compile(final Inputs inputs, final Outputs raw) throws Exception {
@@ -152,10 +156,10 @@ public class Compiler {
         return partitions;
     }
 
-    public static Source iterableSource(final Iterable<Pair<String, InputStream>> sequence) {
-        return new Source() {
+    public static Sources iterableSource(final Iterable<Sources.Source> sequence) {
+        return new Sources() {
             @Override
-            public Sequence<Pair<String, InputStream>> sources() {
+            public Sequence<Source> sources() {
                 return sequence(sequence);
             }
 

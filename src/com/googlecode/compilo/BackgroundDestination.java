@@ -8,6 +8,7 @@ import com.googlecode.totallylazy.Runnables;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -31,21 +32,21 @@ public class BackgroundDestination implements Destination {
     }
 
     @Override
-    public OutputStream destination(final String name) throws IOException {
+    public OutputStream destination(final String name, final Date modified) throws IOException {
         return new ByteArrayOutputStream() {
             @Override
             public void close() throws IOException {
-                executor.submit(toDestination(name, toByteArray()));
+                executor.submit(toDestination(name, modified, toByteArray()));
             }
 
         };
     }
 
-    private Callable<Void> toDestination(final String name1, final byte[] value) {
+    private Callable<Void> toDestination(final String name, final Date modified, final byte[] value) {
         return new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Closeables.using(destination.destination(name1), Bytes.write(value));
+                Closeables.using(destination.destination(name, modified), Bytes.write(value));
                 return Runnables.VOID;
             }
         };
