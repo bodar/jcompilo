@@ -20,8 +20,12 @@ import static com.googlecode.compilo.CompileOption.Debug;
 import static com.googlecode.compilo.CompileOption.Implicit;
 import static com.googlecode.compilo.CompileOption.Implicit.None;
 import static com.googlecode.totallylazy.Closeables.using;
+import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.LazyException.lazyException;
+import static com.googlecode.totallylazy.Predicates.not;
+import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Strings.endsWith;
 import static javax.tools.StandardLocation.CLASS_PATH;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
@@ -38,7 +42,7 @@ public class CompileProcessor implements Processor {
         this.compiler = compiler;
         this.options = sequence(options);
         standardFileManager = compiler.getStandardFileManager(null, null, Characters.UTF8);
-        setDependencies(dependancies);
+        setDependencies(sequence(dependancies).filter(where(name(), not(endsWith("-sources.jar")))));
     }
 
     public static CompileProcessor compile(Environment env, final Iterable<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) {
@@ -72,9 +76,9 @@ public class CompileProcessor implements Processor {
         return sequence(javaFiles).map(SourceFileObject.sourceFileObject());
     }
 
-    private void setDependencies(Iterable<File> dependancies) {
+    private void setDependencies(Sequence<File> dependancies) {
         try {
-            if (sequence(dependancies).isEmpty()) return;
+            if (dependancies.isEmpty()) return;
             standardFileManager.setLocation(CLASS_PATH, dependancies);
         } catch (IOException e) {
             throw lazyException(e);
