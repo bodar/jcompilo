@@ -38,6 +38,7 @@ import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -133,7 +134,25 @@ public class CompiloBackendCompiler implements BackendCompiler {
                 files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), modified(file), virtualFile.contentsToByteArray()));
             }
         }
+        System.out.println(files.size());
         return new MemoryStore(files);
+    }
+
+    private static File source(ModuleChunk moduleChunk) {
+        return new File(moduleChunk.getSourceRoots(moduleChunk.getModules()[0])[0].getPresentableUrl());
+    }
+
+    private static Function1<VirtualFile, File> asFile() {
+        return new Function1<VirtualFile, File>() {
+            @Override
+            public File call(VirtualFile virtualFile) throws Exception {
+                return new File(virtualFile.getPresentableUrl());
+            }
+        };
+    }
+
+    private static Date modified(final File file) {
+        return new Date(file.lastModified());
     }
 
     public static class CompiloOutputParser extends OutputParser {
