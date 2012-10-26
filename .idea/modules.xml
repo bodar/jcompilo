@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/compilo.iml" filepath="$PROJECT_DIR$/compilo.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/intellij-plugin/intellij-plugin.iml" filepath="$PROJECT_DIR$/intellij-plugin/intellij-plugin.iml" />
     </modules>
   </component>
 </project>
