@@ -12,7 +12,7 @@
     <property name="release.version" value="${build.number}"/>
     <property name="release.name" value="${ant.project.name}-${release.version}"/>
     <property name="release.jar" value="${release.name}.jar"/>
-    <property name="release.plugin.jar" value="${ant.project.name}-intellij-${release.version}"/>
+    <property name="release.plugin.jar" value="${ant.project.name}-intellij-${release.version}.jar"/>
     <property name="release.pom" value="${release.name}.pom"/>
     <property name="release.src" value="${release.name}-sources.jar"/>
     <property name="release.dep" value="${release.name}-dep.jar"/>
