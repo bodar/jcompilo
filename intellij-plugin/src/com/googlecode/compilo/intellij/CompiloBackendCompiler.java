@@ -3,10 +3,12 @@ package com.googlecode.compilo.intellij;
 import com.googlecode.compilo.CompileOption;
 import com.googlecode.compilo.Inputs;
 import com.googlecode.compilo.MemoryStore;
+import com.googlecode.compilo.ModifiedPredicate;
 import com.googlecode.compilo.Outputs;
 import com.googlecode.compilo.Resource;
 import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
@@ -81,7 +83,7 @@ public class CompiloBackendCompiler implements BackendCompiler {
 
     @NotNull
     public Process launchProcess(@NotNull ModuleChunk moduleChunk, @NotNull String outputPath, @NotNull CompileContext compileContext) throws IOException {
-        return new CompiloProcess(inputsFor(moduleChunk), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk));
+        return new CompiloProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk));
     }
 
     public void compileFinished() {
@@ -117,11 +119,32 @@ public class CompiloBackendCompiler implements BackendCompiler {
         });
     }
 
-    public static Inputs inputsFor(ModuleChunk moduleChunk) throws IOException {
+    public static Inputs inputsFor(ModuleChunk moduleChunk, String outputPath) throws IOException {
         Map<String, Resource> files = new ConcurrentHashMap<String, Resource>();
+        Predicate<File> modifiedDate = ModifiedPredicate.modifiedMatches(source(moduleChunk), new File(outputPath));
         for (VirtualFile virtualFile : moduleChunk.getFilesToCompile()) {
-            files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), new Date(), virtualFile.contentsToByteArray()));
+            File file = new File(virtualFile.getPresentableUrl());
+            if(!modifiedDate.matches(file)) {
+                files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), modified(file), virtualFile.contentsToByteArray()));
+            }
         }
         return new MemoryStore(files);
+    }
+
+    private static File source(ModuleChunk moduleChunk) {
+        return new File(moduleChunk.getSourceRoots(moduleChunk.getModules()[0])[0].getPresentableUrl());
+    }
+
+    private static Function1<VirtualFile, File> asFile() {
+        return new Function1<VirtualFile, File>() {
+            @Override
+            public File call(VirtualFile virtualFile) throws Exception {
+                return new File(virtualFile.getPresentableUrl());
+            }
+        };
+    }
+
+    private static Date modified(final File file) {
+        return new Date(file.lastModified());
     }
 }

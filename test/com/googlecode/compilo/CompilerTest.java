@@ -57,6 +57,7 @@ public class CompilerTest {
 //        assertThat(dirContains(output, "com/example/HelloWorld.java"), is(true));
         assertThat(dirContains(output, "com/example/resource.txt"), is(true));
         assertThat(dirContains(output, "com/example/sub/another.txt"), is(true));
+        compiler.compile(input, output);
     }
 
     public static boolean dirContains(File directory, final String name) throws FileNotFoundException {
