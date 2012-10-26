@@ -6,16 +6,19 @@
     <property name="artifacts" value="${build}/artifacts"/>
     <property name="reports" value="${artifacts}/reports"/>
     <property name="src" value="${basedir}/src"/>
+    <property name="plugin.src" value="${basedir}/intellij-plugin/src"/>
     <property name="test" value="${basedir}/test"/>
     <property name="group.id" value="com.googlecode.${ant.project.name}"/>
     <property name="release.version" value="${build.number}"/>
     <property name="release.name" value="${ant.project.name}-${release.version}"/>
     <property name="release.jar" value="${release.name}.jar"/>
+    <property name="release.plugin.jar" value="${ant.project.name}-intellij-${release.version}"/>
     <property name="release.pom" value="${release.name}.pom"/>
     <property name="release.src" value="${release.name}-sources.jar"/>
     <property name="release.dep" value="${release.name}-dep.jar"/>
     <property name="release.dep.path" value="${artifacts}/${release.name}-dep.jar"/>
     <property name="release.jar.path" value="${artifacts}/${release.jar}"/>
+    <property name="release.plugin.jar.path" value="${artifacts}/${release.plugin.jar}"/>
     <property name="test.jar.path" value="${artifacts}/${release.name}.test.jar"/>
     <property name="build.dependencies.dir" value="lib/build"/>
     <property name="runtime.dependencies.dir" value="lib/runtime"/>
@@ -59,6 +62,11 @@
                          version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
     </target>
 
+    <target name="plugin">
+        <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
+                         version="${release.version}"/>
+    </target>
+
     <target name="test">
         <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars"
                          version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
@@ -81,9 +89,11 @@
             <entry key="project.name" value="${ant.project.name}"/>
             <entry key="release.name" value="${release.name}"/>
             <entry key="release.path" value="com/googlecode/${ant.project.name}/${ant.project.name}/${release.version}/"/>
-            <entry key="release.files" value="${release.jar},${release.pom},${release.src},${release.dep}"/>
+            <entry key="release.files" value="${release.jar},${release.pom},${release.src},${release.dep},${release.plugin.jar}"/>
             <entry key="${release.jar}.description" value="${hg.summary} build:${build.number} "/>
             <entry key="${release.jar}.labels" value="Jar"/>
+            <entry key="${release.plugin.jar}.description" value="IntelliJ Plugin: ${hg.summary} build:${build.number} "/>
+            <entry key="${release.plugin.jar}.labels" value="Jar IntelliJ"/>
             <entry key="${release.pom}.description" value="Maven POM file build:${build.number}"/>
             <entry key="${release.pom}.labels" value="POM"/>
             <entry key="${release.src}.description" value="Source file build:${build.number}"/>
@@ -105,6 +115,7 @@
         </parallel>
         <antcall target="compile"/>
         <parallel>
+           <antcall target="plugin"/>
            <antcall target="test"/>
            <antcall target="package"/>
         </parallel>
