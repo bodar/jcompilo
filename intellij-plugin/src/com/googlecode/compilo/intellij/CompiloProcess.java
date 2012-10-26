@@ -7,12 +7,12 @@ import com.googlecode.compilo.Inputs;
 import com.googlecode.compilo.Outputs;
 import com.googlecode.totallylazy.Sequence;
 
+import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import static com.googlecode.compilo.Environment.constructors.environment;
 
 public class CompiloProcess extends Process {
     private final Compiler compiler;
@@ -20,10 +20,11 @@ public class CompiloProcess extends Process {
     private final Outputs outputs;
     private int exit;
 
-    public CompiloProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions) throws IOException {
+    public CompiloProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) throws IOException {
         this.inputs = inputs;
         this.outputs = outputs;
-        compiler = Compiler.compiler(Environment.constructors.environment(), dependencies, compileOptions);
+
+        compiler = Compiler.compiler(Environment.constructors.environment(), dependencies, compileOptions, diagnosticListener);
     }
 
     @Override
@@ -59,5 +60,4 @@ public class CompiloProcess extends Process {
     @Override
     public void destroy() {
     }
-
 }
