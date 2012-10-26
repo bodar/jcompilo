@@ -12,9 +12,11 @@ import static com.googlecode.compilo.MoveToTL.classFilename;
 public class OutputsObject extends ForwardingJavaFileObject<JavaFileObject> {
     private final String filename;
     private final Outputs outputs;
+    private final Date modified;
 
-    public OutputsObject(String className, JavaFileObject output, Outputs outputs) {
+    public OutputsObject(String className, JavaFileObject output, Date modified, Outputs outputs) {
         super(output);
+        this.modified = modified;
         this.filename = classFilename(className);
         this.outputs = outputs;
     }
@@ -24,7 +26,7 @@ public class OutputsObject extends ForwardingJavaFileObject<JavaFileObject> {
         return new ByteArrayOutputStream(){
             @Override
             public void close() throws IOException {
-                outputs.put(Resource.constructors.resource(filename, new Date(), toByteArray()));
+                outputs.put(Resource.constructors.resource(filename, modified, toByteArray()));
             }
         };
     }

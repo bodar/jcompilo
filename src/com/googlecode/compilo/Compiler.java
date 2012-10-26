@@ -3,6 +3,7 @@ package com.googlecode.compilo;
 import com.googlecode.compilo.asm.AsmMethodHandler;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.FileDestination;
+import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
@@ -13,6 +14,7 @@ import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sources;
 import com.googlecode.totallylazy.collections.ImmutableList;
+import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.Type;
 
 import javax.tools.DiagnosticListener;
@@ -27,6 +29,7 @@ import java.util.Map;
 import static com.googlecode.compilo.BackgroundDestination.backgroundDestination;
 import static com.googlecode.compilo.BackgroundOutputs.backgroundOutputs;
 import static com.googlecode.compilo.MemoryStore.memoryStore;
+import static com.googlecode.compilo.ModifiedPredicate.modifiedMatches;
 import static com.googlecode.compilo.Outputs.constructors.output;
 import static com.googlecode.compilo.ResourceHandler.methods.decorate;
 import static com.googlecode.compilo.asm.AsmResourceHandler.asmResourceHandler;
@@ -110,7 +113,7 @@ public class Compiler {
     }
 
     public Void compile(final File sourceDirectory, final File destination) throws Exception {
-        Sources source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(isFile()).realise());
+        Sources source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(not(isFile().and(modifiedMatches(sourceDirectory, destination)))).realise());
         if (source.sources().isEmpty()) return VOID;
         return using(source, backgroundDestination(destination(destination)), new Function2<Sources, Destination, Void>() {
             public Void call(final Sources source, Destination destination) throws Exception {

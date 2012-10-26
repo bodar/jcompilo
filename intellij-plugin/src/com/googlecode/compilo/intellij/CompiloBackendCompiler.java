@@ -3,10 +3,12 @@ package com.googlecode.compilo.intellij;
 import com.googlecode.compilo.CompileOption;
 import com.googlecode.compilo.Inputs;
 import com.googlecode.compilo.MemoryStore;
+import com.googlecode.compilo.ModifiedPredicate;
 import com.googlecode.compilo.Outputs;
 import com.googlecode.compilo.Resource;
 import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
@@ -36,7 +38,6 @@ import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class CompiloBackendCompiler implements BackendCompiler {
 
     @NotNull
     public Process launchProcess(@NotNull ModuleChunk moduleChunk, @NotNull String outputPath, @NotNull CompileContext compileContext) throws IOException {
-        return new CompiloProcess(inputsFor(moduleChunk), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), diagnosticListener);
+        return new CompiloProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), diagnosticListener);
     }
 
     public void compileFinished() {}
@@ -123,10 +124,14 @@ public class CompiloBackendCompiler implements BackendCompiler {
         });
     }
 
-    public static Inputs inputsFor(ModuleChunk moduleChunk) throws IOException {
+    public static Inputs inputsFor(ModuleChunk moduleChunk, String outputPath) throws IOException {
         Map<String, Resource> files = new ConcurrentHashMap<String, Resource>();
+        Predicate<File> modifiedDate = ModifiedPredicate.modifiedMatches(source(moduleChunk), new File(outputPath));
         for (VirtualFile virtualFile : moduleChunk.getFilesToCompile()) {
-            files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), new Date(), virtualFile.contentsToByteArray()));
+            File file = new File(virtualFile.getPresentableUrl());
+            if (!modifiedDate.matches(file)) {
+                files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), modified(file), virtualFile.contentsToByteArray()));
+            }
         }
         return new MemoryStore(files);
     }
