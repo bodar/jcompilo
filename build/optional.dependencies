@@ -1,0 +1,4 @@
+mvn://repo.bodar.com.s3.amazonaws.com/com.intellij:idea-IC:jar:117.117
+mvn://repo.bodar.com.s3.amazonaws.com/com.intellij:openapi:jar:117.117
+mvn://repo.bodar.com.s3.amazonaws.com/com.intellij:annotations:jar:117.117
+mvn://repo.bodar.com.s3.amazonaws.com/com.intellij:util:jar:117.117
