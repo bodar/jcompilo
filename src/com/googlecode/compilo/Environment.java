@@ -3,7 +3,6 @@ package com.googlecode.compilo;
 import com.googlecode.totallylazy.Files;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
 
@@ -37,6 +36,10 @@ public interface Environment {
 
         public static Environment environment(File workingDirectory, Properties properties) {
             return environment(workingDirectory, properties, System.out);
+        }
+
+        public static Environment environment(final PrintStream out) {
+            return environment(Files.workingDirectory(), properties(), out);
         }
 
         public static Environment environment(final File workingDirectory, final Properties properties, final PrintStream out) {

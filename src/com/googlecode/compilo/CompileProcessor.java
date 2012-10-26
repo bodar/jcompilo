@@ -4,9 +4,11 @@ import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Characters;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sources;
 
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -34,26 +36,28 @@ public class CompileProcessor implements Processor {
     public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(Debug, Implicit(None));
     private final Environment env;
     private final JavaCompiler compiler;
+    private final Option<DiagnosticListener<JavaFileObject>> diagnosticListener;
     private final Sequence<CompileOption> options;
     private final StandardJavaFileManager standardFileManager;
 
-    private CompileProcessor(Environment env, JavaCompiler compiler, Iterable<CompileOption> options, Iterable<File> dependancies) {
+    private CompileProcessor(Environment env, JavaCompiler compiler, Iterable<CompileOption> options, Iterable<File> dependancies, Option<DiagnosticListener<JavaFileObject>> diagnosticListener) {
         this.env = env;
         this.compiler = compiler;
+        this.diagnosticListener = diagnosticListener;
         this.options = sequence(options);
         standardFileManager = compiler.getStandardFileManager(null, null, Characters.UTF8);
         setDependencies(sequence(dependancies).filter(where(name(), not(endsWith("-sources.jar")))));
     }
 
-    public static CompileProcessor compile(Environment env, final Iterable<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies) {
-        return new CompileProcessor(env, compiler, options, dependancies);
+    public static CompileProcessor compile(Environment env, final Iterable<CompileOption> options, final JavaCompiler compiler, Iterable<File> dependancies, Option<DiagnosticListener<JavaFileObject>> diagnosticListener) {
+        return new CompileProcessor(env, compiler, options, dependancies, diagnosticListener);
     }
 
     public static boolean compile(final Environment env, final Iterable<File> dependancies, Sources source, Destination destination) throws Exception {
         return using(source, destination, new Function2<Sources, Destination, Boolean>() {
             @Override
             public Boolean call(Sources source, Destination destination) throws Exception {
-                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
+                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies, Option.<DiagnosticListener<JavaFileObject>>none()).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
             }
         });
     }
@@ -62,7 +66,7 @@ public class CompileProcessor implements Processor {
     public boolean process(Inputs sources, Outputs outputs) throws Exception {
         env.out().prefix("    [javac] ");
         env.out().printf("Compiling %s source files%n", sources.size());
-        Boolean success = compiler.getTask(new OutputStreamWriter(env.out()), manager(outputs), null, options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
+        Boolean success = compiler.getTask(new OutputStreamWriter(env.out()), manager(outputs), diagnosticListener.getOrNull(), options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
         env.out().clearPrefix();
         if (!success) throw new IllegalStateException("Compile failed");
         return success;

@@ -7,6 +7,7 @@ import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Function2;
 import com.googlecode.totallylazy.Maps;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
@@ -16,7 +17,9 @@ import com.googlecode.totallylazy.collections.ImmutableList;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.Type;
 
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -72,12 +75,16 @@ public class Compiler {
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions) {
-        return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER);
+        return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER, Option.<DiagnosticListener<JavaFileObject>>none());
     }
 
-    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler) {
+    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) {
+        return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER, Option.<DiagnosticListener<JavaFileObject>>some(diagnosticListener));
+    }
+
+    public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler, Option<DiagnosticListener<JavaFileObject>> diagnosticListener) {
         return compiler(env).
-                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies)).
+                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies, diagnosticListener)).
                 add(CopyProcessor.copy(env, not(or(startsWith("."), JAVA_FILES)))).
                 add(asmResourceHandler(asmProcessors(env)));
     }
