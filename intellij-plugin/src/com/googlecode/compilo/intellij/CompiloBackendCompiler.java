@@ -12,8 +12,6 @@ import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
-import com.googlecode.totallylazy.collections.ImmutableMap;
-import com.googlecode.totallylazy.collections.ImmutableSortedMap;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
@@ -23,7 +21,6 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfigurable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
@@ -32,7 +29,6 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import java.io.File;
@@ -40,7 +36,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,11 +71,11 @@ public class CompiloBackendCompiler implements BackendCompiler {
     }
 
     public OutputParser createErrorParser(@NotNull String s, Process process) {
-        return new CompiloOutputParser(diagnosticListener);
+        return CompiloOutputParser.compiloOutputParser(diagnosticListener);
     }
 
     public OutputParser createOutputParser(@NotNull String s) {
-        return new CompiloOutputParser(diagnosticListener);
+        return CompiloOutputParser.compiloOutputParser(diagnosticListener);
     }
 
 
@@ -142,44 +137,7 @@ public class CompiloBackendCompiler implements BackendCompiler {
         return new File(moduleChunk.getSourceRoots(moduleChunk.getModules()[0])[0].getPresentableUrl());
     }
 
-    private static Function1<VirtualFile, File> asFile() {
-        return new Function1<VirtualFile, File>() {
-            @Override
-            public File call(VirtualFile virtualFile) throws Exception {
-                return new File(virtualFile.getPresentableUrl());
-            }
-        };
-    }
-
     private static Date modified(final File file) {
         return new Date(file.lastModified());
-    }
-
-    public static class CompiloOutputParser extends OutputParser {
-        private final DiagnosticCollector<JavaFileObject> diagnosticCollector;
-        private static final ImmutableMap<Diagnostic.Kind, CompilerMessageCategory> conversions = ImmutableSortedMap.constructors.sortedMap(
-                Diagnostic.Kind.ERROR, CompilerMessageCategory.ERROR,
-                Diagnostic.Kind.WARNING, CompilerMessageCategory.WARNING,
-                Diagnostic.Kind.MANDATORY_WARNING, CompilerMessageCategory.WARNING,
-                Diagnostic.Kind.NOTE, CompilerMessageCategory.INFORMATION,
-                Diagnostic.Kind.OTHER, CompilerMessageCategory.INFORMATION
-        );
-
-        public CompiloOutputParser(DiagnosticCollector<JavaFileObject> diagnosticCollector) {
-            this.diagnosticCollector = diagnosticCollector;
-        }
-
-        @Override
-        public boolean processMessageLine(Callback callback) {
-            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnosticCollector.getDiagnostics()) {
-                callback.message(convert(diagnostic.getKind()), diagnostic.getMessage(Locale.getDefault()),
-                        diagnostic.getSource().getName(), ((Long) diagnostic.getLineNumber()).intValue(), ((Long) diagnostic.getColumnNumber()).intValue());
-            }
-            return super.processMessageLine(callback);
-        }
-
-        private CompilerMessageCategory convert(Diagnostic.Kind kind) {
-            return conversions.get(kind).get();
-        }
     }
 }
