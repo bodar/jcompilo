@@ -128,6 +128,7 @@ public class CompiloBackendCompiler implements BackendCompiler {
                 files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), modified(file), virtualFile.contentsToByteArray()));
             }
         }
+        System.out.println(files.size());
         return new MemoryStore(files);
     }
 
