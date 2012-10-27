@@ -74,11 +74,11 @@ public class CompiloBackendCompiler implements BackendCompiler {
     }
 
     public OutputParser createErrorParser(@NotNull String s, Process process) {
-        return CompiloOutputParser.compiloOutputParser(diagnosticListener);
+        return null;
     }
 
     public OutputParser createOutputParser(@NotNull String s) {
-        return CompiloOutputParser.compiloOutputParser(diagnosticListener);
+        return null;
     }
 
 
@@ -88,7 +88,7 @@ public class CompiloBackendCompiler implements BackendCompiler {
 
     @NotNull
     public Process launchProcess(@NotNull ModuleChunk moduleChunk, @NotNull String outputPath, @NotNull CompileContext compileContext) throws IOException {
-        return new FakeProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), diagnosticListener);
+        return new FakeProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), new CompilerDiagnostics(compileContext));
     }
 
     public void compileFinished() {}
