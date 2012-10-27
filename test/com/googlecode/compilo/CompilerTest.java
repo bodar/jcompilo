@@ -1,9 +1,6 @@
 package com.googlecode.compilo;
 
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Predicates;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Zip;
+import com.googlecode.totallylazy.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,6 +49,7 @@ public class CompilerTest {
     public void canCompilerADirectoryToAnotherDirectory() throws Exception {
         File input = directory(env.workingDirectory(), "example/src");
         File output = directory(env.workingDirectory(), "example/build/artifacts/compiled");
+        Files.deleteFiles(output);
         compiler.compile(input, output);
         assertThat(dirContains(output, "com/example/HelloWorld.class"), is(true));
 //        assertThat(dirContains(output, "com/example/HelloWorld.java"), is(true));
