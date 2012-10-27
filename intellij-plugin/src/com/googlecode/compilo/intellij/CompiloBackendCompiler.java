@@ -2,16 +2,15 @@ package com.googlecode.compilo.intellij;
 
 import com.googlecode.compilo.CompileOption;
 import com.googlecode.compilo.Inputs;
-import com.googlecode.compilo.MemoryStore;
 import com.googlecode.compilo.ModifiedPredicate;
 import com.googlecode.compilo.Outputs;
 import com.googlecode.compilo.Resource;
 import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
+import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
@@ -21,6 +20,7 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfigurable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
+import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
@@ -33,12 +33,15 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+
+import static com.googlecode.compilo.MemoryStore.memoryStore;
+import static com.googlecode.compilo.Resource.constructors.resource;
+import static com.googlecode.totallylazy.Files.relativePath;
+import static com.googlecode.totallylazy.Predicates.not;
+import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Strings.startsWith;
 
 public class CompiloBackendCompiler implements BackendCompiler {
     private static final Set<FileType> JAVA = Sets.<FileType>set(StdFileTypes.JAVA);
@@ -85,7 +88,7 @@ public class CompiloBackendCompiler implements BackendCompiler {
 
     @NotNull
     public Process launchProcess(@NotNull ModuleChunk moduleChunk, @NotNull String outputPath, @NotNull CompileContext compileContext) throws IOException {
-        return new CompiloProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), diagnosticListener);
+        return new FakeProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), diagnosticListener);
     }
 
     public void compileFinished() {}
@@ -115,26 +118,57 @@ public class CompiloBackendCompiler implements BackendCompiler {
         return Sequences.sequence(moduleChunk.getCompilationClasspathFiles()).map(new Function1<VirtualFile, File>() {
             @Override
             public File call(VirtualFile virtualFile) throws Exception {
-                return new File(virtualFile.getPresentableUrl());
+                return file(virtualFile);
             }
         });
     }
 
     public static Inputs inputsFor(ModuleChunk moduleChunk, String outputPath) throws IOException {
-        Map<String, Resource> files = new ConcurrentHashMap<String, Resource>();
-        Predicate<File> modifiedDate = ModifiedPredicate.modifiedMatches(source(moduleChunk), new File(outputPath));
-        for (VirtualFile virtualFile : moduleChunk.getFilesToCompile()) {
-            File file = new File(virtualFile.getPresentableUrl());
-            if (!modifiedDate.matches(file)) {
-                files.put(virtualFile.getPresentableUrl(), Resource.constructors.resource(virtualFile.getPresentableUrl(), modified(file), virtualFile.contentsToByteArray()));
-            }
-        }
-        System.out.println(files.size());
-        return new MemoryStore(files);
+        File root = root(moduleChunk);
+        Sequence<Resource> inputs = sequence(moduleChunk.getFilesToCompile()).
+                filter(not(modifiedMatches(root, new File(outputPath)))).
+                map(asResource(root));
+
+        return memoryStore(inputs);
     }
 
-    private static File source(ModuleChunk moduleChunk) {
-        return new File(moduleChunk.getSourceRoots(moduleChunk.getModules()[0])[0].getPresentableUrl());
+    private static LogicalPredicate<VirtualFile> modifiedMatches(File sourceDirectory, File destinationDirectory) {
+        final LogicalPredicate<File> predicate = ModifiedPredicate.modifiedMatches(sourceDirectory, destinationDirectory);
+        return new LogicalPredicate<VirtualFile>() {
+            @Override
+            public boolean matches(VirtualFile other) {
+                return predicate.matches(file(other));
+            }
+        };
+    }
+
+    private static Function1<VirtualFile, Resource> asResource(final File root) {
+        return new Function1<VirtualFile, Resource>() {
+            @Override
+            public Resource call(VirtualFile virtualFile) throws Exception {
+                File source = file(virtualFile);
+                return resource(relativePath(root, source), modified(source), virtualFile.contentsToByteArray());
+            }
+        };
+    }
+
+    private static File root(ModuleChunk moduleChunk) {
+        return file(sequence(moduleChunk.getSourceRoots()).
+                find(where(getPath(), startsWith(moduleChunk.getProject().getBasePath()))).
+                get());
+    }
+
+    private static Function1<VirtualFile, String> getPath() {
+        return new Function1<VirtualFile, String>() {
+            @Override
+            public String call(VirtualFile virtualFile) throws Exception {
+                return virtualFile.getPath();
+            }
+        };
+    }
+
+    private static File file(VirtualFile virtualFile) {
+        return new File(virtualFile.getPresentableUrl());
     }
 
     private static Date modified(final File file) {
