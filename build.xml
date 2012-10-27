@@ -63,7 +63,7 @@
     </target>
 
     <target name="plugin">
-        <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
+        <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}.temp" classpathref="all.jars"
                          version="${release.version}"/>
     </target>
 
@@ -71,7 +71,6 @@
         <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars"
                          version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
         <test jar="${test.jar.path}" classpathref="all.jars" reports="${reports}"/>
-        <embed.libs/>
     </target>
 
     <target name="package">
@@ -105,7 +104,15 @@
         <generate.pom artifact.uri="mvn:${group.id}:${ant.project.name}:jar:${release.version}"
                              dependencies="build/runtime.dependencies"
                              directory="${artifacts}"/>
+    </target>
 
+    <target name="embed">
+        <embed.libs/>
+        <zip destfile="${release.plugin.jar.path}">
+            <zipfileset src="${release.jar.path}"/>
+            <zipfileset src="${release.plugin.jar.path}.temp"/>
+        </zip>
+        <delete file="${release.plugin.jar.path}.temp"/>
     </target>
 
     <target name="build" description="build all">
@@ -115,9 +122,10 @@
         </parallel>
         <antcall target="compile"/>
         <parallel>
-           <antcall target="plugin"/>
-           <antcall target="test"/>
-           <antcall target="package"/>
+            <antcall target="plugin"/>
+            <antcall target="test"/>
+            <antcall target="package"/>
         </parallel>
+        <antcall target="embed"/>
     </target>
 </project>
