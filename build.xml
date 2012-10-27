@@ -63,6 +63,7 @@
     </target>
 
     <target name="plugin">
+        <replace file="${plugin.src}/META-INF/plugin.xml" token="dev-build" value="${build.number}"/>
         <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}.temp" classpathref="all.jars"
                          version="${release.version}"/>
     </target>
