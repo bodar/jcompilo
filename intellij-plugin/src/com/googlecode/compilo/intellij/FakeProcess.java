@@ -23,7 +23,6 @@ public class FakeProcess extends Process {
     public FakeProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) throws IOException {
         this.inputs = inputs;
         this.outputs = outputs;
-
         compiler = Compiler.compiler(Environment.constructors.environment(), dependencies, compileOptions, diagnosticListener);
     }
 

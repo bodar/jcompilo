@@ -146,8 +146,11 @@ public class CompiloBackendCompiler implements BackendCompiler {
         return new Function1<VirtualFile, Resource>() {
             @Override
             public Resource call(VirtualFile virtualFile) throws Exception {
-                File source = file(virtualFile);
-                return resource(relativePath(root, source), modified(source), virtualFile.contentsToByteArray());
+                final File source = file(virtualFile);
+                String relative = relativePath(root, source);
+                Date modified = modified(source);
+                byte[] bytes = virtualFile.contentsToByteArray();
+                return new ResourceWithSource(relative, modified, bytes, source);
             }
         };
     }
@@ -173,5 +176,14 @@ public class CompiloBackendCompiler implements BackendCompiler {
 
     private static Date modified(final File file) {
         return new Date(file.lastModified());
+    }
+
+    public static class ResourceWithSource extends Resource.AResource {
+        public final File source;
+
+        public ResourceWithSource(String relative, Date modified, byte[] bytes, File source) {
+            super(relative, modified, bytes);
+            this.source = source;
+        }
     }
 }
