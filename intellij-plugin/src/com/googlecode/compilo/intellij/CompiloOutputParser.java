@@ -43,11 +43,11 @@ public class CompiloOutputParser extends OutputParser {
         return super.processMessageLine(callback);
     }
 
-    private String uri(Diagnostic<? extends JavaFileObject> diagnostic) {
+    public static String uri(Diagnostic<? extends JavaFileObject> diagnostic) {
         return constructUrl(LocalFileSystem.PROTOCOL, diagnostic.getSource().getName());
     }
 
-    private CompilerMessageCategory convert(Diagnostic.Kind kind) {
+    public static CompilerMessageCategory convert(Diagnostic.Kind kind) {
         return conversions.get(kind).get();
     }
 }
