@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class CompiloProcess extends Process {
+public class FakeProcess extends Process {
     private final Compiler compiler;
     private final Inputs inputs;
     private final Outputs outputs;
     private int exit;
 
-    public CompiloProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) throws IOException {
+    public FakeProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) throws IOException {
         this.inputs = inputs;
         this.outputs = outputs;
 
