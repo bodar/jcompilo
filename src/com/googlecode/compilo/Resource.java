@@ -14,22 +14,7 @@ public interface Resource {
 
     class constructors {
         public static Resource resource(final String name, final Date modified, final byte[] bytes) {
-            return new Resource() {
-                @Override
-                public String name() {
-                    return name;
-                }
-
-                @Override
-                public Date modified() {
-                    return modified;
-                }
-
-                @Override
-                public byte[] bytes() {
-                    return bytes;
-                }
-            };
+            return new AResource(name, modified, bytes);
         }
     }
 
@@ -43,4 +28,32 @@ public interface Resource {
             };
         }
     }
+
+    static class AResource implements Resource {
+        private final String name;
+        private final Date modified;
+        private final byte[] bytes;
+
+        public AResource(String name, Date modified, byte[] bytes) {
+            this.name = name;
+            this.modified = modified;
+            this.bytes = bytes;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+
+        @Override
+        public Date modified() {
+            return modified;
+        }
+
+        @Override
+        public byte[] bytes() {
+            return bytes;
+        }
+    }
+
 }

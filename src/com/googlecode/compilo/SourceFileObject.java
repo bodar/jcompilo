@@ -46,4 +46,8 @@ public class SourceFileObject extends SimpleJavaFileObject {
     public long getLastModified() {
         return resource.modified().getTime();
     }
+
+    public Resource resource() {
+        return resource;
+    }
 }
