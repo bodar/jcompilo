@@ -1,23 +1,11 @@
 <idea-plugin version="2">
   <name>Compilo Java Compiler</name>
-  <description>A pure Java 6+ build tool with advanced compiler features</description>
-  <version>1.0</version>
+  <description>A pure Java 6+ build tool with advanced compiler features including Tail Call Optimisation</description>
+  <version>dev-build</version>
   <vendor>Bodar Ltd</vendor>
 
   <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
   <idea-version since-build="107.105"/>
-
-  <application-components>
-    <!-- Add your application components here -->
-  </application-components>
-
-  <project-components>
-    <!-- Add your project components here -->
-  </project-components>
-
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
 
   <extensions defaultExtensionNs="com.intellij">
       <java.compiler implementation="com.googlecode.compilo.intellij.CompiloBackendCompiler"/>
