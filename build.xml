@@ -113,7 +113,15 @@
         <embed.libs/>
         <zip destfile="${release.plugin.zip.path}">
             <zipfileset file="${release.plugin.jar.path}" prefix="compilo/lib"/>
-            <zipfileset file="${release.jar.path}" prefix="compilo/lib"/>
+            <zipfileset file="${release.dep.path}" prefix="compilo/lib"/>
+            <zipfileset file="${release.dep.path}" prefix="compilo/lib"/>
+            <zipfileset dir="${build.dependencies.dir}" prefix="compilo/lib">
+                <include name="totallylazy*.jar"/>
+                <include name="yadic*.jar"/>
+                <include name="shavenmaven*.jar"/>
+                <include name="asm*.jar"/>
+                <exclude name="*-sources.jar"/>
+            </zipfileset>
         </zip>
     </target>
 
