@@ -13,12 +13,14 @@
     <property name="release.name" value="${ant.project.name}-${release.version}"/>
     <property name="release.jar" value="${release.name}.jar"/>
     <property name="release.plugin.jar" value="${ant.project.name}-intellij-${release.version}.jar"/>
+    <property name="release.plugin.zip" value="${ant.project.name}-intellij-${release.version}.zip"/>
     <property name="release.pom" value="${release.name}.pom"/>
     <property name="release.src" value="${release.name}-sources.jar"/>
     <property name="release.dep" value="${release.name}-dep.jar"/>
     <property name="release.dep.path" value="${artifacts}/${release.name}-dep.jar"/>
     <property name="release.jar.path" value="${artifacts}/${release.jar}"/>
     <property name="release.plugin.jar.path" value="${artifacts}/${release.plugin.jar}"/>
+    <property name="release.plugin.zip.path" value="${artifacts}/${release.plugin.zip}"/>
     <property name="test.jar.path" value="${artifacts}/${release.name}.test.jar"/>
     <property name="build.dependencies.dir" value="lib/build"/>
     <property name="runtime.dependencies.dir" value="lib/runtime"/>
@@ -64,7 +66,7 @@
 
     <target name="plugin">
         <replace file="${plugin.src}/META-INF/plugin.xml" token="dev-build" value="${build.number}"/>
-        <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}.temp" classpathref="all.jars"
+        <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
                          version="${release.version}"/>
     </target>
 
@@ -89,11 +91,11 @@
             <entry key="project.name" value="${ant.project.name}"/>
             <entry key="release.name" value="${release.name}"/>
             <entry key="release.path" value="com/googlecode/${ant.project.name}/${ant.project.name}/${release.version}/"/>
-            <entry key="release.files" value="${release.jar},${release.pom},${release.src},${release.dep},${release.plugin.jar}"/>
+            <entry key="release.files" value="${release.jar},${release.pom},${release.src},${release.dep},${release.plugin.zip}"/>
             <entry key="${release.jar}.description" value="${hg.summary} build:${build.number} "/>
             <entry key="${release.jar}.labels" value="Jar"/>
-            <entry key="${release.plugin.jar}.description" value="IntelliJ Plugin: ${hg.summary} build:${build.number} "/>
-            <entry key="${release.plugin.jar}.labels" value="Jar IntelliJ"/>
+            <entry key="${release.plugin.zip}.description" value="IntelliJ Plugin: ${hg.summary} build:${build.number} "/>
+            <entry key="${release.plugin.zip}.labels" value="Zip IntelliJ"/>
             <entry key="${release.pom}.description" value="Maven POM file build:${build.number}"/>
             <entry key="${release.pom}.labels" value="POM"/>
             <entry key="${release.src}.description" value="Source file build:${build.number}"/>
@@ -109,11 +111,10 @@
 
     <target name="embed">
         <embed.libs/>
-        <zip destfile="${release.plugin.jar.path}">
-            <zipfileset src="${release.jar.path}"/>
-            <zipfileset src="${release.plugin.jar.path}.temp"/>
+        <zip destfile="${release.plugin.zip.path}">
+            <zipfileset file="${release.plugin.jar.path}" prefix="compilo"/>
+            <zipfileset file="${release.jar.path}" prefix="compilo"/>
         </zip>
-        <delete file="${release.plugin.jar.path}.temp"/>
     </target>
 
     <target name="build" description="build all">
