@@ -112,8 +112,8 @@
     <target name="embed">
         <embed.libs/>
         <zip destfile="${release.plugin.zip.path}">
-            <zipfileset file="${release.plugin.jar.path}" prefix="compilo"/>
-            <zipfileset file="${release.jar.path}" prefix="compilo"/>
+            <zipfileset file="${release.plugin.jar.path}" prefix="compilo/lib"/>
+            <zipfileset file="${release.jar.path}" prefix="compilo/lib"/>
         </zip>
     </target>
 
