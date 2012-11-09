@@ -2,6 +2,7 @@ package com.googlecode.compilo.convention;
 
 import com.googlecode.compilo.Environment;
 import com.googlecode.compilo.Identifiers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.googlecode.totallylazy.Files.directory;

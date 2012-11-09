@@ -15,6 +15,7 @@ public abstract class LocationsConvention extends IdentifiersConvention implemen
     public File rootDir() { return env.workingDirectory(); }
     public File buildDir() { return directory(rootDir(), "build"); }
     public File artifactsDir() { return directory(buildDir(), "artifacts"); }
+    public File reportsDir() { return directory(artifactsDir(), "reports"); }
     public File srcDir() { return directory(rootDir(), "src"); }
     public File testDir() { return directory(rootDir(), "test"); }
     public File libDir() { return directory(rootDir(), "lib"); }

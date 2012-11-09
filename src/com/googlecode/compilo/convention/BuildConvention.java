@@ -69,7 +69,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     public Build test() throws Exception {
         stage("test");
         Sequence<File> productionJars = cons(mainJar(), dependencies());
-        Tests tests = tests(env, productionJars, testThreads(), debug());
+        Tests tests = tests(env, productionJars, testThreads(), reportsDir(), debug());
         compiler(env, productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
         tests.execute(testJar());

@@ -1,11 +1,13 @@
 package com.googlecode.compilo.junit;
 
-import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Lists;
+import com.googlecode.totallylazy.time.SystemClock;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -15,26 +17,27 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import static com.googlecode.totallylazy.Lists.list;
-import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.compilo.junit.LocalPrintStream.localPrintStream;
 
 public class TestExecutor {
     public static void main(String[] arguments) {
         try {
-            Sequence<String> values = sequence(arguments);
-            boolean success = execute(values.tail().toList(), Integer.valueOf(values.head()), System.out);
+            List<String> values = Lists.list(arguments);
+            boolean success = execute(values.subList(2, values.size()), Integer.valueOf(values.get(0)), System.out, new File(values.get(1)));
             System.exit(success ? 0 : -1);
         } catch (Exception e) {
             System.exit(-1);
         }
     }
 
-    public static boolean execute(final List<String> testNames, final int numberOfThreads, PrintStream out) throws Exception {
-        System.setOut(nullPrintStream());
-        System.setErr(nullPrintStream());
+    public static boolean execute(final List<String> testNames, final int numberOfThreads, PrintStream out, File directory) throws Exception {
+        System.setOut(localPrintStream);
+        System.setErr(localPrintStream);
 
-        Result result = execute(asClasses(testNames), numberOfThreads);
+        Result result = execute(asClasses(testNames), numberOfThreads, directory);
+        out.print(result);
 
         boolean success = result.wasSuccessful();
         if (!success) {
@@ -49,28 +52,23 @@ public class TestExecutor {
         return success;
     }
 
-    public static Result execute(Class<?>[] classes, int numberOfThreads) throws InterruptedException, ClassNotFoundException {
+    public static Result execute(Class<?>[] classes, int numberOfThreads, File directory) throws InterruptedException, ClassNotFoundException {
         Result result = new Result();
-
-        if(numberOfThreads == 1 ) {
-            junit(result).run(classes);
-        } else {
-            execute(numberOfThreads, tests(result, classes));
-        }
-
+        execute(numberOfThreads, tests(result, classes, directory));
         return result;
     }
 
-    private static JUnitCore junit(Result result) {
+    private static JUnitCore junit(Result result, File reportDirectory) {
         JUnitCore junit = new JUnitCore();
         junit.addListener(result.createListener());
+        junit.addListener(new AntTestOutput(reportDirectory, System.getProperties(), new SystemClock()));
         return junit;
     }
 
-    private static List<Callable<Result>> tests(Result result, final Class<?>[] classes) throws ClassNotFoundException {
+    private static List<Callable<Result>> tests(Result result, final Class<?>[] classes, File directory) throws ClassNotFoundException {
         List<Callable<Result>> tests = new ArrayList<Callable<Result>>();
         for (Class<?> testClass : classes) {
-            tests.add(new ResultCallable(result, testClass));
+            tests.add(new ResultCallable(result, testClass, directory));
         }
         return tests;
     }
@@ -79,11 +77,8 @@ public class TestExecutor {
     private static void execute(int numberOfThreads, final List<? extends Callable<?>> tests) throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         executorService.invokeAll((Collection<? extends Callable<Object>>) tests);
-        executorService.shutdownNow();
-    }
-
-    private static PrintStream nullPrintStream() {
-        return new NullPrintStream();
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.DAYS);
     }
 
     public static Class<?>[] asClasses(List<String> fileNames) throws ClassNotFoundException {
@@ -101,27 +96,17 @@ public class TestExecutor {
     static class ResultCallable implements Callable<Result> {
         private final Result result;
         private final Class<?> testClass;
+        private final File directory;
 
-        public ResultCallable(Result result, Class<?> testClass) {
+        public ResultCallable(Result result, Class<?> testClass, File directory) {
             this.result = result;
             this.testClass = testClass;
+            this.directory = directory;
         }
 
         @Override
         public Result call() {
-            return junit(result).run(testClass);
-        }
-    }
-
-    static class NullPrintStream extends PrintStream {
-        public NullPrintStream() {
-            super(new NullOutputStream());
-        }
-    }
-
-    static class NullOutputStream extends OutputStream {
-        @Override
-        public void write(int b) throws IOException {
+            return junit(result, directory).run(testClass);
         }
     }
 }
