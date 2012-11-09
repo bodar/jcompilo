@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="%1$s" failures="%2$s" hostname="%3$s" name="%4$s" tests="%5$s" time="%6$s" timestamp="%7$s">
+    <properties>
+%8$s
+    </properties>
+%9$s
+    <system-out><![CDATA[%10$s]]></system-out>
+    <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -25,25 +25,27 @@ public class Tests implements Processor {
     private final Environment environment;
     private final int numberOfThreads;
     private final boolean debug;
+    private final File reportsDirectory;
 
-    private Tests(Environment environment, Sequence<File> dependencies, int threads, Predicate<? super String> predicate, boolean debug) {
+    private Tests(Environment environment, Sequence<File> dependencies, int threads, File reportsDirectory, Predicate<? super String> predicate, boolean debug) {
         this.environment = environment;
         this.dependencies = dependencies;
         this.numberOfThreads = threads;
         this.predicate = predicate;
         this.debug = debug;
+        this.reportsDirectory = reportsDirectory;
     }
 
-    public static Tests tests(Environment env, final Sequence<File> dependencies) {
-        return tests(env, dependencies, CPUS, false);
+    public static Tests tests(Environment env, final Sequence<File> dependencies, final File reportsDirectory) {
+        return tests(env, dependencies, CPUS, reportsDirectory, false);
     }
 
-    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, final boolean debug) {
-        return tests(env, dependencies, threads, endsWith("Test.java"), debug);
+    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, final File reportsDirectory, final boolean debug) {
+        return tests(env, dependencies, threads, reportsDirectory, endsWith("Test.java"), debug);
     }
 
-    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, Predicate<? super String> predicate, final boolean debug) {
-        return new Tests(env, dependencies, threads, predicate, debug);
+    public static Tests tests(Environment env, final Sequence<File> dependencies, final int threads, final File reportsDirectory, Predicate<? super String> predicate, final boolean debug) {
+        return new Tests(env, dependencies, threads, reportsDirectory, predicate, debug);
     }
 
     @Override
@@ -63,7 +65,7 @@ public class Tests implements Processor {
             environment.out().prefix("    [junit] ");
             environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
             List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
-                    "com.googlecode.compilo.junit.TestExecutor", String.valueOf(numberOfThreads)))).toList();
+                    "com.googlecode.compilo.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
             arguments.addAll(sequence(tests).toList());
             ProcessBuilder builder = new ProcessBuilder(arguments);
             builder.redirectErrorStream(true);
