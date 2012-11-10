@@ -52,7 +52,11 @@ public class AntTestOutput extends RunListener {
     public void testRunStarted(Description description) throws Exception {
         started = clock.now();
         testName = description.getChildren().get(0).getDisplayName();
-        testFile = file(directory, String.format("TEST-%s.xml", testName));
+        testFile = file(directory, filename());
+    }
+
+    private String filename() {
+        return String.format("TEST-%s.xml", testName);
     }
 
     @Override
