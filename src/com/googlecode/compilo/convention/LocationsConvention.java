@@ -5,8 +5,10 @@ import com.googlecode.compilo.Locations;
 
 import java.io.File;
 
+import static com.googlecode.compilo.convention.ReleaseFile.constructors.releaseFile;
 import static com.googlecode.totallylazy.Files.directory;
 import static com.googlecode.totallylazy.Files.file;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.String.format;
 
 public abstract class LocationsConvention extends IdentifiersConvention implements Locations {

@@ -7,4 +7,5 @@ public interface Identifiers {
     String versionedArtifact();
 
     String artifactUri();
+    String releasePath();
 }
