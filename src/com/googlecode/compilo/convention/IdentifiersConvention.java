@@ -27,4 +27,8 @@ public abstract class IdentifiersConvention implements Identifiers {
         return String.format("mvn:%s:%s:jar:%s", group(), artifact(), version());
     }
 
+    @Override
+    public String releasePath() {
+        return String.format("%s/%s/%s/", group().replace('.', '/'), artifact(), version());
+    }
 }
