@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/compilo.iml" filepath="$PROJECT_DIR$/compilo.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
       <module fileurl="file://$PROJECT_DIR$/intellij-plugin/intellij-plugin.iml" filepath="$PROJECT_DIR$/intellij-plugin/intellij-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jcompilo.iml" filepath="$PROJECT_DIR$/jcompilo.iml" />
     </modules>
   </component>
 </project>

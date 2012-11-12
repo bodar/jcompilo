@@ -1,5 +1,5 @@
 <idea-plugin version="2">
-  <name>Compilo Java Compiler</name>
+  <name>JCompilo Java Compiler</name>
   <description>A pure Java 6+ build tool with advanced compiler features including Tail Call Optimisation</description>
   <version>dev-build</version>
   <vendor>Bodar Ltd</vendor>
@@ -8,6 +8,6 @@
   <idea-version since-build="107.105"/>
 
   <extensions defaultExtensionNs="com.intellij">
-      <java.compiler implementation="com.googlecode.compilo.intellij.CompiloBackendCompiler"/>
+      <java.compiler implementation="com.googlecode.jcompilo.intellij.JCompiloBackendCompiler"/>
   </extensions>
 </idea-plugin>
