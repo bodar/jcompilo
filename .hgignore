@@ -10,5 +10,5 @@ lib/runtime
 lib/optional
 test/com/googlecode/totallylazy/records/simpledb/AwsCredentials.properties
 .DS_Store
-example/lib/compilo.jar
+example/lib/jcompilo.jar
 

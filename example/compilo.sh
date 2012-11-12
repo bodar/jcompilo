@@ -1,8 +1,8 @@
 #!/bin/sh
 
 version=86
-name=compilo
-dir=lib/
+name=jcompilo
+dir=lib/build/
 jar=${dir}${name}.jar
 url=http://${name}.googlecode.com/files/${name}-${version}.jar
 

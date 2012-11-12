@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="compilo" default="build">
+<project name="jcompilo" default="build">
 
     <property name="build.number" value="dev.build"/>
     <property name="build" value="${basedir}/build"/>
@@ -61,7 +61,7 @@
 
     <target name="compile">
         <compile.and.jar src="${src}" jar="${release.jar.path}" classpathref="all.dependancies"
-                         version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
+                         version="${release.version}" main.class="com.googlecode.jcompilo.BootStrap"/>
     </target>
 
     <target name="plugin">
@@ -74,7 +74,7 @@
 
     <target name="test">
         <compile.and.jar src="${test}" jar="${test.jar.path}" classpathref="all.jars"
-                         version="${release.version}" main.class="com.googlecode.compilo.BootStrap"/>
+                         version="${release.version}" main.class="com.googlecode.jcompilo.BootStrap"/>
         <test jar="${test.jar.path}" classpathref="all.jars" reports="${reports}"/>
     </target>
 
@@ -114,10 +114,10 @@
     <target name="embed">
         <embed.libs/>
         <zip destfile="${release.plugin.zip.path}">
-            <zipfileset file="${release.plugin.jar.path}" prefix="compilo/lib"/>
-            <zipfileset file="${release.dep.path}" prefix="compilo/lib"/>
-            <zipfileset file="${release.dep.path}" prefix="compilo/lib"/>
-            <zipfileset dir="${build.dependencies.dir}" prefix="compilo/lib">
+            <zipfileset file="${release.plugin.jar.path}" prefix="jcompilo/lib"/>
+            <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
+            <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
+            <zipfileset dir="${build.dependencies.dir}" prefix="jcompilo/lib">
                 <include name="totallylazy*.jar"/>
                 <include name="yadic*.jar"/>
                 <include name="shavenmaven*.jar"/>

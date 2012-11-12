@@ -8,7 +8,7 @@
     </content>
     <orderEntry type="jdk" jdkName="IDEA IC-117.798" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="compilo" />
+    <orderEntry type="module" module-name="jcompilo" />
     <orderEntry type="library" name="build" level="project" />
     <orderEntry type="library" name="runtime" level="project" />
   </component>
