@@ -15,12 +15,9 @@ import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
-import com.intellij.compiler.impl.javaCompiler.api.CompilerAPIConfiguration;
-import com.intellij.compiler.impl.javaCompiler.javac.JavacConfigurable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
@@ -64,7 +61,7 @@ public class JCompiloBackendCompiler implements BackendCompiler {
 
     @NotNull
     public Configurable createConfigurable() {
-        return new JavacConfigurable(CompilerAPIConfiguration.getSettings(myProject, CompilerAPIConfiguration.class));
+        return new JCompiloConfigurable(this);
     }
 
     @NotNull
@@ -185,4 +182,5 @@ public class JCompiloBackendCompiler implements BackendCompiler {
             this.source = source;
         }
     }
+
 }
