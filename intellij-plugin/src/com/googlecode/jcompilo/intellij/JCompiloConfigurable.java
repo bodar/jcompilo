@@ -19,7 +19,7 @@ class JCompiloConfigurable implements Configurable {
         return backendCompiler.getPresentableName();
     }
 
-    @Override
+    // Required for IntelliJ 11
     public Icon getIcon() {
         return null;
     }
