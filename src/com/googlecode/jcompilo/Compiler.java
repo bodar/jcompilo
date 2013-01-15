@@ -12,7 +12,7 @@ import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sources;
-import com.googlecode.totallylazy.collections.ImmutableList;
+import com.googlecode.totallylazy.collections.PersistentList;
 import org.objectweb.asm.Type;
 
 import javax.tools.DiagnosticListener;
@@ -43,7 +43,7 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
-import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
+import static com.googlecode.totallylazy.collections.PersistentList.constructors;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
@@ -51,16 +51,16 @@ public class Compiler {
     public static final int CPUS = Runtime.getRuntime().availableProcessors();
     public static final Predicate<String> JAVA_FILES = endsWith(".java");
     private final Environment env;
-    private final ImmutableList<Processor> processors;
-    private final ImmutableList<ResourceHandler> resourceHandlers;
+    private final PersistentList<Processor> processors;
+    private final PersistentList<ResourceHandler> resourceHandlers;
 
-    private Compiler(Environment env, ImmutableList<Processor> processors, ImmutableList<ResourceHandler> resourceHandlers) {
+    private Compiler(Environment env, PersistentList<Processor> processors, PersistentList<ResourceHandler> resourceHandlers) {
         this.env = env;
         this.processors = processors;
         this.resourceHandlers = resourceHandlers;
     }
 
-    public static Compiler compiler(Environment env, ImmutableList<Processor> processors, final ImmutableList<ResourceHandler> resourceHandlers1) {
+    public static Compiler compiler(Environment env, PersistentList<Processor> processors, final PersistentList<ResourceHandler> resourceHandlers1) {
         return new Compiler(env, processors, resourceHandlers1);
     }
 

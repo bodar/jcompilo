@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.intellij;
 
 import com.googlecode.jcompilo.SourceFileObject;
-import com.googlecode.totallylazy.collections.ImmutableMap;
+import com.googlecode.totallylazy.collections.PersistentMap;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -11,7 +11,7 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import java.util.Locale;
 
-import static com.googlecode.totallylazy.collections.ImmutableSortedMap.constructors.sortedMap;
+import static com.googlecode.totallylazy.collections.PersistentSortedMap.constructors.sortedMap;
 import static com.intellij.openapi.vfs.VirtualFileManager.constructUrl;
 import static java.lang.Long.valueOf;
 
@@ -42,7 +42,7 @@ public class CompilerDiagnostics implements DiagnosticListener<JavaFileObject> {
         return source.getName();
     }
 
-    private static final ImmutableMap<Diagnostic.Kind, CompilerMessageCategory> conversions = sortedMap(
+    private static final PersistentMap<Diagnostic.Kind, CompilerMessageCategory> conversions = sortedMap(
             Diagnostic.Kind.ERROR, CompilerMessageCategory.ERROR,
             Diagnostic.Kind.WARNING, CompilerMessageCategory.WARNING,
             Diagnostic.Kind.MANDATORY_WARNING, CompilerMessageCategory.WARNING,
