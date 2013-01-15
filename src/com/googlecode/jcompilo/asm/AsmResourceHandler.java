@@ -3,7 +3,7 @@ package com.googlecode.jcompilo.asm;
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.ResourceHandler;
 import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.collections.ImmutableList;
+import com.googlecode.totallylazy.collections.PersistentList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -18,11 +18,11 @@ import static com.googlecode.jcompilo.asm.Asm.annotations;
 import static com.googlecode.jcompilo.asm.Asm.hasAnnotation;
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Debug.debugging;
-import static com.googlecode.totallylazy.collections.ImmutableList.constructors;
-import static com.googlecode.totallylazy.collections.ImmutableList.constructors.list;
+import static com.googlecode.totallylazy.collections.PersistentList.constructors;
+import static com.googlecode.totallylazy.collections.PersistentList.constructors.list;
 
 public class AsmResourceHandler implements ResourceHandler {
-    private final ImmutableList<Pair<Type, AsmMethodHandler>> processors;
+    private final PersistentList<Pair<Type, AsmMethodHandler>> processors;
     private final boolean verify;
 
     private AsmResourceHandler(Iterable<? extends Pair<Type, AsmMethodHandler>> processors, boolean verify) {

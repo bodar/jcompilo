@@ -1,22 +1,22 @@
 package com.example;
 
 import com.googlecode.totallylazy.annotations.tailrec;
-import com.googlecode.totallylazy.collections.ImmutableList;
+import com.googlecode.totallylazy.collections.PersistentList;
 
 public class RecursiveZipper<T> {
-    public final ImmutableList<T> focus;
-    public final ImmutableList<T> breadcrumbs;
+    public final PersistentList<T> focus;
+    public final PersistentList<T> breadcrumbs;
 
-    private RecursiveZipper(ImmutableList<T> focus, ImmutableList<T> breadcrumbs) {
+    private RecursiveZipper(PersistentList<T> focus, PersistentList<T> breadcrumbs) {
         this.focus = focus;
         this.breadcrumbs = breadcrumbs;
     }
 
-    public static <T> RecursiveZipper<T> zipper(ImmutableList<T> focus) {
-        return zipper(focus, ImmutableList.constructors.<T>empty());
+    public static <T> RecursiveZipper<T> zipper(PersistentList<T> focus) {
+        return zipper(focus, PersistentList.constructors.<T>empty());
     }
 
-    public static <T> RecursiveZipper<T> zipper(ImmutableList<T> focus, ImmutableList<T> breadcrumbs) {
+    public static <T> RecursiveZipper<T> zipper(PersistentList<T> focus, PersistentList<T> breadcrumbs) {
         return new RecursiveZipper<T>(focus, breadcrumbs);
     }
 
