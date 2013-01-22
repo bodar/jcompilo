@@ -48,7 +48,7 @@ import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
 public class Compiler {
-    public static final int CPUS = Runtime.getRuntime().availableProcessors();
+    public static final int CPUS = Math.max(1, Runtime.getRuntime().availableProcessors() / 2);
     public static final Predicate<String> JAVA_FILES = endsWith(".java");
     private final Environment env;
     private final PersistentList<Processor> processors;
