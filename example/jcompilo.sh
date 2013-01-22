@@ -1,20 +1,22 @@
 #!/bin/sh
 
-version=94
+version=@version@
 artifact=jcompilo
 group=com/googlecode/${artifact}
 repo=repo.bodar.com.s3.amazonaws.com
 dir=lib/
 jar=${dir}${artifact}.jar
-url=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}.jar
+remote-jar=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}.jar
+remote-sh=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}.sh
 
 if [ $1 = "-u" ]; then 
 	rm ${jar}
 	shift 1
 fi
 
-if [ ! -f ${jar} ]; then
+if [ ! -f ${local} ]; then
 	mkdir -p ${dir} 
-	wget ${url} -O ${jar} || curl -o ${jar} ${url}
+	wget -O ${jar} ${remote-jar} || curl -o ${jar} ${remote-jar}
+	wget -O $0 ${remote-sh} || curl -o $0 ${remote-sh}
 fi
 exec java -jar ${jar} $*
