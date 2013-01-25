@@ -37,7 +37,7 @@ public final class Asm {
 
     @SuppressWarnings("unchecked")
     public static <T> Sequence<T> seq(List list) {
-        return list != null ? Sequences.<T>sequence(list) : Sequences.<T>empty();
+        return Sequences.<T>sequence(list);
     }
 
     @SuppressWarnings("unchecked")
