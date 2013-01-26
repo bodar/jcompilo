@@ -56,9 +56,26 @@ public final class Asm {
     public static int store(Type type) {return type.getOpcode(Opcodes.ISTORE);}
 
     public static Sequence<Type> initialLocalVariables(ClassNode classNode, MethodNode methodNode) {
+        Sequence<Type> sequence = argumentTypes(methodNode);
+        return isStatic(methodNode) ? sequence : sequence.cons(Type.getType(classNode.name)) ;
+    }
+
+    public static boolean isStatic(MethodNode methodNode) {
+        return (methodNode.access & Opcodes.ACC_STATIC) != 0;
+    }
+
+    public static boolean isStatic(MethodInsnNode methodNode) {
+        return methodNode.getOpcode() == Opcodes.INVOKESTATIC;
+    }
+
+    public static Sequence<Type> argumentTypes(MethodNode methodNode) {
         Type type = Type.getType(methodNode.desc);
-        Sequence<Type> sequence = sequence(type.getArgumentTypes());
-        return (methodNode.access & Opcodes.ACC_STATIC) == 0 ? sequence.cons(Type.getType(classNode.name)) : sequence;
+        return sequence(type.getArgumentTypes());
+    }
+
+    public static Sequence<Type> argumentTypes(MethodInsnNode methodNode) {
+        Type type = Type.getType(methodNode.desc);
+        return sequence(type.getArgumentTypes());
     }
 
     public static class predicates {
