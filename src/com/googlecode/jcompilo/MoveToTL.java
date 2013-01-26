@@ -1,7 +1,9 @@
 package com.googlecode.jcompilo;
 
+import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Bytes;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Runnables;
 
 import java.io.InputStream;
@@ -9,8 +11,8 @@ import java.io.Writer;
 import java.util.Properties;
 
 public class MoveToTL {
-    public static Function1<InputStream, byte[]> read() {
-        return new Function1<InputStream, byte[]>() {
+    public static Mapper<InputStream, byte[]> read() {
+        return new Mapper<InputStream, byte[]>() {
             @Override
             public byte[] call(InputStream inputStream) throws Exception {
                 return Bytes.bytes(inputStream);
@@ -30,12 +32,11 @@ public class MoveToTL {
         return className.replace('.', '/') + ".class";
     }
 
-    public static Function1<Writer, Void> write(final Properties properties) {
-        return new Function1<Writer, Void>() {
+    public static Block<Writer> write(final Properties properties) {
+        return new Block<Writer>() {
             @Override
-            public Void call(Writer writer) throws Exception {
+            protected void execute(Writer writer) throws Exception {
                 properties.store(writer, "");
-                return Runnables.VOID;
             }
         };
     }

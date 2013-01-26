@@ -35,7 +35,7 @@ public class TailRecHandlerTest {
         }
     }
 
-    private Resource resourceFor(Class<?> aClass) {
+    public static Resource resourceFor(Class<?> aClass) {
         return resource(classFilename(aClass.getName()), new Date(), bytes(aClass.getResourceAsStream(aClass.getSimpleName() + ".class")));
     }
 }
