@@ -137,7 +137,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     protected File pomFile() {
-        return new File(artifactsDir(), format("%s.pom", artifact()));
+        return new File(artifactsDir(), format("%s.pom", versionedArtifact()));
     }
 
     protected Iterable<ReleaseFile> releaseFiles(Properties lastCommitData) {
