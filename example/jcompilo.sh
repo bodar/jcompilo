@@ -1,5 +1,6 @@
 #!/bin/sh
 
+JAVA_OPTS=${JAVA_OPTS}
 version=@version@
 artifact=jcompilo
 group=com/googlecode/${artifact}
@@ -10,7 +11,7 @@ url=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}
 remote_jar=${url}.jar
 remote_sh=${url}.sh
 
-if [ $1 = "-u" ]; then 
+if [ "$1" = "-u" ]; then
 	rm ${jar}
 	shift 1
 fi
@@ -20,4 +21,4 @@ if [ ! -f ${jar} ]; then
 	wget -O ${jar} ${remote_jar} || curl -o ${jar} ${remote_jar}
 	wget -O $0 ${remote_sh} || curl -o $0 ${remote_sh}
 fi
-exec java -jar ${jar} $*
+exec java ${JAVA_OPTS} -jar ${jar} $*
