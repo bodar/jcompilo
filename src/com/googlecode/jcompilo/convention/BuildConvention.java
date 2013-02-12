@@ -6,6 +6,7 @@ import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.Processes;
 import com.googlecode.jcompilo.junit.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
+import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
@@ -26,6 +27,7 @@ import static com.googlecode.totallylazy.Callers.callConcurrently;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.delete;
 import static com.googlecode.totallylazy.Files.hasSuffix;
+import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Option.some;
 import static com.googlecode.totallylazy.Sequences.cons;
@@ -110,10 +112,10 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         release.setProperty("release.name", versionedArtifact());
         release.setProperty("release.path", releasePath());
         Sequence<ReleaseFile> releaseFiles = sequence(releaseFiles(lastCommitData()));
-        release.setProperty("release.files", releaseFiles.map(file).toString(","));
+        release.setProperty("release.files", releaseFiles.map(file).map(name()).toString(","));
         for (ReleaseFile releaseFile : releaseFiles) {
-            release.setProperty(format("%s.description", releaseFile.file()), releaseFile.description());
-            release.setProperty(format("%s.labels", releaseFile.file()), sequence(releaseFile.labels()).toString(","));
+            release.setProperty(format("%s.description", releaseFile.file().getName()), releaseFile.description());
+            release.setProperty(format("%s.labels", releaseFile.file().getName()), sequence(releaseFile.labels()).toString(","));
         }
         using(new FileWriter(releaseProperties()), write(release));
     }
