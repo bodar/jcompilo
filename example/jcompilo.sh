@@ -1,7 +1,7 @@
 #!/bin/sh
 
 JAVA_OPTS=${JAVA_OPTS}
-BUILD_NUMBER=${BUILD_NUMBER-dev-build}
+BUILD_NUMBER=${BUILD_NUMBER-dev.build}
 version=@version@
 artifact=jcompilo
 group=com/googlecode/${artifact}
