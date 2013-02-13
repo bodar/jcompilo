@@ -1,22 +1,23 @@
 package com.googlecode.jcompilo.tco;
 
-import com.googlecode.jcompilo.ByteClassLoader;
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.totallylazy.Files;
-import com.googlecode.totallylazy.Maps;
-import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Segment;
 import com.googlecode.totallylazy.annotations.tailrec;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Date;
 
 import static com.googlecode.jcompilo.MoveToTL.classFilename;
-import static com.googlecode.jcompilo.MoveToTL.classNameForByteCode;
 import static com.googlecode.jcompilo.Resource.constructors.resource;
 import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.jcompilo.tco.TailRecHandler.tailRecHandler;
 import static com.googlecode.totallylazy.Bytes.bytes;
 import static com.googlecode.totallylazy.Files.file;
+import static com.googlecode.totallylazy.Segment.constructors.segment;
+import static com.googlecode.totallylazy.Segment.constructors.unique;
+import static com.googlecode.totallylazy.numbers.Numbers.*;
 
 public class TailRecHandlerTest {
     @Test
@@ -26,22 +27,54 @@ public class TailRecHandlerTest {
         Files.write(resource.bytes(), file(Files.temporaryDirectory(TailRecHandlerTest.class.getSimpleName()), resource.name()));
     }
 
+    static class TailRecursive {
+        @tailrec
+        TailRecursive top() {
+            if (isTop()) return this;
+            return up().top();
+        }
+
+        TailRecursive up() {
+            return this;
+        }
+
+        boolean isTop() {
+            return false;
+        }
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void shouldNotAllowMethodsThatAreNotFullyTailRecursive() throws Exception {
         asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
                 handle(resourceFor(NotQuiteTailRecursive.class));
     }
 
-    private Class<?> classFor(Resource resource) {
-        try {
-            ClassLoader classLoader = new ByteClassLoader(Maps.map(Pair.pair(resource.name(), resource.bytes())));
-            return classLoader.loadClass(classNameForByteCode(resource.name()));
-        } catch (ClassNotFoundException e) {
-            throw new UnsupportedOperationException(e);
+    static class NotQuiteTailRecursive {
+        @tailrec
+        static Segment<Number> factor(Segment<Number> primes, Number number) {
+            Number prime = primes.head();
+            if (greaterThan(squared(prime), number)) return segment(number);
+            if (isZero(remainder(number, prime))) return unique(prime, factor(primes, quotient(number, prime)));
+            return factor(primes.tail(), number);
+        }
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void doesNotSupportVoidRecursiveMethods() throws Exception {
+        asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
+                handle(resourceFor(VoidTailRecursive.class));
+    }
+
+    static class VoidTailRecursive {
+        @tailrec
+        static <T> void print(Segment<T> segment) {
+            System.out.printf("%s ", segment.head());
+            print(segment.tail());
         }
     }
 
     public static Resource resourceFor(Class<?> aClass) {
-        return resource(classFilename(aClass.getName()), new Date(), bytes(aClass.getResourceAsStream(aClass.getSimpleName() + ".class")));
+        String name = classFilename(aClass.getName());
+        return resource(name, new Date(), bytes(aClass.getResourceAsStream(new File(name).getName())));
     }
 }
