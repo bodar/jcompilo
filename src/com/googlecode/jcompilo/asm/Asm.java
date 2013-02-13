@@ -42,7 +42,7 @@ public final class Asm {
 
     @SuppressWarnings("unchecked")
     public static Sequence<AbstractInsnNode> instructions(MethodNode method) {
-        return Sequences.<AbstractInsnNode>forwardOnly(method.instructions.iterator());
+        return Sequences.<AbstractInsnNode>memorise(method.instructions.iterator());
     }
 
     public static Sequence<LocalVariableNode> localVariables(MethodNode methodNode) {
