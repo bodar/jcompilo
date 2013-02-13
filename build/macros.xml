@@ -15,8 +15,8 @@
                 <rule pattern="com.googlecode.totallylazy.**.*" result="com.googlecode.jcompilo.internal.totallylazy.@1.$@2"/>
                 <rule pattern="com.googlecode.yadic.*" result="com.googlecode.jcompilo.internal.yadic.$@1"/>
                 <rule pattern="com.googlecode.yadic.**.*" result="com.googlecode.jcompilo.internal.yadic.@1.$@2"/>
-                <rule pattern="com.googlecode.shavenmaven.*" result="com.googlecode.jcompilo.internal.shavenmaven.$@1"/>
-                <rule pattern="com.googlecode.shavenmaven.**.*" result="com.googlecode.jcompilo.internal.shavenmaven.@1.$@2"/>
+                <rule pattern="com.googlecode.shavenmaven.*" result="com.googlecode.jcompilo.internal.shavenmaven.@1"/>
+                <rule pattern="com.googlecode.shavenmaven.**.*" result="com.googlecode.jcompilo.internal.shavenmaven.@1.@2"/>
                 <rule pattern="org.objectweb.asm.*" result="com.googlecode.jcompilo.internal.asm.$@1"/>
                 <rule pattern="org.objectweb.asm.**.*" result="com.googlecode.jcompilo.internal.asm.@1.$@2"/>
             </jarjar>
