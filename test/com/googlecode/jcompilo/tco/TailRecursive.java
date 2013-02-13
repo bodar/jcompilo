@@ -16,4 +16,5 @@ public class TailRecursive {
     public boolean isTop() {
         return false;
     }
+
 }

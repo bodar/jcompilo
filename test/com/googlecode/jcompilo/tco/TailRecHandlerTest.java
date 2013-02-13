@@ -26,6 +26,12 @@ public class TailRecHandlerTest {
         Files.write(resource.bytes(), file(Files.temporaryDirectory(TailRecHandlerTest.class.getSimpleName()), resource.name()));
     }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void shouldNotAllowMethodsThatAreNotFullyTailRecursive() throws Exception {
+        asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
+                handle(resourceFor(NotQuiteTailRecursive.class));
+    }
+
     private Class<?> classFor(Resource resource) {
         try {
             ClassLoader classLoader = new ByteClassLoader(Maps.map(Pair.pair(resource.name(), resource.bytes())));
