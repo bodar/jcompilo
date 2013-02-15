@@ -1,10 +1,13 @@
 package com.googlecode.jcompilo.lambda;
 
+import com.googlecode.jcompilo.asm.SingleExpression;
 import com.googlecode.totallylazy.Either;
 import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Unchecked;
 import com.googlecode.totallylazy.multi;
+import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -15,39 +18,73 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.Iterator;
 
+import static com.googlecode.jcompilo.asm.Asm.functions.name;
 import static com.googlecode.jcompilo.asm.Asm.isStatic;
 import static com.googlecode.totallylazy.Either.left;
 import static com.googlecode.totallylazy.Either.right;
+import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.memorise;
+import static com.googlecode.totallylazy.Strings.startsWith;
 import static org.junit.Assert.assertEquals;
 
 public class LambdaTest {
     @Test
     public void canLift() throws Exception {
-        MethodInsnNode lambda = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/googlecode/totallylazy/lambda/Lambdas", "λ", "(Ljava/lang/Object;Ljava/lang/Object;)Lcom/googlecode/totallylazy/Function1;");
-        InsnList lambdaCall = lambdaCall(lambda);
+        InsnList lambdaCall = lambdaCall();
 
         InsnList mutated = methodWith(left(lambdaCall, AbstractInsnNode.class));
         LabelNode placeHolder = new LabelNode();
 
-        InsnList lifted = lift(mutated, lambda, placeHolder);
+        InsnList lifted = SingleExpression.extract(mutated, LambdaTest.<AbstractInsnNode, MethodInsnNode>typeSafe(MethodInsnNode.class, where(name, startsWith("λ"))), placeHolder);
 
-        assertInsn(lifted, lambdaCall(lambda));
+        assertInsn(lifted, lambdaCall());
         assertInsn(mutated, methodWith(right(InsnList.class, placeHolder)));
         System.out.println(debug(mutated));
     }
 
-    private InsnList lambdaCall(final MethodInsnNode lambda) {
+    @Test
+    public void canRewriteLambdaArgumentsCorrectly() throws Exception {
+        InsnList body = lambdaCall();
+        LambdaHandler.rewriteArguments(body);
+        assertInsn(body, functionBody());
+    }
+
+
+    public static <T, S extends T> LogicalPredicate<T> typeSafe(final Class<S> subClass, final Predicate<? super S> predicate) {
+        return new LogicalPredicate<T>() {
+            @Override
+            public boolean matches(final T other) {
+                return subClass.isInstance(other) && predicate.matches(subClass.cast(other));
+            }
+        };
+    }
+
+    private InsnList lambdaCall() {
         InsnList lambdaCall = new InsnList();
         lambdaCall.add(new FieldInsnNode(Opcodes.GETSTATIC, "com/googlecode/totallylazy/lambda/Lambdas", "n", "Ljava/lang/Number;"));
         lambdaCall.add(new FieldInsnNode(Opcodes.GETSTATIC, "com/googlecode/totallylazy/lambda/Lambdas", "n", "Ljava/lang/Number;"));
-        lambdaCall.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "intValue", "()I"));
-        lambdaCall.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;"));
-        lambdaCall.add(lambda);
+        lambdaCall.add(lambdaBody());
+        lambdaCall.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/googlecode/totallylazy/lambda/Lambdas", "λ", "(Ljava/lang/Object;Ljava/lang/Object;)Lcom/googlecode/totallylazy/Function1;"));
         return lambdaCall;
+    }
+
+    private InsnList functionBody() {
+        InsnList lambdaCall = new InsnList();
+        lambdaCall.add(new VarInsnNode(Opcodes.ALOAD, 1));
+        lambdaCall.add(lambdaBody());
+        lambdaCall.add(new InsnNode(Opcodes.ARETURN));
+        return lambdaCall;
+    }
+
+    private InsnList lambdaBody() {
+        InsnList body = new InsnList();
+        body.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Number", "intValue", "()I"));
+        body.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;"));
+        return body;
     }
 
     private void assertInsn(final InsnList actual, final InsnList expected) {
@@ -59,7 +96,7 @@ public class LambdaTest {
         return sequence.map(new Mapper<AbstractInsnNode, String>() {
             @Override
             public String call(final AbstractInsnNode node) throws Exception {
-                return "Class: " + node.getClass().getSimpleName() + " OpCode:" + node.getOpcode() + " Type:" + node.getType();
+                return node.getClass().getSimpleName() + "(" + node.getOpcode() + ")";
             }
         }).toString("\n");
     }
@@ -76,41 +113,5 @@ public class LambdaTest {
         return instructions;
     }
 
-    private InsnList lift(final InsnList insnList, final MethodInsnNode methodCall, final LabelNode placeHolder) {
-        InsnList result = new InsnList();
-        MethodInsnNode node = findLast(insnList, methodCall);
-        insnList.insert(node, placeHolder);
-        remove(insnList, result, node, 1);
-        return result;
-
-    }
-
-    private void remove(InsnList input, final InsnList output, final AbstractInsnNode node, int count) {
-        int needed = needed(node) + count - 1;
-        AbstractInsnNode previous = node.getPrevious();
-        input.remove(node);
-        output.insert(node);
-        if (needed == 0) return;
-        remove(input, output, previous, needed);
-    }
-
-    private int needed(final MethodInsnNode node) {
-        return (isStatic(node) ? 0 : 1) + Type.getType(node.desc).getArgumentTypes().length;
-    }
-
-    private int needed(final AbstractInsnNode node) {
-        return new multi() {
-        }.<Integer>methodOption(node).getOrElse(0);
-    }
-
-    private MethodInsnNode findLast(final InsnList insnList, final MethodInsnNode methodCall) {
-        AbstractInsnNode node = insnList.getLast();
-        while (!matches(methodCall, node)) node = node.getPrevious();
-        return (MethodInsnNode) node;
-    }
-
-    private boolean matches(final MethodInsnNode methodCall, final AbstractInsnNode node) {
-        return node.equals(methodCall);
-    }
 
 }
