@@ -9,6 +9,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -45,6 +46,11 @@ public final class Asm {
         return Sequences.<AbstractInsnNode>memorise(method.instructions.iterator());
     }
 
+    @SuppressWarnings("unchecked")
+    public static Sequence<AbstractInsnNode> instructions(InsnList instructions) {
+        return Sequences.<AbstractInsnNode>memorise(instructions.iterator());
+    }
+
     public static Sequence<LocalVariableNode> localVariables(MethodNode methodNode) {
         return Asm.<LocalVariableNode>seq(methodNode.localVariables);
     }
@@ -54,6 +60,8 @@ public final class Asm {
     }
 
     public static int store(Type type) {return type.getOpcode(Opcodes.ISTORE);}
+    public static int load(Type type) {return type.getOpcode(Opcodes.ILOAD);}
+    public static int returns(Type type) {return type.getOpcode(Opcodes.IRETURN);}
 
     public static Sequence<Type> initialLocalVariables(ClassNode classNode, MethodNode methodNode) {
         Sequence<Type> sequence = argumentTypes(methodNode);
@@ -76,6 +84,11 @@ public final class Asm {
     public static Sequence<Type> argumentTypes(MethodInsnNode methodNode) {
         Type type = Type.getType(methodNode.desc);
         return sequence(type.getArgumentTypes());
+    }
+
+    public static int numberOfArguments(MethodInsnNode methodNode) {
+        Type type = Type.getType(methodNode.desc);
+        return type.getArgumentTypes().length;
     }
 
     public static class predicates {
