@@ -1,35 +1,38 @@
 package com.googlecode.jcompilo.lambda;
 
+import com.googlecode.jcompilo.Resource;
+import com.googlecode.jcompilo.Resources;
+import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.jcompilo.asm.SingleExpression;
 import com.googlecode.totallylazy.Either;
-import com.googlecode.totallylazy.Mapper;
-import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Unchecked;
-import com.googlecode.totallylazy.multi;
-import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.junit.Test;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.CheckClassAdapter;
 
-import java.util.Iterator;
-
-import static com.googlecode.jcompilo.asm.Asm.functions.name;
-import static com.googlecode.jcompilo.asm.Asm.isStatic;
+import static com.googlecode.jcompilo.lambda.FunctionalInterface.functionalInterface;
 import static com.googlecode.totallylazy.Either.left;
 import static com.googlecode.totallylazy.Either.right;
-import static com.googlecode.totallylazy.Predicates.where;
-import static com.googlecode.totallylazy.Sequences.memorise;
-import static com.googlecode.totallylazy.Strings.startsWith;
+import static com.googlecode.totallylazy.Sequences.one;
+import static com.googlecode.totallylazy.matchers.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.objectweb.asm.Type.getType;
 
 public class LambdaTest {
     @Test
@@ -39,28 +42,63 @@ public class LambdaTest {
         InsnList mutated = methodWith(left(lambdaCall, AbstractInsnNode.class));
         LabelNode placeHolder = new LabelNode();
 
-        InsnList lifted = SingleExpression.extract(mutated, LambdaTest.<AbstractInsnNode, MethodInsnNode>typeSafe(MethodInsnNode.class, where(name, startsWith("λ"))), placeHolder);
+        InsnList lifted = SingleExpression.extract(mutated, LambdaHandler.lambda, placeHolder);
 
         assertInsn(lifted, lambdaCall());
         assertInsn(mutated, methodWith(right(InsnList.class, placeHolder)));
-        System.out.println(debug(mutated));
+        System.out.println(Asm.toString(mutated));
     }
 
     @Test
     public void canRewriteLambdaArgumentsCorrectly() throws Exception {
         InsnList body = lambdaCall();
-        LambdaHandler.rewriteArguments(body);
-        assertInsn(body, functionBody());
+        assertThat(LambdaHandler.rewriteArguments(body), is(numberIntValue()));
     }
 
+    @Test
+    public void canGenerateANewClass() throws Exception {
+        ClassNode expected = Asm.classNode(Resource.constructors.resource(Number_intValue.class).bytes());
 
-    public static <T, S extends T> LogicalPredicate<T> typeSafe(final Class<S> subClass, final Predicate<? super S> predicate) {
-        return new LogicalPredicate<T>() {
+        Resources resources = new Resources() {
             @Override
-            public boolean matches(final T other) {
-                return subClass.isInstance(other) && predicate.matches(subClass.cast(other));
+            public Option<Resource> get(final String name) {
+                try {
+                    return Option.some(Resource.constructors.resource(Class.forName(name)));
+                } catch (ClassNotFoundException e) {
+                    return Option.none();
+                }
             }
         };
+
+        ClassNode actual = ClassGenerator.classGenerator(resources).generateClass(numberIntValue());
+        assertThat(actual.version, is(expected.version));
+        assertThat(actual.access, is(expected.access));
+        assertThat(actual.name, notNullValue(String.class));
+        assertThat(actual.signature, is(expected.signature));
+        assertThat(actual.superName, is(expected.superName));
+
+        MethodNode actualConstructor = (MethodNode) actual.methods.get(0);
+        MethodNode expectedConstructor = (MethodNode) expected.methods.get(0);
+        assertThat(actualConstructor.access, is(expectedConstructor.access));
+        assertThat(actualConstructor.name, is(expectedConstructor.name));
+        assertThat(actualConstructor.desc, is(expectedConstructor.desc));
+        assertThat(Asm.toString(expectedConstructor.instructions), containsString(Asm.toString(actualConstructor.instructions)));
+
+//        verify(actual);
+    }
+
+    private FunctionalInterface numberIntValue() {
+        return functionalInterface(
+                getType("Lcom/googlecode/totallylazy/Function1;"),
+                one(getType("Ljava/lang/Number;")),
+                getType("Ljava/lang/Integer;"),
+                functionBody());
+    }
+
+    private void verify(final ClassNode classNode) {
+        ClassWriter writer = new ClassWriter(0);
+        classNode.accept(new CheckClassAdapter(writer));
+
     }
 
     private InsnList lambdaCall() {
@@ -88,17 +126,15 @@ public class LambdaTest {
     }
 
     private void assertInsn(final InsnList actual, final InsnList expected) {
+        assertEquals(Asm.toString(expected), Asm.toString(actual));
+    }
+
+    private void assertTypes(final Sequence<Type> actual, final Sequence<Type> expected) {
         assertEquals(debug(expected), debug(actual));
     }
 
-    private String debug(final InsnList insnList) {
-        Sequence<AbstractInsnNode> sequence = memorise(Unchecked.<Iterator<AbstractInsnNode>>cast(insnList.iterator()));
-        return sequence.map(new Mapper<AbstractInsnNode, String>() {
-            @Override
-            public String call(final AbstractInsnNode node) throws Exception {
-                return node.getClass().getSimpleName() + "(" + node.getOpcode() + ")";
-            }
-        }).toString("\n");
+    private String debug(final Sequence<Type> types) {
+        return types.toString("\n");
     }
 
     private InsnList methodWith(final Either<InsnList, ? extends AbstractInsnNode> lambdaCall) {

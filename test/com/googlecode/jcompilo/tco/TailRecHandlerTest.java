@@ -6,14 +6,9 @@ import com.googlecode.totallylazy.Segment;
 import com.googlecode.totallylazy.annotations.tailrec;
 import org.junit.Test;
 
-import java.io.File;
-import java.util.Date;
-
-import static com.googlecode.jcompilo.MoveToTL.classFilename;
 import static com.googlecode.jcompilo.Resource.constructors.resource;
 import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.jcompilo.tco.TailRecHandler.tailRecHandler;
-import static com.googlecode.totallylazy.Bytes.bytes;
 import static com.googlecode.totallylazy.Files.file;
 import static com.googlecode.totallylazy.Segment.constructors.segment;
 import static com.googlecode.totallylazy.Segment.constructors.unique;
@@ -23,7 +18,7 @@ public class TailRecHandlerTest {
     @Test
     public void canProcessAResource() throws Exception {
         Resource resource = asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
-                handle(resourceFor(TailRecursive.class));
+                handle(resource(TailRecursive.class));
         Files.write(resource.bytes(), file(Files.temporaryDirectory(TailRecHandlerTest.class.getSimpleName()), resource.name()));
     }
 
@@ -46,7 +41,7 @@ public class TailRecHandlerTest {
     @Test(expected = UnsupportedOperationException.class)
     public void shouldNotAllowMethodsThatAreNotFullyTailRecursive() throws Exception {
         asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
-                handle(resourceFor(NotQuiteTailRecursive.class));
+                handle(resource(NotQuiteTailRecursive.class));
     }
 
     static class NotQuiteTailRecursive {
@@ -62,7 +57,7 @@ public class TailRecHandlerTest {
     @Test(expected = UnsupportedOperationException.class)
     public void doesNotSupportVoidRecursiveMethods() throws Exception {
         asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
-                handle(resourceFor(VoidTailRecursive.class));
+                handle(resource(VoidTailRecursive.class));
     }
 
     static class VoidTailRecursive {
@@ -71,10 +66,5 @@ public class TailRecHandlerTest {
             System.out.printf("%s ", segment.head());
             print(segment.tail());
         }
-    }
-
-    public static Resource resourceFor(Class<?> aClass) {
-        String name = classFilename(aClass.getName());
-        return resource(name, new Date(), bytes(aClass.getResourceAsStream(new File(name).getName())));
     }
 }
