@@ -1,35 +1,84 @@
 package com.googlecode.jcompilo.lambda;
 
+import com.googlecode.jcompilo.Resource;
+import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
+import com.googlecode.jcompilo.asm.AsmMethodHandler;
+import com.googlecode.jcompilo.asm.SingleExpression;
 import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.googlecode.jcompilo.asm.Asm.functions.name;
+import static com.googlecode.jcompilo.asm.Asm.instructions;
 import static com.googlecode.jcompilo.asm.Asm.load;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Maps.pairs;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Strings.startsWith;
 
-public class LambdaHandler {
-    public static void rewriteArguments(final InsnList body) {
+public class LambdaHandler implements AsmMethodHandler {
+    public static final LogicalPredicate<AbstractInsnNode> lambda = LambdaHandler.<AbstractInsnNode, MethodInsnNode>typeSafe(MethodInsnNode.class, where(name, startsWith("λ")));
+    private final ClassGenerator generator;
+
+    public LambdaHandler(final ClassGenerator generator) {
+        this.generator = generator;
+    }
+
+    @Override
+    public void process(final ClassNode classNode, final MethodNode method) {
+        InsnList original = method.instructions;
+        LabelNode placeHolder = new LabelNode();
+        InsnList lambdaBody = SingleExpression.extract(original, LambdaHandler.lambda, placeHolder);
+        FunctionalInterface functionalInterface = rewriteArguments(lambdaBody);
+        ClassNode lambdaClass = generator.generateClass(functionalInterface);
+    }
+
+
+    public static <T, S extends T> LogicalPredicate<T> typeSafe(final Class<S> subClass, final Predicate<? super S> predicate) {
+        return new LogicalPredicate<T>() {
+            @Override
+            public boolean matches(final T other) {
+                return subClass.isInstance(other) && predicate.matches(subClass.cast(other));
+            }
+        };
+    }
+
+    public static FunctionalInterface rewriteArguments(final InsnList body) {
         MethodInsnNode lambda = (MethodInsnNode) body.getLast();
         InsnList arguments = drop(body, Asm.numberOfArguments(lambda) - 1);
+        Sequence<Type> argumentTypes = argTypes(arguments);
         replace(body, arguments);
         body.remove(lambda);
         Type returnType = returnType(body.getLast());
         body.add(new InsnNode(Asm.returns(returnType)));
+        return FunctionalInterface.functionalInterface(returnType(lambda), argumentTypes, returnType, body);
+    }
+
+    private static Sequence<Type> argTypes(final InsnList arguments) {
+        return instructions(arguments).safeCast(FieldInsnNode.class).map(new Mapper<FieldInsnNode, Type>() {
+            @Override
+            public Type call(final FieldInsnNode node) throws Exception {
+                return returnType(node);
+            }
+        });
     }
 
     private static void replace(final InsnList body, final InsnList arguments) {
@@ -84,7 +133,8 @@ public class LambdaHandler {
     }
 
     private static Type returnType(final AbstractInsnNode node) {
-        return new multi() {}.method(node);
+        return new multi() {
+        }.method(node);
     }
 
     private static Type returnType(final MethodInsnNode node) {

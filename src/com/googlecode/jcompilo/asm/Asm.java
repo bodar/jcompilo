@@ -1,18 +1,25 @@
 package com.googlecode.jcompilo.asm;
 
+import com.googlecode.jcompilo.lambda.FunctionalInterface;
+import com.googlecode.totallylazy.Fields;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
+import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -21,6 +28,8 @@ import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.tonicsystems.jarjar.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Type.getDescriptor;
 
 public final class Asm {
@@ -89,6 +98,61 @@ public final class Asm {
     public static int numberOfArguments(MethodInsnNode methodNode) {
         Type type = Type.getType(methodNode.desc);
         return type.getArgumentTypes().length;
+    }
+
+    public static String toString(final InsnList insnList) {
+        return instructions(insnList).map(toString).toString("\n");
+    }
+
+    public static Mapper<AbstractInsnNode, String> toString = new Mapper<AbstractInsnNode, String>() {
+        @Override
+        public String call(final AbstractInsnNode node) throws Exception {
+            return Asm.toString(node);
+        }
+    };
+
+    public static String toString(AbstractInsnNode node){
+        return new multi(){}.<String>methodOption(node).getOrElse(Asm.toString(node.getOpcode()) + "(" + node.getClass().getSimpleName() + ")");
+    }
+
+    public static String toString(VarInsnNode node){
+        return Asm.toString(node.getOpcode()) + " " + node.var;
+    }
+
+    public static String toString(MethodInsnNode node){
+        return Asm.toString(node.getOpcode()) + " " + node.owner + "." + node.name + " " + node.desc;
+    }
+
+    public static String toString(InsnNode node){
+        return Asm.toString(node.getOpcode());
+    }
+
+    public static String toString(final int opcode) {
+        return sequence(Opcodes.class.getFields()).
+                find(where(FunctionalInterface.<Integer>value(null), is(opcode))).
+                map(Fields.name).
+                getOrElse(String.valueOf(opcode));
+    }
+
+    public static ClassNode classNode(final byte[] bytes) {
+        ClassReader reader = new ClassReader(bytes);
+        ClassNode classNode = new ClassNode();
+        reader.accept(classNode, 0);
+        return classNode;
+    }
+
+    public static MethodNode constructor(final Type superType) {
+        MethodNode constructor = new MethodNode();
+        constructor.access = ACC_PUBLIC;
+        constructor.name = "<init>";
+        constructor.desc = "()V";
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(ALOAD, 0));
+        insnList.add(new MethodInsnNode(com.tonicsystems.jarjar.asm.Opcodes.INVOKESPECIAL, superType.getInternalName(), "<init>", "()V" ));
+        insnList.add(new InsnNode(com.tonicsystems.jarjar.asm.Opcodes.RETURN));
+        constructor.instructions = insnList;
+
+        return constructor;
     }
 
     public static class predicates {

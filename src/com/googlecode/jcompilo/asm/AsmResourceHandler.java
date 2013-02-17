@@ -4,7 +4,6 @@ import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.ResourceHandler;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.collections.PersistentList;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -63,9 +62,8 @@ public class AsmResourceHandler implements ResourceHandler {
     public Resource handle(Resource resource) {
         if (processors.isEmpty()) return resource;
 
-        ClassReader reader = new ClassReader(resource.bytes());
-        ClassNode classNode = new ClassNode();
-        reader.accept(classNode, 0);
+        byte[] bytes = resource.bytes();
+        ClassNode classNode = Asm.classNode(bytes);
 
         boolean foundMatch = false;
         for (MethodNode method : Asm.<MethodNode>seq(classNode.methods)) {
@@ -84,4 +82,5 @@ public class AsmResourceHandler implements ResourceHandler {
         classNode.accept(verify ? new CheckClassAdapter(writer) : writer);
         return resource(resource.name(), resource.modified(), writer.toByteArray());
     }
+
 }
