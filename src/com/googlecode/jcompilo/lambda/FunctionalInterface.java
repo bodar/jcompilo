@@ -8,6 +8,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;
 
 import java.lang.reflect.Field;
+import java.util.UUID;
 
 import static com.googlecode.jcompilo.asm.Asm.instructions;
 import static com.googlecode.totallylazy.Predicates.is;
@@ -38,6 +39,10 @@ public class FunctionalInterface extends Eq {
                 return cast(field.get(instance));
             }
         };
+    }
+
+    public String name() {
+        return classType.getInternalName() + UUID.randomUUID().toString().replace("-", "");
     }
 
     @Override

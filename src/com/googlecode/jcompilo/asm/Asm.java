@@ -120,6 +120,10 @@ public final class Asm {
         return Asm.toString(node.getOpcode()) + " " + node.owner + "." + node.name + " " + node.desc;
     }
 
+    public static String toString(TypeInsnNode node){
+        return Asm.toString(node.getOpcode()) + " " + node.desc;
+    }
+
     public static String toString(LabelNode node){
         return "LABEL";
     }
