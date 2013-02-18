@@ -6,4 +6,5 @@ http://jarjar.googlecode.com/files/jarjar-1.1.jar
 s3://repo.bodar.com/com.googlecode.totallylazy:totallylazy:jar|sources:990
 s3://repo.bodar.com/com.googlecode.yadic:yadic:jar|sources:153
 s3://repo.bodar.com/com.googlecode.shavenmaven:shavenmaven:dep|sources:59
-mvn:org.ow2.asm:asm-all:jar|sources:4.0
+
+mvn:org.ow2.asm:asm-all:jar|sources:4.1
