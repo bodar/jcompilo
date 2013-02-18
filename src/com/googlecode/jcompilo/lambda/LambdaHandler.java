@@ -1,7 +1,5 @@
 package com.googlecode.jcompilo.lambda;
 
-import com.googlecode.jcompilo.Resource;
-import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.jcompilo.asm.AsmMethodHandler;
 import com.googlecode.jcompilo.asm.SingleExpression;
@@ -32,6 +30,7 @@ import static com.googlecode.jcompilo.asm.Asm.load;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Maps.pairs;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
 
 public class LambdaHandler implements AsmMethodHandler {
@@ -43,14 +42,14 @@ public class LambdaHandler implements AsmMethodHandler {
     }
 
     @Override
-    public void process(final ClassNode classNode, final MethodNode method) {
+    public Sequence<ClassNode> process(final ClassNode classNode, final MethodNode method) {
         InsnList original = method.instructions;
         LabelNode placeHolder = new LabelNode();
         InsnList lambdaBody = SingleExpression.extract(original, LambdaHandler.lambda, placeHolder);
         FunctionalInterface functionalInterface = rewriteArguments(lambdaBody);
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
+        return sequence(classNode, lambdaClass);
     }
-
 
     public static <T, S extends T> LogicalPredicate<T> typeSafe(final Class<S> subClass, final Predicate<? super S> predicate) {
         return new LogicalPredicate<T>() {

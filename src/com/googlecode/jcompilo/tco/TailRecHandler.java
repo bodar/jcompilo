@@ -25,6 +25,7 @@ import static com.googlecode.totallylazy.Predicates.and;
 import static com.googlecode.totallylazy.Predicates.between;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.String.format;
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -37,7 +38,7 @@ public class TailRecHandler implements AsmMethodHandler {
     public static TailRecHandler tailRecHandler() {return new TailRecHandler();}
 
     @Override
-    public void process(ClassNode classNode, MethodNode methodNode) {
+    public Sequence<ClassNode> process(ClassNode classNode, MethodNode methodNode) {
         if (!tailRecursive(classNode, methodNode))
             throw new UnsupportedOperationException(format("%s.%s is not tail recursive", classNode.name, methodNode.name));
 
@@ -48,6 +49,7 @@ public class TailRecHandler implements AsmMethodHandler {
             methodNode.instructions.insert(recursiveCall, gotoStart);
             methodNode.instructions.remove(recursiveCall); // finally remove recursive call
         }
+        return one(classNode);
     }
 
     private void insertStartFrame(MethodNode methodNode) {
