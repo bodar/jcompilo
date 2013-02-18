@@ -11,15 +11,7 @@ import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -122,6 +114,18 @@ public final class Asm {
 
     public static String toString(MethodInsnNode node){
         return Asm.toString(node.getOpcode()) + " " + node.owner + "." + node.name + " " + node.desc;
+    }
+
+    public static String toString(FieldInsnNode node){
+        return Asm.toString(node.getOpcode()) + " " + node.owner + "." + node.name + " " + node.desc;
+    }
+
+    public static String toString(LabelNode node){
+        return "LABEL";
+    }
+
+    public static String toString(LineNumberNode node){
+        return "LINENUMBER " + node.line + " " + toString(node.start);
     }
 
     public static String toString(InsnNode node){
