@@ -2,11 +2,16 @@ package com.googlecode.jcompilo.lambda;
 
 import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
+import com.googlecode.totallylazy.Sequence;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.googlecode.totallylazy.Lists.list;
+import static com.googlecode.totallylazy.Sequences.repeat;
 import static com.tonicsystems.jarjar.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -31,17 +36,42 @@ public class ClassGenerator {
         ClassNode classNode = new ClassNode();
         classNode.version = version;
         classNode.access = ACC_PUBLIC + ACC_SUPER;
-        classNode.name = functionalInterface.classType.getInternalName() + UUID.randomUUID().toString().replace("-", "");
+        classNode.name = functionalInterface.name();
         classNode.signature = signature(functionalInterface);
         classNode.superName = functionalInterface.classType.getInternalName();
-        classNode.methods = list(Asm.constructor(functionalInterface.classType), method(functionalInterface));
+        classNode.methods = list(Asm.constructor(functionalInterface.classType),
+                method(functionalInterface),
+                bridgeMethod(functionalInterface));
 
         return classNode;
     }
 
-    private MethodNode method(final FunctionalInterface functionalInterface) {
-        MethodNode methodNode = new MethodNode(ACC_PUBLIC, methodName(functionalInterface), "(" + functionalInterface.argumentTypes.toString("") + ")" + functionalInterface.returnType, null, exceptions(functionalInterface));
+
+    private MethodNode method(FunctionalInterface functionalInterface) {
+        MethodNode methodNode = new MethodNode(ACC_PUBLIC, methodName(functionalInterface), methodSignature(functionalInterface), null, exceptions(functionalInterface));
         methodNode.instructions = functionalInterface.body;
+
+        return methodNode;
+    }
+
+    private String methodSignature(FunctionalInterface functionalInterface) {
+        return "(" + functionalInterface.argumentTypes.toString("") + ")" + functionalInterface.returnType;
+    }
+
+    private MethodNode bridgeMethod(final FunctionalInterface functionalInterface) {
+        String object = "Ljava/lang/Object;";
+        MethodNode methodNode = new MethodNode(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, methodName(functionalInterface), "(" + repeat(object).take(functionalInterface.argumentTypes.size()).toString("") + ")" + object, null, exceptions(functionalInterface));
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        List<Type> argumentTypes = functionalInterface.argumentTypes.toList();
+        for (int i = 0; i < argumentTypes.size(); i++) {
+            Type argumentType = argumentTypes.get(i);
+            insnList.add(new VarInsnNode(Opcodes.ALOAD, i + 1));
+            insnList.add(new TypeInsnNode(Opcodes.CHECKCAST, argumentType.getInternalName()));
+        }
+        insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, functionalInterface.name(), methodName(functionalInterface), methodSignature(functionalInterface)));
+        insnList.add(new InsnNode(Opcodes.ARETURN));
+        methodNode.instructions = insnList;
 
         return methodNode;
 

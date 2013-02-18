@@ -40,6 +40,7 @@ public class ClassGeneratorTest {
 
         verifyMethod(actual, expected, 0);
         verifyMethod(actual, expected, 1);
+//        verifyMethod(actual, expected, 2);
 
         verify(actual);
     }
