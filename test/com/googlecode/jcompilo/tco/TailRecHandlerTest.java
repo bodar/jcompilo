@@ -18,7 +18,7 @@ public class TailRecHandlerTest {
     @Test
     public void canProcessAResource() throws Exception {
         Resource resource = asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
-                handle(resource(TailRecursive.class));
+                handle(resource(TailRecursive.class)).head();
         Files.write(resource.bytes(), file(Files.temporaryDirectory(TailRecHandlerTest.class.getSimpleName()), resource.name()));
     }
 

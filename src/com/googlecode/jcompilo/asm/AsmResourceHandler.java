@@ -3,6 +3,7 @@ package com.googlecode.jcompilo.asm;
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.ResourceHandler;
 import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.collections.PersistentList;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -17,6 +18,7 @@ import static com.googlecode.jcompilo.asm.Asm.annotations;
 import static com.googlecode.jcompilo.asm.Asm.hasAnnotation;
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Debug.debugging;
+import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.collections.PersistentList.constructors;
 import static com.googlecode.totallylazy.collections.PersistentList.constructors.list;
 
@@ -59,8 +61,8 @@ public class AsmResourceHandler implements ResourceHandler {
     }
 
     @Override
-    public Resource handle(Resource resource) {
-        if (processors.isEmpty()) return resource;
+    public Sequence<Resource> handle(Resource resource) {
+        if (processors.isEmpty()) return one(resource);
 
         byte[] bytes = resource.bytes();
         ClassNode classNode = Asm.classNode(bytes);
@@ -76,11 +78,11 @@ public class AsmResourceHandler implements ResourceHandler {
             }
         }
 
-        if (!foundMatch) return resource;
+        if (!foundMatch) return one(resource);
 
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         classNode.accept(verify ? new CheckClassAdapter(writer) : writer);
-        return resource(resource.name(), resource.modified(), writer.toByteArray());
+        return one(resource(resource.name(), resource.modified(), writer.toByteArray()));
     }
 
 }
