@@ -8,6 +8,7 @@ import com.googlecode.totallylazy.Either;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import org.junit.Test;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -22,6 +23,8 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.CheckClassAdapter;
+
+import java.io.PrintWriter;
 
 import static com.googlecode.jcompilo.lambda.FunctionalInterface.functionalInterface;
 import static com.googlecode.totallylazy.Either.left;
@@ -84,7 +87,7 @@ public class LambdaTest {
         assertThat(actualConstructor.desc, is(expectedConstructor.desc));
         assertThat(Asm.toString(expectedConstructor.instructions), containsString(Asm.toString(actualConstructor.instructions)));
 
-//        verify(actual);
+        verify(actual);
     }
 
     private FunctionalInterface numberIntValue() {
@@ -96,9 +99,11 @@ public class LambdaTest {
     }
 
     private void verify(final ClassNode classNode) {
-        ClassWriter writer = new ClassWriter(0);
-        classNode.accept(new CheckClassAdapter(writer));
-
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        classNode.accept(writer);
+        byte[] bytes = writer.toByteArray();
+        ClassReader reader = new ClassReader(bytes);
+        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out));
     }
 
     private InsnList lambdaCall() {

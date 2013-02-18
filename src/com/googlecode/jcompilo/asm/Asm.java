@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
@@ -142,10 +143,7 @@ public final class Asm {
     }
 
     public static MethodNode constructor(final Type superType) {
-        MethodNode constructor = new MethodNode();
-        constructor.access = ACC_PUBLIC;
-        constructor.name = "<init>";
-        constructor.desc = "()V";
+        MethodNode constructor = new MethodNode(ACC_PUBLIC, "<init>", "()V", null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
         insnList.add(new MethodInsnNode(com.tonicsystems.jarjar.asm.Opcodes.INVOKESPECIAL, superType.getInternalName(), "<init>", "()V" ));

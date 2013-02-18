@@ -78,7 +78,7 @@ public class AsmResourceHandler implements ResourceHandler {
 
         if (!foundMatch) return resource;
 
-        ClassWriter writer = new ClassWriter(0);
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         classNode.accept(verify ? new CheckClassAdapter(writer) : writer);
         return resource(resource.name(), resource.modified(), writer.toByteArray());
     }
