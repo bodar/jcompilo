@@ -38,13 +38,21 @@ public class ClassGeneratorTest {
         assertThat(actual.signature, is(expected.signature));
         assertThat(actual.superName, is(expected.superName));
 
-        MethodNode actualConstructor = (MethodNode) actual.methods.get(0);
-        MethodNode expectedConstructor = (MethodNode) expected.methods.get(0);
-        assertThat(actualConstructor.access, is(expectedConstructor.access));
-        assertThat(actualConstructor.name, is(expectedConstructor.name));
-        assertThat(actualConstructor.desc, is(expectedConstructor.desc));
-        assertThat(Asm.toString(expectedConstructor.instructions), containsString(Asm.toString(actualConstructor.instructions)));
+        verifyMethod(actual, expected, 0);
+        verifyMethod(actual, expected, 1);
 
         verify(actual);
+    }
+
+    private void verifyMethod(ClassNode actual, ClassNode expected, int index) {
+        verifyMethod((MethodNode) actual.methods.get(index), (MethodNode) expected.methods.get(index));
+    }
+
+    private void verifyMethod(MethodNode actual, MethodNode expected) {
+        assertThat(actual.access, is(expected.access));
+        assertThat(actual.name, is(expected.name));
+        assertThat(actual.desc, is(expected.desc));
+        assertThat(actual.exceptions, is(expected.exceptions));
+        assertThat(Asm.toString(expected.instructions), containsString(Asm.toString(actual.instructions)));
     }
 }
