@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo.intellij;
 
 import com.googlecode.jcompilo.CompileOption;
+import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.Inputs;
 import com.googlecode.jcompilo.ModifiedPredicate;
 import com.googlecode.jcompilo.Outputs;
@@ -24,6 +25,8 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.pom.java.LanguageLevel;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.tools.DiagnosticCollector;
@@ -96,11 +99,16 @@ public class JCompiloBackendCompiler implements BackendCompiler {
     public static Sequence<CompileOption> compileOptions(final ModuleChunk moduleChunk) {
         return ApplicationManager.getApplication().runReadAction(new Computable<Sequence<CompileOption>>() {
             public Sequence<CompileOption> compute() {
-                List<String> commandLine = new ArrayList<String>();
-                CompilerUtil.addSourceCommandLineSwitch(moduleChunk.getJdk(), moduleChunk.getLanguageLevel(), commandLine);
-                return Sequences.sequence(commandLine).map(compileOption);
+                int version = version(moduleChunk);
+                String bootClasspath = moduleChunk.getCompilationBootClasspath();
+                return CompileProcessor.DEFAULT_OPTIONS.cons(CompileOption.Sources(version)).cons(CompileOption.BootClassPath(bootClasspath));
             }
         });
+    }
+
+    @SuppressWarnings("deprecation")
+    private static int version(final ModuleChunk moduleChunk) {
+        return moduleChunk.getLanguageLevel().getIndex();
     }
 
     public static final Function1<String, CompileOption> compileOption = new Function1<String, CompileOption>() {
