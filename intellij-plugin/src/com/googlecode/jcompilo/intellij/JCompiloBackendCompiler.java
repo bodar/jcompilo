@@ -13,7 +13,6 @@ import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.intellij.compiler.OutputParser;
-import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.openapi.application.ApplicationManager;
@@ -22,18 +21,14 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.java.LanguageLevel;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.jetbrains.annotations.NotNull;
 
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.Set;
 
 import static com.googlecode.jcompilo.MemoryStore.memoryStore;
 import static com.googlecode.totallylazy.Files.relativePath;
@@ -44,13 +39,6 @@ import static com.googlecode.totallylazy.Strings.startsWith;
 
 public class JCompiloBackendCompiler implements BackendCompiler {
     private static final Set<FileType> JAVA = Sets.<FileType>set(StdFileTypes.JAVA);
-
-    private final Project myProject;
-    private final DiagnosticCollector<JavaFileObject> diagnosticListener = new DiagnosticCollector<JavaFileObject>();
-
-    public JCompiloBackendCompiler(Project project) {
-        myProject = project;
-    }
 
     @NotNull
     public String getId() {
@@ -90,7 +78,8 @@ public class JCompiloBackendCompiler implements BackendCompiler {
         return new FakeProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), new CompilerDiagnostics(compileContext));
     }
 
-    public void compileFinished() {}
+    public void compileFinished() {
+    }
 
     public static Outputs outputs(String outputPath) {
         return Outputs.constructors.output(FileDestination.fileDestination(new File(outputPath)));
@@ -110,13 +99,6 @@ public class JCompiloBackendCompiler implements BackendCompiler {
     private static int version(final ModuleChunk moduleChunk) {
         return moduleChunk.getLanguageLevel().getIndex();
     }
-
-    public static final Function1<String, CompileOption> compileOption = new Function1<String, CompileOption>() {
-        @Override
-        public CompileOption call(String s) throws Exception {
-            return CompileOption.compileOption(s);
-        }
-    };
 
     public static Iterable<File> dependencies(ModuleChunk moduleChunk) {
         return Sequences.sequence(moduleChunk.getCompilationClasspathFiles()).map(new Function1<VirtualFile, File>() {
