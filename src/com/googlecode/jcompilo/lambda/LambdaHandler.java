@@ -8,6 +8,7 @@ import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.Type;
@@ -134,16 +135,7 @@ public class LambdaHandler implements AsmMethodHandler {
         return result;
     }
 
-    private static Type returnType(final AbstractInsnNode node) {
-        return new multi() {
-        }.method(node);
-    }
-
-    private static Type returnType(final MethodInsnNode node) {
-        return Type.getReturnType(node.desc);
-    }
-
-    private static Type returnType(final FieldInsnNode node) {
-        return Type.getReturnType(node.desc);
-    }
+    private static Type returnType(final AbstractInsnNode node) { return new multi() {}.method(node); }
+    @multimethod private static Type returnType(final MethodInsnNode node) { return Type.getReturnType(node.desc); }
+    @multimethod private static Type returnType(final FieldInsnNode node) { return Type.getReturnType(node.desc); }
 }
