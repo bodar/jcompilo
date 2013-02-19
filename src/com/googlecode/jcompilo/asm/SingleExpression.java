@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -28,13 +29,13 @@ public class SingleExpression {
         remove(input, output, previous, needed);
     }
 
-    private static int needed(final MethodInsnNode node) {
-        return (isStatic(node) ? 0 : 1) + Type.getType(node.desc).getArgumentTypes().length;
+    private static int needed(final AbstractInsnNode node) {
+        return new multi() {}.<Integer>methodOption(node).getOrElse(0);
     }
 
-    private static int needed(final AbstractInsnNode node) {
-        return new multi() {
-        }.<Integer>methodOption(node).getOrElse(0);
+    @multimethod
+    private static int needed(final MethodInsnNode node) {
+        return (isStatic(node) ? 0 : 1) + Type.getType(node.desc).getArgumentTypes().length;
     }
 
     private static AbstractInsnNode findLast(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
