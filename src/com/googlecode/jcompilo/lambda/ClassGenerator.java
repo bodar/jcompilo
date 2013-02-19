@@ -36,7 +36,7 @@ public class ClassGenerator {
         ClassNode classNode = new ClassNode();
         classNode.version = version;
         classNode.access = ACC_PUBLIC + ACC_SUPER;
-        classNode.name = functionalInterface.name();
+        classNode.name = functionalInterface.type().getInternalName();
         classNode.signature = signature(functionalInterface);
         classNode.superName = functionalInterface.classType.getInternalName();
         classNode.methods = list(Asm.constructor(functionalInterface.classType),
@@ -69,12 +69,11 @@ public class ClassGenerator {
             insnList.add(new VarInsnNode(Opcodes.ALOAD, i + 1));
             insnList.add(new TypeInsnNode(Opcodes.CHECKCAST, argumentType.getInternalName()));
         }
-        insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, functionalInterface.name(), methodName(functionalInterface), methodSignature(functionalInterface)));
+        insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, functionalInterface.type().getInternalName(), methodName(functionalInterface), methodSignature(functionalInterface)));
         insnList.add(new InsnNode(Opcodes.ARETURN));
         methodNode.instructions = insnList;
 
         return methodNode;
-
     }
 
     private String[] exceptions(FunctionalInterface functionalInterface) {

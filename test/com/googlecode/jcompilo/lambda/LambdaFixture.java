@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo.lambda;
 
 import com.googlecode.jcompilo.asm.Asm;
+import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Either;
 import com.googlecode.totallylazy.Sequence;
 import org.objectweb.asm.*;
@@ -30,6 +31,13 @@ public class LambdaFixture {
         ClassReader reader = new ClassReader(bytes);
         CheckClassAdapter.verify(reader, false, new PrintWriter(System.out));
     }
+
+    public static Block<ClassNode> verify = new Block<ClassNode>() {
+        @Override
+        protected void execute(ClassNode classNode) throws Exception {
+            LambdaFixture.verify(classNode);
+        }
+    };
 
     public static InsnList lambdaCall() {
         InsnList lambdaCall = new InsnList();

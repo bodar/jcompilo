@@ -46,8 +46,11 @@ public class LambdaHandler implements AsmMethodHandler {
         InsnList original = method.instructions;
         LabelNode placeHolder = new LabelNode();
         InsnList lambdaBody = SingleExpression.extract(original, LambdaHandler.lambda, placeHolder);
-        FunctionalInterface functionalInterface = rewriteArguments(lambdaBody);
+        FunctionalInterface functionalInterface = functionalInterface(lambdaBody);
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
+        InsnList createLambda = Asm.construct(functionalInterface.type());
+        original.insert(placeHolder, createLambda);
+        original.remove(placeHolder);
         return sequence(classNode, lambdaClass);
     }
 
@@ -60,7 +63,7 @@ public class LambdaHandler implements AsmMethodHandler {
         };
     }
 
-    public static FunctionalInterface rewriteArguments(final InsnList body) {
+    public static FunctionalInterface functionalInterface(final InsnList body) {
         MethodInsnNode lambda = (MethodInsnNode) body.getLast();
         InsnList arguments = drop(body, Asm.numberOfArguments(lambda) - 1);
         Sequence<Type> argumentTypes = argTypes(arguments);

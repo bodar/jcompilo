@@ -1,9 +1,7 @@
 package com.googlecode.jcompilo.lambda;
 
-import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
-import com.googlecode.totallylazy.Option;
 import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -18,18 +16,9 @@ import static org.junit.Assert.assertThat;
 public class ClassGeneratorTest {
     @Test
     public void canGenerateANewClass() throws Exception {
-        ClassNode expected = Asm.classNode(Resource.constructors.resource(Number_intValue.class).bytes());
+        ClassNode expected = Asm.classNode(Number_intValue.class);
 
-        Resources resources = new Resources() {
-            @Override
-            public Option<Resource> get(final String name) {
-                try {
-                    return Option.some(Resource.constructors.resource(Class.forName(name)));
-                } catch (ClassNotFoundException e) {
-                    return Option.none();
-                }
-            }
-        };
+        Resources resources = new ClassResources();
 
         ClassNode actual = ClassGenerator.classGenerator(resources).generateClass(numberIntValue());
         assertThat(actual.version, is(expected.version));
@@ -56,4 +45,5 @@ public class ClassGeneratorTest {
         assertThat(actual.exceptions, is(expected.exceptions));
         assertThat(Asm.toString(expected.instructions), containsString(Asm.toString(actual.instructions)));
     }
+
 }
