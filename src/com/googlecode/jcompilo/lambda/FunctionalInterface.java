@@ -41,8 +41,12 @@ public class FunctionalInterface extends Eq {
         };
     }
 
-    public String name() {
+    private String name() {
         return classType.getInternalName() + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public Type type() {
+        return Type.getType("L" + name() + ";");
     }
 
     @Override

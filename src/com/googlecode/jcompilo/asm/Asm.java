@@ -1,5 +1,6 @@
 package com.googlecode.jcompilo.asm;
 
+import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.lambda.FunctionalInterface;
 import com.googlecode.totallylazy.Fields;
 import com.googlecode.totallylazy.Function1;
@@ -21,11 +22,14 @@ import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.tonicsystems.jarjar.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.Type.getDescriptor;
 
 public final class Asm {
+    public static final String CONSTRUCTOR = "<init>";
+    public static final String STATIC_CONSTRUCTOR = "<clinit>";
+    public static final String CONSTRUCTOR_NO_ARGUMENTS = "()V";
+
     public static boolean hasAnnotation(MethodNode method, final Class<? extends Annotation> aClass) {
         return annotations(method).exists(annotation(aClass));
     }
@@ -143,6 +147,10 @@ public final class Asm {
                 getOrElse(String.valueOf(opcode));
     }
 
+    public static ClassNode classNode(final Class<?> aClass) {
+        return classNode(Resource.constructors.resource(aClass).bytes());
+    }
+
     public static ClassNode classNode(final byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
         ClassNode classNode = new ClassNode();
@@ -151,14 +159,22 @@ public final class Asm {
     }
 
     public static MethodNode constructor(final Type superType) {
-        MethodNode constructor = new MethodNode(ACC_PUBLIC, "<init>", "()V", null, new String[0]);
+        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS, null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
-        insnList.add(new MethodInsnNode(com.tonicsystems.jarjar.asm.Opcodes.INVOKESPECIAL, superType.getInternalName(), "<init>", "()V" ));
-        insnList.add(new InsnNode(com.tonicsystems.jarjar.asm.Opcodes.RETURN));
+        insnList.add(new MethodInsnNode(INVOKESPECIAL, superType.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
+        insnList.add(new InsnNode(RETURN));
         constructor.instructions = insnList;
 
         return constructor;
+    }
+
+    public static InsnList construct(Type type) {
+        InsnList construct = new InsnList();
+        construct.add(new TypeInsnNode(NEW, type.getInternalName()));
+        construct.add(new InsnNode(DUP));
+        construct.add(new MethodInsnNode(INVOKESPECIAL, type.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
+        return construct;
     }
 
     public static class predicates {
