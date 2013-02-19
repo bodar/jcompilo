@@ -13,6 +13,7 @@ public abstract class CompileOption implements Value<Iterable<String>> {
     public static final CompileOption WarningAsErrors = compileOption("-Werror");
     public static CompileOption Target(int version) { return compileOption("-target", version); }
     public static CompileOption Sources(int version) { return compileOption("-source", version); }
+    public static CompileOption BootClassPath(String path) { return compileOption("-bootclasspath", path); }
     public static CompileOption Implicit(Implicit implicit) { return compileOption("-implicit:" + implicit.toString().toLowerCase()); }
 
     public static CompileOption compileOption(final Object... options){
