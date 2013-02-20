@@ -5,14 +5,14 @@ BUILD_NUMBER=${BUILD_NUMBER-dev.build}
 version=@version@
 artifact=jcompilo
 group=com/googlecode/${artifact}
-repo=repo.bodar.com.s3.amazonaws.com
+repo=repo.bodar.com
 dir=lib/
 jar=${dir}${artifact}.jar
 url=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}
 remote_jar=${url}.jar
 remote_sh=${url}.sh
 
-if [ "$1" = "-u" ]; then
+if [ "$1" = "update" ]; then
 	rm ${jar}
 	shift 1
 fi
