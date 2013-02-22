@@ -49,4 +49,9 @@ public class SourceFileObject extends SimpleJavaFileObject {
     public Resource resource() {
         return resource;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
