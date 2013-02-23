@@ -29,9 +29,11 @@ import java.util.Map;
 import static com.googlecode.jcompilo.asm.Asm.functions.name;
 import static com.googlecode.jcompilo.asm.Asm.instructions;
 import static com.googlecode.jcompilo.asm.Asm.load;
+import static com.googlecode.jcompilo.asm.SingleExpression.extractAll;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Maps.pairs;
 import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
 
@@ -45,15 +47,29 @@ public class LambdaHandler implements AsmMethodHandler {
 
     @Override
     public Sequence<ClassNode> process(final ClassNode classNode, final MethodNode method) {
-        InsnList original = method.instructions;
-        Pair<InsnList, LabelNode> lambdaBody = SingleExpression.extract(original, LambdaHandler.lambda);
+        final InsnList original = method.instructions;
+        return extractAll(original, LambdaHandler.lambda).
+                map(processLambda(original)).
+                cons(classNode);
+    }
+
+    private ClassNode processLambda(final Pair<InsnList, LabelNode> lambdaBody, final InsnList original) {
         FunctionalInterface functionalInterface = functionalInterface(lambdaBody.first());
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
-        InsnList createLambda = Asm.construct(functionalInterface.type());
+        InsnList newLambda = Asm.construct(functionalInterface.type());
         LabelNode placeHolder = lambdaBody.second();
-        original.insert(placeHolder, createLambda);
+        original.insert(placeHolder, newLambda);
         original.remove(placeHolder);
-        return sequence(classNode, lambdaClass);
+        return lambdaClass;
+    }
+
+    private Mapper<Pair<InsnList, LabelNode>, ClassNode> processLambda(final InsnList original) {
+        return new Mapper<Pair<InsnList, LabelNode>, ClassNode>() {
+            @Override
+            public ClassNode call(final Pair<InsnList, LabelNode> lambdaBody) throws Exception {
+                return LambdaHandler.this.processLambda(lambdaBody, original);
+            }
+        };
     }
 
     public static <T, S extends T> LogicalPredicate<T> typeSafe(final Class<S> subClass, final Predicate<? super S> predicate) {

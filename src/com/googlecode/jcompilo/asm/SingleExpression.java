@@ -1,7 +1,13 @@
 package com.googlecode.jcompilo.asm;
 
+import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.Function;
+import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Some;
 import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import org.objectweb.asm.Type;
@@ -11,13 +17,37 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import static com.googlecode.jcompilo.asm.Asm.isStatic;
+import static com.googlecode.totallylazy.Option.option;
+import static com.googlecode.totallylazy.Predicates.instanceOf;
+import static com.googlecode.totallylazy.Sequences.repeat;
 
 public class SingleExpression {
     public static Pair<InsnList, LabelNode> extract(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
-        AbstractInsnNode node = findLast(insnList, predicate);
+        return extractLast(insnList, predicate).get();
+    }
+
+    public static Sequence<Pair<InsnList, LabelNode>> extractAll(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
+        return repeat(new Function<Option<Pair<InsnList, LabelNode>>>() {
+            @Override
+            public Option<Pair<InsnList, LabelNode>> call() throws Exception {
+                return extractLast(insnList, predicate);
+            }
+        }).takeWhile(instanceOf(Some.class)).map(Callables.<Pair<InsnList, LabelNode>>value());
+    }
+
+    private static Option<Pair<InsnList, LabelNode>> extractLast(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
+        return findLast(insnList, predicate).map(new Mapper<AbstractInsnNode, Pair<InsnList, LabelNode>>() {
+            @Override
+            public Pair<InsnList, LabelNode> call(final AbstractInsnNode matchedNode) throws Exception {
+                return replace(insnList, matchedNode);
+            }
+        });
+    }
+
+    private static Pair<InsnList, LabelNode> replace(final InsnList insnList, final AbstractInsnNode matchedNode) {
         LabelNode placeHolder = new LabelNode();
-        insnList.insert(node, placeHolder);
-        return Pair.pair(remove(insnList, node, 1), placeHolder);
+        insnList.insert(matchedNode, placeHolder);
+        return Pair.pair(remove(insnList, matchedNode, 1), placeHolder);
     }
 
     private static InsnList remove(InsnList input, final AbstractInsnNode node, int count) {
@@ -40,10 +70,10 @@ public class SingleExpression {
         return (isStatic(node) ? 0 : 1) + Type.getType(node.desc).getArgumentTypes().length;
     }
 
-    private static AbstractInsnNode findLast(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
+    private static Option<AbstractInsnNode> findLast(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
         AbstractInsnNode node = insnList.getLast();
-        while (!predicate.matches(node)) node = node.getPrevious();
-        return node;
+        while (node != null && !predicate.matches(node)) node = node.getPrevious();
+        return option(node);
     }
 
 }
