@@ -17,7 +17,7 @@ import static com.googlecode.totallylazy.numbers.Numbers.*;
 public class TailRecHandlerTest {
     @Test
     public void canProcessAResource() throws Exception {
-        Resource resource = asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
+        Resource resource = asmResourceHandler().add(tailrec.class, tailRecHandler()).
                 handle(resource(TailRecursive.class)).head();
         Files.write(resource.bytes(), file(Files.temporaryDirectory(TailRecHandlerTest.class.getSimpleName()), resource.name()));
     }
@@ -40,7 +40,7 @@ public class TailRecHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void shouldNotAllowMethodsThatAreNotFullyTailRecursive() throws Exception {
-        asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
+        asmResourceHandler().add(tailrec.class, tailRecHandler()).
                 handle(resource(NotQuiteTailRecursive.class));
     }
 
@@ -56,7 +56,7 @@ public class TailRecHandlerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void doesNotSupportVoidRecursiveMethods() throws Exception {
-        asmResourceHandler(true).add(tailrec.class, tailRecHandler()).
+        asmResourceHandler().add(tailrec.class, tailRecHandler()).
                 handle(resource(VoidTailRecursive.class));
     }
 

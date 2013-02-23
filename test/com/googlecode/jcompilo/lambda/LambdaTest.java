@@ -1,11 +1,7 @@
 package com.googlecode.jcompilo.lambda;
 
-import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.asm.Asm;
-import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.annotations.tailrec;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
@@ -16,8 +12,6 @@ import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.jcompilo.lambda.ClassGenerator.classGenerator;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.lambdaCall;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.numberIntValue;
-import static com.googlecode.jcompilo.tco.TailRecHandler.tailRecHandler;
-import static com.googlecode.totallylazy.Files.file;
 import static com.googlecode.totallylazy.matchers.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
