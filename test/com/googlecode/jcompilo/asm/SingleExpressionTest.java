@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.lambda.LambdaHandler;
+import com.googlecode.totallylazy.Pair;
 import org.junit.Test;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -18,12 +19,11 @@ public class SingleExpressionTest {
         InsnList lambdaCall = lambdaCall();
 
         InsnList mutated = methodWith(left(lambdaCall, AbstractInsnNode.class));
-        LabelNode placeHolder = new LabelNode();
 
-        InsnList lifted = SingleExpression.extract(mutated, LambdaHandler.lambda, placeHolder);
+        Pair<InsnList, LabelNode> lifted = SingleExpression.extract(mutated, LambdaHandler.lambda);
 
-        assertInsn(lifted, lambdaCall());
-        assertInsn(mutated, methodWith(right(InsnList.class, placeHolder)));
+        assertInsn(lifted.first(), lambdaCall());
+        assertInsn(mutated, methodWith(right(InsnList.class, lifted.second())));
     }
 
 }

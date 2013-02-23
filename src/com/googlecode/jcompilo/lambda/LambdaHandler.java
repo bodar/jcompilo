@@ -6,6 +6,7 @@ import com.googlecode.jcompilo.asm.SingleExpression;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.annotations.multimethod;
@@ -45,11 +46,11 @@ public class LambdaHandler implements AsmMethodHandler {
     @Override
     public Sequence<ClassNode> process(final ClassNode classNode, final MethodNode method) {
         InsnList original = method.instructions;
-        LabelNode placeHolder = new LabelNode();
-        InsnList lambdaBody = SingleExpression.extract(original, LambdaHandler.lambda, placeHolder);
-        FunctionalInterface functionalInterface = functionalInterface(lambdaBody);
+        Pair<InsnList, LabelNode> lambdaBody = SingleExpression.extract(original, LambdaHandler.lambda);
+        FunctionalInterface functionalInterface = functionalInterface(lambdaBody.first());
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
         InsnList createLambda = Asm.construct(functionalInterface.type());
+        LabelNode placeHolder = lambdaBody.second();
         original.insert(placeHolder, createLambda);
         original.remove(placeHolder);
         return sequence(classNode, lambdaClass);
