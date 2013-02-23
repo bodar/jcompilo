@@ -90,7 +90,7 @@ public class AsmResourceHandler implements ResourceHandler {
             @Override
             public Resource call(final ClassNode node) throws Exception {
                 ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                node.accept(verify ? new CheckClassAdapter(writer) : writer);
+                node.accept(verify ? new CheckClassAdapter(writer, true) : writer);
                 return resource(node.name + ".class", modified, writer.toByteArray());
             }
         };

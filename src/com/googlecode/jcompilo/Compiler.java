@@ -1,6 +1,8 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.asm.AsmMethodHandler;
+import com.googlecode.jcompilo.lambda.ClassGenerator;
+import com.googlecode.jcompilo.lambda.LambdaHandler;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Function1;
@@ -81,20 +83,27 @@ public class Compiler {
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler, Option<DiagnosticListener<JavaFileObject>> diagnosticListener) {
+        CompilerResources resources = new CompilerResources(javaCompiler, dependancies);
         return compiler(env).
-                add(CompileProcessor.compile(env, compileOptions, javaCompiler, dependancies, diagnosticListener)).
+                add(CompileProcessor.compile(env, compileOptions, javaCompiler, resources, diagnosticListener)).
                 add(CopyProcessor.copy(env, not(or(startsWith("."), JAVA_FILES)))).
-                add(asmResourceHandler(asmProcessors(env)));
+                add(asmResourceHandler(asmProcessors(env, resources)));
     }
 
-    private static Sequence<Pair<Type, AsmMethodHandler>> asmProcessors(Environment env) {
+    private static Sequence<Pair<Type, AsmMethodHandler>> asmProcessors(Environment env, Resources resources) {
         return postProcess(env) ?
-                sequence(Pair.<Type, AsmMethodHandler>pair(tailRecClass(env), tailRecHandler())) :
+                sequence(Pair.<Type, AsmMethodHandler>pair(tailRecAnnotation(env), tailRecHandler()),
+                        Pair.<Type, AsmMethodHandler>pair(lambdaAnnotation(env), new LambdaHandler(ClassGenerator.classGenerator(resources)))) :
                 Sequences.<Pair<Type, AsmMethodHandler>>empty();
     }
 
-    private static Type tailRecClass(Environment env) {
+    private static Type tailRecAnnotation(Environment env) {
         String property = env.properties().getProperty("jcompilo.tailrec");
+        return Type.getType(format("L%s;", property.replace('.', '/')));
+    }
+
+    private static Type lambdaAnnotation(Environment env) {
+        String property = env.properties().getProperty("jcompilo.lambda");
         return Type.getType(format("L%s;", property.replace('.', '/')));
     }
 

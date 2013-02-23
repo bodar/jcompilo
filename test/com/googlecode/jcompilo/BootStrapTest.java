@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.not;
 public class BootStrapTest {
     @Test
     public void canBuildExampleProject() throws Exception {
+//        System.setProperty("jcompilo.debug", "true");
         File exampleProject = directory(workingDirectory(), "example");
         int exitCode = new BootStrap(environment(exampleProject)).build(Lists.<String>list());
         assertThat(exitCode, is(0));
