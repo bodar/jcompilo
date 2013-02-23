@@ -11,7 +11,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.lang.annotation.Annotation;
 import java.util.Date;
@@ -20,7 +19,6 @@ import static com.googlecode.jcompilo.Resource.constructors.resource;
 import static com.googlecode.jcompilo.asm.Asm.annotations;
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Callables.first;
-import static com.googlecode.totallylazy.Debug.debugging;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -29,27 +27,17 @@ import static com.googlecode.totallylazy.collections.PersistentList.constructors
 
 public class AsmResourceHandler implements ResourceHandler {
     private final PersistentList<Pair<Type, AsmMethodHandler>> processors;
-    private final boolean verify;
 
-    private AsmResourceHandler(Iterable<? extends Pair<Type, AsmMethodHandler>> processors, boolean verify) {
+    private AsmResourceHandler(Iterable<? extends Pair<Type, AsmMethodHandler>> processors) {
         this.processors = list(processors);
-        this.verify = verify;
-    }
-
-    public static AsmResourceHandler asmResourceHandler(Iterable<? extends Pair<Type, AsmMethodHandler>> processors, boolean verify) {
-        return new AsmResourceHandler(processors, verify);
     }
 
     public static AsmResourceHandler asmResourceHandler(Iterable<? extends Pair<Type, AsmMethodHandler>> processors) {
-        return asmResourceHandler(processors, debugging());
-    }
-
-    public static AsmResourceHandler asmResourceHandler(boolean verify) {
-        return asmResourceHandler(constructors.<Pair<Type, AsmMethodHandler>>empty(), verify);
+        return new AsmResourceHandler(processors);
     }
 
     public static AsmResourceHandler asmResourceHandler() {
-        return asmResourceHandler(debugging());
+        return asmResourceHandler(constructors.<Pair<Type, AsmMethodHandler>>empty());
     }
 
     public AsmResourceHandler add(Class<? extends Annotation> annotation, AsmMethodHandler asmProcessor) {
@@ -57,7 +45,7 @@ public class AsmResourceHandler implements ResourceHandler {
     }
 
     public AsmResourceHandler add(Type annotation, AsmMethodHandler asmProcessor) {
-        return asmResourceHandler(processors.cons(Pair.<Type, AsmMethodHandler>pair(annotation, asmProcessor)), verify);
+        return asmResourceHandler(processors.cons(Pair.<Type, AsmMethodHandler>pair(annotation, asmProcessor)));
     }
 
     @Override
@@ -90,7 +78,7 @@ public class AsmResourceHandler implements ResourceHandler {
             @Override
             public Resource call(final ClassNode node) throws Exception {
                 ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                node.accept(verify ? new CheckClassAdapter(writer, true) : writer);
+                node.accept(writer);
                 return resource(node.name + ".class", modified, writer.toByteArray());
             }
         };
