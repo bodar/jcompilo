@@ -4,6 +4,7 @@ import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.totallylazy.Eq;
 import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.annotations.multimethod;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;
 
@@ -20,12 +21,14 @@ public class FunctionalInterface extends Eq {
     public final Sequence<Type> argumentTypes;
     public final Type returnType;
     public final InsnList body;
+    private final String name;
 
     private FunctionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body) {
         this.classType = classType;
         this.argumentTypes = argumentTypes;
         this.returnType = returnType;
         this.body = body;
+        this.name = classType.getInternalName() + UUID.randomUUID().toString().replace("-", "");
     }
 
     public static FunctionalInterface functionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body) {
@@ -41,12 +44,8 @@ public class FunctionalInterface extends Eq {
         };
     }
 
-    private String name() {
-        return classType.getInternalName() + UUID.randomUUID().toString().replace("-", "");
-    }
-
     public Type type() {
-        return Type.getType("L" + name() + ";");
+        return Type.getType("L" + name + ";");
     }
 
     @Override
@@ -64,6 +63,7 @@ public class FunctionalInterface extends Eq {
         return toString().hashCode();
     }
 
+    @multimethod
     public boolean equals(final FunctionalInterface functionalInterface) {
         return this.toString().equals(functionalInterface.toString());
     }
