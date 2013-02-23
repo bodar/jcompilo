@@ -13,20 +13,20 @@ import static com.googlecode.jcompilo.asm.Asm.isStatic;
 
 public class SingleExpression {
     public static InsnList extract(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate, final LabelNode placeHolder) {
-        InsnList result = new InsnList();
         AbstractInsnNode node = findLast(insnList, predicate);
         insnList.insert(node, placeHolder);
-        remove(insnList, result, node, 1);
-        return result;
+        return remove(insnList, node, 1);
     }
 
-    private static void remove(InsnList input, final InsnList output, final AbstractInsnNode node, int count) {
+    private static InsnList remove(InsnList input, final AbstractInsnNode node, int count) {
+        InsnList result = new InsnList();
         int needed = needed(node) + count - 1;
         AbstractInsnNode previous = node.getPrevious();
         input.remove(node);
-        output.insert(node);
-        if (needed == 0) return;
-        remove(input, output, previous, needed);
+        result.insert(node);
+        if (needed == 0) return result;
+        result.insert(remove(input, previous, needed));
+        return result;
     }
 
     private static int needed(final AbstractInsnNode node) {
