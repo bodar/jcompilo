@@ -1,5 +1,6 @@
 package com.googlecode.jcompilo.asm;
 
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
@@ -12,10 +13,11 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import static com.googlecode.jcompilo.asm.Asm.isStatic;
 
 public class SingleExpression {
-    public static InsnList extract(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate, final LabelNode placeHolder) {
+    public static Pair<InsnList, LabelNode> extract(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
         AbstractInsnNode node = findLast(insnList, predicate);
+        LabelNode placeHolder = new LabelNode();
         insnList.insert(node, placeHolder);
-        return remove(insnList, node, 1);
+        return Pair.pair(remove(insnList, node, 1), placeHolder);
     }
 
     private static InsnList remove(InsnList input, final AbstractInsnNode node, int count) {
