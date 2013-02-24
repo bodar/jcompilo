@@ -1,7 +1,6 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.Characters;
-import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 
@@ -22,6 +21,7 @@ import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
+import static javax.tools.JavaFileObject.Kind.CLASS;
 import static javax.tools.StandardLocation.CLASS_PATH;
 
 public class CompilerResources implements Resources {
@@ -47,11 +47,11 @@ public class CompilerResources implements Resources {
 
     @Override
     public Option<Resource> get(final String name) {
-        return sequence(fileManager.getJavaFileObjects(name)).headOption().map(new Mapper<JavaFileObject, Resource>() {
-            @Override
-            public Resource call(final JavaFileObject fileObject) throws Exception {
-                return resource(fileObject.getName(), new Date(fileObject.getLastModified()), bytes(fileObject.openInputStream()));
-            }
-        });
+        try {
+            JavaFileObject fileObject = fileManager.getJavaFileForInput(CLASS_PATH, name, CLASS);
+            return Option.some(resource(fileObject.getName(), new Date(fileObject.getLastModified()), bytes(fileObject.openInputStream())));
+        } catch (IOException e) {
+            return Option.none();
+        }
     }
 }
