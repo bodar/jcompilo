@@ -2,25 +2,27 @@ package com.googlecode.jcompilo.lambda;
 
 import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
+import com.googlecode.jcompilo.asm.AsmReflector;
 import com.googlecode.totallylazy.Sequence;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.List;
-import java.util.UUID;
 
+import static com.googlecode.jcompilo.asm.Asm.functions.access;
 import static com.googlecode.totallylazy.Lists.list;
+import static com.googlecode.totallylazy.Predicates.notNullValue;
+import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.repeat;
-import static com.tonicsystems.jarjar.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.*;
 
 public class ClassGenerator {
-    private final Resources resources;
+    private final AsmReflector reflector;
     private final int version;
 
     private ClassGenerator(final Resources resources, final int version) {
-        this.resources = resources;
+        this.reflector = new AsmReflector(resources);
         this.version = version;
     }
 
@@ -33,6 +35,7 @@ public class ClassGenerator {
     }
 
     public ClassNode generateClass(final FunctionalInterface functionalInterface) {
+        MethodNode methodToOverride = findMethodToOverride(functionalInterface);
         ClassNode classNode = new ClassNode();
         classNode.version = version;
         classNode.access = ACC_PUBLIC + ACC_SUPER;
@@ -40,15 +43,17 @@ public class ClassGenerator {
         classNode.signature = signature(functionalInterface);
         classNode.superName = functionalInterface.classType.getInternalName();
         classNode.methods = list(Asm.constructor(functionalInterface.classType),
-                method(functionalInterface),
-                bridgeMethod(functionalInterface));
+                method(functionalInterface, methodToOverride),
+                bridgeMethod(functionalInterface, methodToOverride));
 
         return classNode;
     }
 
-
-    private MethodNode method(FunctionalInterface functionalInterface) {
-        MethodNode methodNode = new MethodNode(ACC_PUBLIC, methodName(functionalInterface), methodSignature(functionalInterface), null, exceptions(functionalInterface));
+    private MethodNode method(FunctionalInterface functionalInterface, final MethodNode methodToOverride) {
+        MethodNode methodNode = new MethodNode(ACC_PUBLIC,
+                methodToOverride.name,
+                methodSignature(functionalInterface), null,
+                exceptions(methodToOverride));
         methodNode.instructions = functionalInterface.body;
 
         return methodNode;
@@ -58,9 +63,13 @@ public class ClassGenerator {
         return "(" + functionalInterface.argumentTypes.toString("") + ")" + functionalInterface.returnType;
     }
 
-    private MethodNode bridgeMethod(final FunctionalInterface functionalInterface) {
+    private MethodNode bridgeMethod(final FunctionalInterface functionalInterface, final MethodNode methodToOverride) {
         String object = "Ljava/lang/Object;";
-        MethodNode methodNode = new MethodNode(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, methodName(functionalInterface), "(" + repeat(object).take(functionalInterface.argumentTypes.size()).toString("") + ")" + object, null, exceptions(functionalInterface));
+        MethodNode methodNode = new MethodNode(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
+                methodToOverride.name,
+                "(" + repeat(object).take(functionalInterface.argumentTypes.size()).toString("") + ")" + object, null,
+                exceptions(methodToOverride));
+
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
         List<Type> argumentTypes = functionalInterface.argumentTypes.toList();
@@ -69,20 +78,24 @@ public class ClassGenerator {
             insnList.add(new VarInsnNode(Opcodes.ALOAD, i + 1));
             insnList.add(new TypeInsnNode(Opcodes.CHECKCAST, argumentType.getInternalName()));
         }
-        insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, functionalInterface.type().getInternalName(), methodName(functionalInterface), methodSignature(functionalInterface)));
+        insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, functionalInterface.type().getInternalName(),
+                methodToOverride.name, methodSignature(functionalInterface)));
         insnList.add(new InsnNode(Opcodes.ARETURN));
         methodNode.instructions = insnList;
 
         return methodNode;
     }
 
-    private String[] exceptions(FunctionalInterface functionalInterface) {
-        return new String[]{"java/lang/Exception"}; //TODO
+    private String[] exceptions(MethodNode methodToOverride) {
+        return Asm.<String>seq(methodToOverride.exceptions).toArray(String.class);
     }
 
-    private String methodName(FunctionalInterface functionalInterface) {
-        return "call"; //TODO
+    private MethodNode findMethodToOverride(final FunctionalInterface functionalInterface) {
+        String className = functionalInterface.classType.getClassName();
+        Sequence<MethodNode> methods = reflector.allMethods(className);
+        return methods.find(where(access, AsmReflector.contains(Opcodes.ACC_ABSTRACT))).get();
     }
+
 
     private String signature(final FunctionalInterface functionalInterface) {
         return String.format("L%s<%s%s>;",
@@ -90,5 +103,4 @@ public class ClassGenerator {
                 functionalInterface.argumentTypes.toString(""),
                 functionalInterface.returnType);
     }
-
 }

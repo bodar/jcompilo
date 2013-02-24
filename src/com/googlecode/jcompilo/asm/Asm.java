@@ -3,7 +3,7 @@ package com.googlecode.jcompilo.asm;
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.lambda.FunctionalInterface;
 import com.googlecode.totallylazy.Fields;
-import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
@@ -97,6 +97,10 @@ public final class Asm {
     public static Sequence<Type> initialLocalVariables(ClassNode classNode, MethodNode methodNode) {
         Sequence<Type> sequence = argumentTypes(methodNode);
         return isStatic(methodNode) ? sequence : sequence.cons(Type.getType(classNode.name));
+    }
+
+    public static boolean isAbstract(MethodNode methodNode) {
+        return (methodNode.access & Opcodes.ACC_ABSTRACT) != 0;
     }
 
     public static boolean isStatic(MethodNode methodNode) {
@@ -210,6 +214,10 @@ public final class Asm {
         return construct;
     }
 
+    public static Sequence<MethodNode> methods(final ClassNode classNode) {
+        return Asm.<MethodNode>seq(classNode.methods);
+    }
+
     public static class predicates {
         public static LogicalPredicate<AnnotationNode> annotation(Class<? extends Annotation> aClass) {
             return where(functions.desc, is(getDescriptor(aClass)));
@@ -221,46 +229,52 @@ public final class Asm {
     }
 
     public static class functions {
-        public static Function1<AbstractInsnNode, Integer> opcode = new Function1<AbstractInsnNode, Integer>() {
+        public static final Mapper<AbstractInsnNode, Integer> opcode = new Mapper<AbstractInsnNode, Integer>() {
             @Override
             public Integer call(AbstractInsnNode abstractInsnNode) throws Exception {
                 return abstractInsnNode.getOpcode();
             }
         };
 
-        public static Function1<AnnotationNode, String> desc = new Function1<AnnotationNode, String>() {
+        public static final Mapper<AnnotationNode, String> desc = new Mapper<AnnotationNode, String>() {
             @Override
             public String call(AnnotationNode annotationNode) throws Exception {
                 return annotationNode.desc;
             }
         };
 
-        public static Function1<AbstractInsnNode, AbstractInsnNode> nextInstruction = new Function1<AbstractInsnNode, AbstractInsnNode>() {
+        public static final Mapper<AbstractInsnNode, AbstractInsnNode> nextInstruction = new Mapper<AbstractInsnNode, AbstractInsnNode>() {
             @Override
             public AbstractInsnNode call(AbstractInsnNode insnNode) throws Exception {
                 return insnNode.getNext();
             }
         };
 
-        public static Function1<MethodInsnNode, String> owner = new Function1<MethodInsnNode, String>() {
+        public static final Mapper<MethodInsnNode, String> owner = new Mapper<MethodInsnNode, String>() {
             @Override
             public String call(MethodInsnNode methodInsnNode) throws Exception {
                 return methodInsnNode.owner;
             }
         };
-        public static Function1<MethodInsnNode, String> name = new Function1<MethodInsnNode, String>() {
+        public static final Mapper<MethodInsnNode, String> name = new Mapper<MethodInsnNode, String>() {
             @Override
             public String call(MethodInsnNode methodInsnNode) throws Exception {
                 return methodInsnNode.name;
             }
         };
-        public static final Function1<LocalVariableNode, Type> localVariableType = new Function1<LocalVariableNode, Type>() {
+        public static final Mapper<LocalVariableNode, Type> localVariableType = new Mapper<LocalVariableNode, Type>() {
             @Override
             public Type call(LocalVariableNode localVariableNode) throws Exception {
                 return Type.getType(localVariableNode.desc);
             }
         };
 
+        public static final Mapper<MethodNode, Integer> access = new Mapper<MethodNode, Integer>() {
+            @Override
+            public Integer call(final MethodNode node) throws Exception {
+                return node.access;
+            }
+        };
     }
 
 }

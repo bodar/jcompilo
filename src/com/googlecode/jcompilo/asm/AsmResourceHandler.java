@@ -59,7 +59,7 @@ public class AsmResourceHandler implements ResourceHandler {
 
         final ClassNode classNode = Asm.classNode(resource.bytes());
 
-        Sequence<ClassNode> classNodes = Asm.<MethodNode>seq(classNode.methods).flatMap(new Mapper<MethodNode, Sequence<ClassNode>>() {
+        Sequence<ClassNode> classNodes = Asm.methods(classNode).flatMap(new Mapper<MethodNode, Sequence<ClassNode>>() {
             @Override
             public Sequence<ClassNode> call(final MethodNode method) throws Exception {
                 return sequence(processors).
