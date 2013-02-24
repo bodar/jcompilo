@@ -25,5 +25,4 @@ public class SingleExpressionTest {
         assertInsn(lifted.first(), lambdaCall());
         assertInsn(mutated, methodWith(right(InsnList.class, lifted.second())));
     }
-
 }

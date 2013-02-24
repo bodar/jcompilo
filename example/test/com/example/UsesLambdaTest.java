@@ -1,5 +1,6 @@
 package com.example;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -15,5 +16,17 @@ public class UsesLambdaTest {
     @Test
     public void handlesMultipleLambdas() throws Exception {
         assertThat(new UsesLambda().multipleLambdas(), is(sequence('D', 'M')));
+    }
+
+    @Test
+    @Ignore("TODO")
+    public void supportsClosingOverALocalVariable() throws Exception {
+        assertThat(new UsesLambda().index(0), is(sequence('d', 'm')));
+    }
+
+    @Test
+    @Ignore("TODO")
+    public void supportsClosingOverAField() throws Exception {
+        assertThat(new UsesLambda().fieldIndex(), is(sequence('d', 'm')));
     }
 }
