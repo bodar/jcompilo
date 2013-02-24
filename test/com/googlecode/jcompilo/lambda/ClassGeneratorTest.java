@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import static com.googlecode.jcompilo.lambda.ClassGenerator.classGenerator;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.numberIntValue;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.verify;
 import static com.googlecode.totallylazy.matchers.Matchers.is;
@@ -18,9 +19,7 @@ public class ClassGeneratorTest {
     public void canGenerateANewClass() throws Exception {
         ClassNode expected = Asm.classNode(Number_intValue.class);
 
-        Resources resources = new ClassResources();
-
-        ClassNode actual = ClassGenerator.classGenerator(resources).generateClass(numberIntValue());
+        ClassNode actual = classGenerator(new ClassResources()).generateClass(numberIntValue());
         assertThat(actual.version, is(expected.version));
         assertThat(actual.access, is(expected.access));
         assertThat(actual.name, notNullValue(String.class));

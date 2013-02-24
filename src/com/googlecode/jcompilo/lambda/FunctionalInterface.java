@@ -22,7 +22,7 @@ public class FunctionalInterface extends Eq {
     public final Type returnType;
     public final InsnList body;
     private final String name;
-    private String bodyString;
+    private final String bodyString;
 
     private FunctionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body) {
         this.classType = classType;
