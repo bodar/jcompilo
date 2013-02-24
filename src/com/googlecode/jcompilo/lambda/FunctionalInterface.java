@@ -28,7 +28,7 @@ public class FunctionalInterface extends Eq {
         this.argumentTypes = argumentTypes;
         this.returnType = returnType;
         this.body = body;
-        this.name = classType.getInternalName() + UUID.randomUUID().toString().replace("-", "");
+        this.name = "com/googlecode/jcompilo/lambda/" + classType.getInternalName() + "/hash" + String.valueOf(Asm.toString(body).hashCode()).replace("-", "");
     }
 
     public static FunctionalInterface functionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body) {
