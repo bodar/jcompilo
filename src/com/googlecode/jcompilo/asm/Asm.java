@@ -4,7 +4,6 @@ import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.lambda.FunctionalInterface;
 import com.googlecode.totallylazy.Fields;
 import com.googlecode.totallylazy.Mapper;
-import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.annotations.multimethod;
@@ -28,6 +27,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.lang.annotation.Annotation;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
@@ -66,12 +66,17 @@ public final class Asm {
 
     @SuppressWarnings("unchecked")
     public static Sequence<AbstractInsnNode> instructions(MethodNode method) {
-        return Sequences.<AbstractInsnNode>memorise(method.instructions.iterator());
+        return instructions(method.instructions);
     }
 
     @SuppressWarnings("unchecked")
-    public static Sequence<AbstractInsnNode> instructions(InsnList instructions) {
-        return Sequences.<AbstractInsnNode>memorise(instructions.iterator());
+    public static Sequence<AbstractInsnNode> instructions(final InsnList instructions) {
+        return new Sequence<AbstractInsnNode>() {
+            @Override
+            public Iterator<AbstractInsnNode> iterator() {
+                return new InsnIterator(instructions);
+            }
+        };
     }
 
     public static Sequence<LocalVariableNode> localVariables(MethodNode methodNode) {
@@ -138,6 +143,7 @@ public final class Asm {
     };
 
     public static String toString(AbstractInsnNode node) {
+        if(node == null) return "";
         return new multi() {}.<String>methodOption(node).
                 getOrElse(Asm.toString(node.getOpcode()) + "(" + node.getClass().getSimpleName() + ")");
     }
