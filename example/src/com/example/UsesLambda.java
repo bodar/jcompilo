@@ -1,5 +1,6 @@
 package com.example;
 
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.annotations.lambda;
 
@@ -11,6 +12,11 @@ public class UsesLambda {
     @lambda
     public Sequence<Character> singleLambda(){
         return sequence("dan", "matt").map(λ(s, s.charAt(0)));
+    }
+
+    @lambda
+    public Function1<String, Character> duplicateLambda(){
+        return λ(s, s.charAt(0));
     }
 
     @lambda
