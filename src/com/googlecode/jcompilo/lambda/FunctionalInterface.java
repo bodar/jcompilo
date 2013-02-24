@@ -22,13 +22,15 @@ public class FunctionalInterface extends Eq {
     public final Type returnType;
     public final InsnList body;
     private final String name;
+    private String bodyString;
 
     private FunctionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body) {
         this.classType = classType;
         this.argumentTypes = argumentTypes;
         this.returnType = returnType;
         this.body = body;
-        this.name = "com/googlecode/jcompilo/lambda/" + classType.getInternalName() + "/hash" + String.valueOf(Asm.toString(body).hashCode()).replace("-", "");
+        bodyString = Asm.toString(body);
+        this.name = "com/googlecode/jcompilo/lambda/" + classType.getInternalName() + "/hash" + String.valueOf(bodyString.hashCode()).replace("-", "");
     }
 
     public static FunctionalInterface functionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body) {
@@ -55,7 +57,7 @@ public class FunctionalInterface extends Eq {
             public String call(final Type type) throws Exception {
                 return type.getClassName();
             }
-        }).toString(",") + "," + returnType.getClassName() + ">\n" + Asm.toString(body);
+        }).toString(",") + "," + returnType.getClassName() + ">\n" + bodyString;
     }
 
     @Override
