@@ -2,13 +2,13 @@ package com.googlecode.jcompilo.lambda;
 
 import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.jcompilo.asm.AsmMethodHandler;
-import com.googlecode.jcompilo.asm.SingleExpression;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Triple;
 import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.googlecode.jcompilo.asm.Asm.functions.name;
@@ -47,27 +48,27 @@ public class LambdaHandler implements AsmMethodHandler {
 
     @Override
     public Sequence<ClassNode> process(final ClassNode classNode, final MethodNode method) {
-        final InsnList original = method.instructions;
-        return extractAll(original, LambdaHandler.lambda).
-                map(processLambda(original)).
+        Sequence<Type> initialLocalvariables = Asm.initialLocalVariables(classNode, method);
+        return extractAll(method.instructions, LambdaHandler.lambda).
+                map(processLambda(method, initialLocalvariables)).
                 cons(classNode);
     }
 
-    private ClassNode processLambda(final Pair<InsnList, LabelNode> lambdaBody, final InsnList original) {
-        FunctionalInterface functionalInterface = functionalInterface(lambdaBody.first());
+    private ClassNode processLambda(final Pair<InsnList, LabelNode> lambdaBody, final MethodNode method, final Sequence<Type> initialLocalVariables) {
+        FunctionalInterface functionalInterface = functionalInterface(lambdaBody.first(), initialLocalVariables);
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
-        InsnList newLambda = Asm.construct(functionalInterface.type());
+        InsnList newLambda = functionalInterface.construct();
         LabelNode placeHolder = lambdaBody.second();
-        original.insert(placeHolder, newLambda);
-        original.remove(placeHolder);
+        method.instructions.insert(placeHolder, newLambda);
+        method.instructions.remove(placeHolder);
         return lambdaClass;
     }
 
-    private Mapper<Pair<InsnList, LabelNode>, ClassNode> processLambda(final InsnList original) {
+    private Mapper<Pair<InsnList, LabelNode>, ClassNode> processLambda(final MethodNode method, final Sequence<Type> initialLocalVariables) {
         return new Mapper<Pair<InsnList, LabelNode>, ClassNode>() {
             @Override
             public ClassNode call(final Pair<InsnList, LabelNode> lambdaBody) throws Exception {
-                return LambdaHandler.this.processLambda(lambdaBody, original);
+                return LambdaHandler.this.processLambda(lambdaBody, method, initialLocalVariables);
             }
         };
     }
@@ -81,15 +82,31 @@ public class LambdaHandler implements AsmMethodHandler {
         };
     }
 
-    public static FunctionalInterface functionalInterface(final InsnList body) {
+    public static FunctionalInterface functionalInterface(final InsnList body, final Sequence<Type> initialLocalVariables) {
         MethodInsnNode lambda = (MethodInsnNode) body.getLast();
         InsnList arguments = drop(body, Asm.numberOfArguments(lambda) - 1);
+        Sequence<Triple<LabelNode, InsnList, Type>> constructorArguments = replaceLocalVariables(body, initialLocalVariables);
         Sequence<Type> argumentTypes = argTypes(arguments);
         replace(body, arguments);
         body.remove(lambda);
         Type returnType = returnType(body.getLast());
         body.add(new InsnNode(Asm.returns(returnType)));
-        return FunctionalInterface.functionalInterface(returnType(lambda), argumentTypes, returnType, body);
+        return FunctionalInterface.functionalInterface(returnType(lambda), argumentTypes, returnType, body, constructorArguments);
+    }
+
+    private static Sequence<Triple<LabelNode, InsnList, Type>> replaceLocalVariables(final InsnList body, final Sequence<Type> initialLocalVariables) {
+        final List<Type> types = initialLocalVariables.toList();
+        return instructions(body).safeCast(VarInsnNode.class).map(new Mapper<VarInsnNode, Triple<LabelNode, InsnList, Type>>() {
+            @Override
+            public Triple<LabelNode, InsnList, Type> call(final VarInsnNode node) throws Exception {
+                LabelNode labelNode = new LabelNode();
+                body.set(node, labelNode);
+                InsnList insnList = new InsnList();
+                insnList.add(node);
+                Type type = types.get(node.var);
+                return Triple.triple(labelNode, insnList, type);
+            }
+        }).realise();
     }
 
     private static Sequence<Type> argTypes(final InsnList arguments) {

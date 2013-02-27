@@ -4,15 +4,26 @@ import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Either;
 import com.googlecode.totallylazy.Sequence;
-import org.objectweb.asm.*;
-import org.objectweb.asm.tree.*;
+import com.googlecode.totallylazy.Sequences;
+import com.googlecode.totallylazy.Triple;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LineNumberNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.PrintWriter;
 
-import static com.googlecode.jcompilo.asm.Asm.instructions;
 import static com.googlecode.jcompilo.lambda.FunctionalInterface.functionalInterface;
-import static com.googlecode.totallylazy.Predicates.nullValue;
 import static com.googlecode.totallylazy.Sequences.one;
 import static org.junit.Assert.assertEquals;
 import static org.objectweb.asm.Type.getType;
@@ -23,15 +34,33 @@ public class LambdaFixture {
                 getType("Lcom/googlecode/totallylazy/Function1;"),
                 one(getType("Ljava/lang/Number;")),
                 getType("Ljava/lang/Integer;"),
-                functionBody(Number_intValue()));
+                functionBody(Number_intValue()),
+                Sequences.<Triple<LabelNode, InsnList, Type>>empty());
     }
 
-    public static FunctionalInterface stringCharAt() {
+    public static FunctionalInterface localVariableClosure() {
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ILOAD, 1));
+
+        return stringCharAt(insnList);
+    }
+
+    public static FunctionalInterface fieldClosure() {
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        insnList.add(new FieldInsnNode(Opcodes.GETFIELD, "com/example/UsesLambda", "myIndex", "I"));
+        return stringCharAt(insnList);
+    }
+
+    private static FunctionalInterface stringCharAt(final InsnList insnList) {
+        LabelNode labelNode = new LabelNode();
+
         return functionalInterface(
                 getType("Lcom/googlecode/totallylazy/Function1;"),
                 one(getType("Ljava/lang/String;")),
                 getType("Ljava/lang/Character;"),
-                functionBody(stringFunctionBody()));
+                functionBody(stringFunctionBody(labelNode)),
+                Sequences.one(Triple.triple(labelNode, insnList, getType("I"))));
     }
 
     public static void verify(final ClassNode classNode) {
@@ -93,10 +122,9 @@ public class LambdaFixture {
         return body;
     }
 
-    public static InsnList stringFunctionBody() {
+    public static InsnList stringFunctionBody(final LabelNode insn) {
         InsnList body = new InsnList();
-        body.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        body.add(new FieldInsnNode(Opcodes.GETFIELD, "com/googlecode/jcompilo/lambda/String_charAt", "ILOAD1", "I"));
+        body.add(insn);
         body.add(String_charAt());
         return body;
     }
