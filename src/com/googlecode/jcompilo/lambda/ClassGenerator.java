@@ -3,6 +3,8 @@ package com.googlecode.jcompilo.lambda;
 import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.jcompilo.asm.AsmReflector;
+import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -36,17 +38,29 @@ public class ClassGenerator {
 
     public ClassNode generateClass(final FunctionalInterface functionalInterface) {
         MethodNode methodToOverride = findMethodToOverride(functionalInterface);
+        String name = functionalInterface.type().getInternalName();
         ClassNode classNode = new ClassNode();
         classNode.version = version;
         classNode.access = ACC_PUBLIC + ACC_SUPER;
-        classNode.name = functionalInterface.type().getInternalName();
+        classNode.name = name;
         classNode.signature = signature(functionalInterface);
         classNode.superName = functionalInterface.classType.getInternalName();
-        classNode.methods = list(Asm.constructor(functionalInterface.classType),
+        Sequence<Pair<String,Type>> types = functionalInterface.fields();
+        classNode.fields = fields(types);
+        classNode.methods = list(Asm.constructor(functionalInterface.classType, name, types),
                 method(functionalInterface, methodToOverride),
                 bridgeMethod(functionalInterface, methodToOverride));
 
         return classNode;
+    }
+
+    private List<FieldNode> fields(final Sequence<Pair<String, Type>> types) {
+        return types.map(new Mapper<Pair<String, Type>, FieldNode>() {
+            @Override
+            public FieldNode call(final Pair<String, Type> pair) throws Exception {
+                return new FieldNode(Opcodes.ACC_PRIVATE + Opcodes.T_INT, pair.first(), pair.second().getDescriptor(), null, null);
+            }
+        }).toList();
     }
 
     private MethodNode method(FunctionalInterface functionalInterface, final MethodNode methodToOverride) {

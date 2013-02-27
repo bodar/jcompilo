@@ -4,6 +4,7 @@ import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.lambda.FunctionalInterface;
 import com.googlecode.totallylazy.Fields;
 import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.annotations.multimethod;
@@ -201,11 +202,19 @@ public final class Asm {
         return classNode;
     }
 
-    public static MethodNode constructor(final Type superType) {
-        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS, null, new String[0]);
+    public static MethodNode constructor(final Type superType, final String name, final Sequence<Pair<String,Type>> types) {
+        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, sequence(types).toString("(", "", ")V"), null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
         insnList.add(new MethodInsnNode(INVOKESPECIAL, superType.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
+
+        for (int i = 0; i < types.size(); i++) {
+            Pair<String, Type> pair = types.get(i);
+            insnList.add(new VarInsnNode(ALOAD, 0));
+            insnList.add(new VarInsnNode(Asm.load(pair.second()), i));
+            insnList.add(new FieldInsnNode(Opcodes.PUTFIELD, name, pair.first(), pair.second().getDescriptor()));
+        }
+
         insnList.add(new InsnNode(RETURN));
         constructor.instructions = insnList;
 
