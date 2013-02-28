@@ -12,6 +12,7 @@ import com.googlecode.totallylazy.Triple;
 import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
+import com.tonicsystems.jarjar.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -48,9 +49,9 @@ public class LambdaHandler implements AsmMethodHandler {
 
     @Override
     public Sequence<ClassNode> process(final ClassNode classNode, final MethodNode method) {
-        Sequence<Type> initialLocalvariables = Asm.initialLocalVariables(classNode, method);
+        Sequence<Type> initialLocalVariables = Asm.initialLocalVariables(classNode, method);
         return extractAll(method.instructions, LambdaHandler.lambda).
-                map(processLambda(method, initialLocalvariables)).
+                map(processLambda(method, initialLocalVariables)).
                 cons(classNode);
     }
 
@@ -58,6 +59,8 @@ public class LambdaHandler implements AsmMethodHandler {
         FunctionalInterface functionalInterface = functionalInterface(lambdaBody.first(), initialLocalVariables);
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
         InsnList newLambda = functionalInterface.construct();
+        System.out.println("CONSTRUCT");
+        System.out.println(Asm.toString(newLambda));
         LabelNode placeHolder = lambdaBody.second();
         method.instructions.insert(placeHolder, newLambda);
         method.instructions.remove(placeHolder);
@@ -85,7 +88,7 @@ public class LambdaHandler implements AsmMethodHandler {
     public static FunctionalInterface functionalInterface(final InsnList body, final Sequence<Type> initialLocalVariables) {
         MethodInsnNode lambda = (MethodInsnNode) body.getLast();
         InsnList arguments = drop(body, Asm.numberOfArguments(lambda) - 1);
-        Sequence<Triple<LabelNode, InsnList, Type>> constructorArguments = replaceLocalVariables(body, initialLocalVariables);
+        Sequence<Pair<InsnList, Type>> constructorArguments = replaceLocalVariables(body, initialLocalVariables);
         Sequence<Type> argumentTypes = argTypes(arguments);
         replace(body, arguments);
         body.remove(lambda);
@@ -94,17 +97,22 @@ public class LambdaHandler implements AsmMethodHandler {
         return FunctionalInterface.functionalInterface(returnType(lambda), argumentTypes, returnType, body, constructorArguments);
     }
 
-    private static Sequence<Triple<LabelNode, InsnList, Type>> replaceLocalVariables(final InsnList body, final Sequence<Type> initialLocalVariables) {
+    private static Sequence<Pair<InsnList, Type>> replaceLocalVariables(final InsnList body, final Sequence<Type> initialLocalVariables) {
         final List<Type> types = initialLocalVariables.toList();
-        return instructions(body).safeCast(VarInsnNode.class).map(new Mapper<VarInsnNode, Triple<LabelNode, InsnList, Type>>() {
+        return instructions(body).safeCast(VarInsnNode.class).realise().zipWithIndex().map(new Mapper<Pair<Number, VarInsnNode>, Pair<InsnList, Type>>() {
             @Override
-            public Triple<LabelNode, InsnList, Type> call(final VarInsnNode node) throws Exception {
-                LabelNode labelNode = new LabelNode();
-                body.set(node, labelNode);
-                InsnList insnList = new InsnList();
-                insnList.add(node);
+            public Pair<InsnList, Type> call(final Pair<Number, VarInsnNode> pair) throws Exception {
+                int index = pair.first().intValue();
+                VarInsnNode node = pair.second();
+                InsnList loadField = new InsnList();
+                loadField.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                loadField.add(new FieldInsnNode(Opcodes.GETFIELD, "this", "argument" + index, initialLocalVariables.get(index + 1).getDescriptor()));
+                body.insert(node, loadField);
+                body.remove(node);
+                InsnList construction = new InsnList();
+                construction.add(node);
                 Type type = types.get(node.var);
-                return Triple.triple(labelNode, insnList, type);
+                return Pair.pair(construction, type);
             }
         }).realise();
     }

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.googlecode.jcompilo.asm.Asm.instructions;
+import static com.googlecode.totallylazy.Callables.second;
 import static com.googlecode.totallylazy.Callables.third;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -27,12 +28,12 @@ public class FunctionalInterface extends Eq {
     public final Sequence<Type> argumentTypes;
     public final Type returnType;
     public final InsnList body;
-    public final Sequence<Triple<LabelNode, InsnList, Type>> constructorArguments;
+    public final Sequence<Pair<InsnList, Type>> constructorArguments;
     private final String name;
     private final String bodyString;
 
     private FunctionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType,
-                                final InsnList body, final Sequence<Triple<LabelNode, InsnList, Type>> constructorArguments) {
+                                final InsnList body, final Sequence<Pair<InsnList, Type>> constructorArguments) {
         this.classType = classType;
         this.argumentTypes = argumentTypes;
         this.returnType = returnType;
@@ -46,7 +47,7 @@ public class FunctionalInterface extends Eq {
         return "com/googlecode/jcompilo/lambda/" + classType.getInternalName() + "/hash" + String.valueOf(bodyString.hashCode()).replace("-", "");
     }
 
-    public static FunctionalInterface functionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body, final Sequence<Triple<LabelNode, InsnList, Type>> constructorArguments) {
+    public static FunctionalInterface functionalInterface(final Type classType, final Sequence<Type> argumentTypes, final Type returnType, final InsnList body, final Sequence<Pair<InsnList, Type>> constructorArguments) {
         return new FunctionalInterface(classType, argumentTypes, returnType, body, constructorArguments);
     }
 
@@ -65,12 +66,28 @@ public class FunctionalInterface extends Eq {
 
     @Override
     public String toString() {
-        return classType.getClassName() + "<" + argumentTypes.map(new Mapper<Type, String>() {
+        return classType.getClassName() + "\nconstructor(" + constructorArguments.map(Callables.second(Type.class)) + ")\n" +
+                constructorArguments.map(Callables.first(InsnList.class)).map(asString()).toString("\n\n") + "\n\n" +
+                "method(" + argumentTypes.toString(", ") + ")" + returnType + "\n" +
+                bodyString + "\n";
+    }
+
+    private Mapper<InsnList, String> asString() {
+        return new Mapper<InsnList, String>() {
+            @Override
+            public String call(final InsnList list) throws Exception {
+                return Asm.toString(list);
+            }
+        };
+    }
+
+    private Mapper<Type, String> className() {
+        return new Mapper<Type, String>() {
             @Override
             public String call(final Type type) throws Exception {
                 return type.getClassName();
             }
-        }).toString(",") + "," + returnType.getClassName() + ">\n" + bodyString;
+        };
     }
 
     @Override
@@ -84,11 +101,11 @@ public class FunctionalInterface extends Eq {
     }
 
     public InsnList construct() {
-        return Asm.construct(type());
+        return Asm.construct(type(), constructorArguments.map(Callables.first(InsnList.class)));
     }
 
     public Sequence<Pair<String, Type>> fields() {
-        return constructorArguments.map(third(Type.class)).zipWithIndex().map(Callables.<Number, Type, String>first(new Mapper<Number, String>() {
+        return constructorArguments.map(second(Type.class)).zipWithIndex().map(Callables.<Number, Type, String>first(new Mapper<Number, String>() {
             @Override
             public String call(final Number index) throws Exception {
                 return "argument" + index;
