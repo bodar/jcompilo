@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.*;
 import java.util.List;
 
 import static com.googlecode.jcompilo.asm.Asm.functions.access;
+import static com.googlecode.jcompilo.asm.Asm.instructions;
 import static com.googlecode.totallylazy.Lists.list;
 import static com.googlecode.totallylazy.Predicates.notNullValue;
 import static com.googlecode.totallylazy.Predicates.where;
@@ -58,7 +59,7 @@ public class ClassGenerator {
         return types.map(new Mapper<Pair<String, Type>, FieldNode>() {
             @Override
             public FieldNode call(final Pair<String, Type> pair) throws Exception {
-                return new FieldNode(Opcodes.ACC_PRIVATE + Opcodes.T_INT, pair.first(), pair.second().getDescriptor(), null, null);
+                return new FieldNode(Opcodes.ACC_PRIVATE, pair.first(), pair.second().getDescriptor(), null, null);
             }
         }).toList();
     }
@@ -68,6 +69,13 @@ public class ClassGenerator {
                 methodToOverride.name,
                 methodSignature(functionalInterface), null,
                 exceptions(methodToOverride));
+
+        for (FieldInsnNode fieldInsnNode : instructions(functionalInterface.body).safeCast(FieldInsnNode.class)) {
+            if(fieldInsnNode.owner.equals("this")){
+                fieldInsnNode.owner = functionalInterface.type().getInternalName();
+            }
+        }
+
         methodNode.instructions = functionalInterface.body;
 
         return methodNode;

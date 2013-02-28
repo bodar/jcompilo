@@ -3,6 +3,7 @@ package com.googlecode.jcompilo.lambda;
 import com.googlecode.jcompilo.asm.Asm;
 import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Either;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Triple;
@@ -35,7 +36,7 @@ public class LambdaFixture {
                 one(getType("Ljava/lang/Number;")),
                 getType("Ljava/lang/Integer;"),
                 functionBody(Number_intValue()),
-                Sequences.<Triple<LabelNode, InsnList, Type>>empty());
+                Sequences.<Pair<InsnList, Type>>empty());
     }
 
     public static FunctionalInterface localVariableClosure() {
@@ -53,14 +54,12 @@ public class LambdaFixture {
     }
 
     private static FunctionalInterface stringCharAt(final InsnList insnList) {
-        LabelNode labelNode = new LabelNode();
-
         return functionalInterface(
                 getType("Lcom/googlecode/totallylazy/Function1;"),
                 one(getType("Ljava/lang/String;")),
                 getType("Ljava/lang/Character;"),
-                functionBody(stringFunctionBody(labelNode)),
-                Sequences.one(Triple.triple(labelNode, insnList, getType("I"))));
+                functionBody(stringFunctionBody()),
+                Sequences.one(Pair.pair(insnList, getType("I"))));
     }
 
     public static void verify(final ClassNode classNode) {
@@ -122,9 +121,10 @@ public class LambdaFixture {
         return body;
     }
 
-    public static InsnList stringFunctionBody(final LabelNode insn) {
+    public static InsnList stringFunctionBody() {
         InsnList body = new InsnList();
-        body.add(insn);
+        body.add(new VarInsnNode(com.tonicsystems.jarjar.asm.Opcodes.ALOAD, 0));
+        body.add(new FieldInsnNode(com.tonicsystems.jarjar.asm.Opcodes.GETFIELD, "this", "argument0", "I"));
         body.add(String_charAt());
         return body;
     }

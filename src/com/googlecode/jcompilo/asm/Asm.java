@@ -2,6 +2,7 @@ package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.lambda.FunctionalInterface;
+import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Fields;
 import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Pair;
@@ -203,7 +204,7 @@ public final class Asm {
     }
 
     public static MethodNode constructor(final Type superType, final String name, final Sequence<Pair<String,Type>> types) {
-        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, sequence(types).toString("(", "", ")V"), null, new String[0]);
+        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, types.map(Callables.second(Type.class)).toString("(", "", ")V"), null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
         insnList.add(new MethodInsnNode(INVOKESPECIAL, superType.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
@@ -211,7 +212,7 @@ public final class Asm {
         for (int i = 0; i < types.size(); i++) {
             Pair<String, Type> pair = types.get(i);
             insnList.add(new VarInsnNode(ALOAD, 0));
-            insnList.add(new VarInsnNode(Asm.load(pair.second()), i));
+            insnList.add(new VarInsnNode(Asm.load(pair.second()), i + 1));
             insnList.add(new FieldInsnNode(Opcodes.PUTFIELD, name, pair.first(), pair.second().getDescriptor()));
         }
 
@@ -221,10 +222,13 @@ public final class Asm {
         return constructor;
     }
 
-    public static InsnList construct(Type type) {
+    public static InsnList construct(Type type, Sequence<InsnList> arguments) {
         InsnList construct = new InsnList();
         construct.add(new TypeInsnNode(NEW, type.getInternalName()));
         construct.add(new InsnNode(DUP));
+        for (InsnList argument : arguments) {
+            construct.add(argument);
+        }
         construct.add(new MethodInsnNode(INVOKESPECIAL, type.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
         return construct;
     }

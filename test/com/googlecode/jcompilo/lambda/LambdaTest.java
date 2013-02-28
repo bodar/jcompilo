@@ -36,6 +36,8 @@ public class LambdaTest {
     @Test
     public void rewritesClosedOverLocalVariables() throws Exception {
         InsnList body = localArgumentLambda();
-        assertThat(LambdaHandler.functionalInterface(body, Sequences.<Type>sequence(getType("Lcom/example/UsesLambda;"), getType("I"))), is(localVariableClosure()));
+        FunctionalInterface actual = LambdaHandler.functionalInterface(body, Sequences.<Type>sequence(getType("Lcom/example/UsesLambda;"), getType("I")));
+        System.out.println("actual = " + actual);
+        assertThat(actual, is(localVariableClosure()));
     }
 }
