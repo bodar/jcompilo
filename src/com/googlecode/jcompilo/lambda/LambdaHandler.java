@@ -8,7 +8,6 @@ import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Triple;
 import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
@@ -35,8 +34,6 @@ import static com.googlecode.jcompilo.asm.SingleExpression.extractAll;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Maps.pairs;
 import static com.googlecode.totallylazy.Predicates.where;
-import static com.googlecode.totallylazy.Sequences.cons;
-import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
 
 public class LambdaHandler implements AsmMethodHandler {
@@ -104,15 +101,21 @@ public class LambdaHandler implements AsmMethodHandler {
                 VarInsnNode node = pair.second();
                 InsnList loadField = new InsnList();
                 loadField.add(new VarInsnNode(Opcodes.ALOAD, 0));
-                loadField.add(new FieldInsnNode(Opcodes.GETFIELD, "this", "argument" + index, initialLocalVariables.get(index + 1).getDescriptor()));
+                Type argumentType = initialLocalVariables.get(node.var);
+                loadField.add(new FieldInsnNode(Opcodes.GETFIELD, "this", "argument" + index, argumentType.getDescriptor()));
                 body.insert(node, loadField);
                 body.remove(node);
                 InsnList construction = new InsnList();
-                construction.add(node);
+                construction.insert(node);
                 Type type = types.get(node.var);
                 return Pair.pair(construction, type);
             }
         }).realise();
+    }
+
+    private static boolean isLocalFieldAccess(final VarInsnNode node) {
+        AbstractInsnNode next = node.getNext();
+        return node.var == 0 && next instanceof FieldInsnNode && next.getOpcode() == Opcodes.GETFIELD;
     }
 
     private static Sequence<Type> argTypes(final InsnList arguments) {
@@ -175,7 +178,18 @@ public class LambdaHandler implements AsmMethodHandler {
         return result;
     }
 
-    private static Type returnType(final AbstractInsnNode node) { return new multi() {}.method(node); }
-    @multimethod private static Type returnType(final MethodInsnNode node) { return Type.getReturnType(node.desc); }
-    @multimethod private static Type returnType(final FieldInsnNode node) { return Type.getReturnType(node.desc); }
+    private static Type returnType(final AbstractInsnNode node) {
+        return new multi() {
+        }.method(node);
+    }
+
+    @multimethod
+    private static Type returnType(final MethodInsnNode node) {
+        return Type.getReturnType(node.desc);
+    }
+
+    @multimethod
+    private static Type returnType(final FieldInsnNode node) {
+        return Type.getReturnType(node.desc);
+    }
 }
