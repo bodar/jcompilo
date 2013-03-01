@@ -10,7 +10,7 @@ import static com.googlecode.totallylazy.lambda.Lambdas.λ;
 
 public class UsesLambda {
     private Sequence<String> sequence;
-    private int myIndex = 0;
+    public int myIndex = 0;
 
     public UsesLambda() {
         sequence = sequence("dan", "matt");
@@ -38,7 +38,7 @@ public class UsesLambda {
         return sequence.map(λ(s, s.charAt(index)));
     }
 
-//    @lambda
+    @lambda
     public Sequence<Character> fieldIndex() {
         return sequence.map(λ(s, s.charAt(myIndex)));
     }
@@ -48,7 +48,7 @@ public class UsesLambda {
         return sequence.map(λ(s, s.charAt(someIndex(s))));
     }
 
-    private int someIndex(final String s) {
+    public int someIndex(final String s) {
         return s.length() - 1;
     }
 

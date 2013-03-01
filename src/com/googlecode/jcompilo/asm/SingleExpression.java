@@ -10,8 +10,10 @@ import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Some;
 import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
+import com.tonicsystems.jarjar.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
@@ -69,6 +71,13 @@ public class SingleExpression {
     @multimethod
     private static int needed(final MethodInsnNode node) {
         return (isStatic(node) ? 0 : 1) + Type.getType(node.desc).getArgumentTypes().length;
+    }
+
+    @multimethod
+    private static int needed(final FieldInsnNode node) {
+        int opcode = node.getOpcode();
+        if(opcode == Opcodes.GETFIELD) return 1;
+        return 0;
     }
 
     private static Option<AbstractInsnNode> findLast(final InsnList insnList, final Predicate<? super AbstractInsnNode> predicate) {
