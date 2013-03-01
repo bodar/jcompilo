@@ -2,6 +2,7 @@ package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.lambda.FunctionalInterface;
+import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Fields;
 import com.googlecode.totallylazy.Mapper;
@@ -12,6 +13,7 @@ import com.googlecode.totallylazy.annotations.multimethod;
 import com.googlecode.totallylazy.multi;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -27,7 +29,9 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.CheckClassAdapter;
 
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
 import java.util.List;
@@ -204,7 +208,7 @@ public final class Asm {
     }
 
     public static MethodNode constructor(final Type superType, final String name, final Sequence<Pair<String,Type>> types) {
-        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, types.map(Callables.second(Type.class)).toString("(", "", ")V"), null, new String[0]);
+        MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, argumentSignature(types), null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
         insnList.add(new MethodInsnNode(INVOKESPECIAL, superType.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
@@ -222,20 +226,43 @@ public final class Asm {
         return constructor;
     }
 
-    public static InsnList construct(Type type, Sequence<InsnList> arguments) {
+    private static String argumentSignature(final Sequence<? extends Pair<?, Type>> types) {
+        return types.map(Callables.second(Type.class)).toString("(", "", ")V");
+    }
+
+    public static InsnList construct(Type type, Sequence<Pair<InsnList, Type>> arguments) {
         InsnList construct = new InsnList();
         construct.add(new TypeInsnNode(NEW, type.getInternalName()));
         construct.add(new InsnNode(DUP));
-        for (InsnList argument : arguments) {
+        for (InsnList argument : arguments.map(Callables.first(InsnList.class))) {
             construct.add(argument);
         }
-        construct.add(new MethodInsnNode(INVOKESPECIAL, type.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
+        construct.add(new MethodInsnNode(INVOKESPECIAL, type.getInternalName(), CONSTRUCTOR, argumentSignature(arguments)));
         return construct;
     }
 
     public static Sequence<MethodNode> methods(final ClassNode classNode) {
         return Asm.<MethodNode>seq(classNode.methods);
     }
+
+    public static void verify(final ClassNode classNode) {
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        classNode.accept(writer);
+        byte[] bytes = writer.toByteArray();
+        verify(bytes);
+    }
+
+    public static void verify(final byte[] bytes) {
+        ClassReader reader = new ClassReader(bytes);
+        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out));
+    }
+
+    public static Block<ClassNode> verify = new Block<ClassNode>() {
+        @Override
+        protected void execute(ClassNode classNode) throws Exception {
+            verify(classNode);
+        }
+    };
 
     public static class predicates {
         public static LogicalPredicate<AnnotationNode> annotation(Class<? extends Annotation> aClass) {

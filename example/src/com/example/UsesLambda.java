@@ -1,7 +1,7 @@
 package com.example;
 
-import com.googlecode.totallylazy.Callable1;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.annotations.lambda;
 
@@ -34,23 +34,14 @@ public class UsesLambda {
                 map(λ(s, s.charAt(0)));
     }
 
-//    @lambda
+    @lambda
     public Sequence<Character> index(int index) {
         return sequence.map(λ(s, s.charAt(index)));
     }
 
-//    @lambda
+    //    @lambda
     public Sequence<Character> fieldIndex() {
         return sequence.map(λ(s, s.charAt(myIndex)));
-    }
-
-    public Sequence<Character> foo(final int index) {
-        return sequence.map(new Callable1<String, Character>() {
-            @Override
-            public Character call(final String s) throws Exception {
-                return s.charAt(index);
-            }
-        });
     }
 
 }

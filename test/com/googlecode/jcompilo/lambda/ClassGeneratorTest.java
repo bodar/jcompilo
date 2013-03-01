@@ -1,18 +1,14 @@
 package com.googlecode.jcompilo.lambda;
 
-import com.googlecode.jcompilo.Resources;
 import com.googlecode.jcompilo.asm.Asm;
 import org.junit.Test;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 import static com.googlecode.jcompilo.lambda.ClassGenerator.classGenerator;
-import static com.googlecode.jcompilo.lambda.LambdaFixture.String_charAt;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.localVariableClosure;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.numberIntValue;
-import static com.googlecode.jcompilo.lambda.LambdaFixture.verify;
+import static com.googlecode.jcompilo.asm.Asm.verify;
 import static com.googlecode.totallylazy.matchers.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
@@ -28,11 +24,11 @@ public class ClassGeneratorTest {
         assertThat(actual.signature, is(expected.signature));
         assertThat(actual.superName, is(expected.superName));
 
-        verifyMethod(actual, expected, 0);
-        verifyMethod(actual, expected, 1);
+        LambdaFixture.verifyMethod(actual, expected, 0);
+        LambdaFixture.verifyMethod(actual, expected, 1);
 //        verifyMethod(actual, expected, 2);
 
-        verify(actual);
+        Asm.verify(actual);
     }
 
     @Test
@@ -46,23 +42,10 @@ public class ClassGeneratorTest {
         assertThat(actual.signature, is(expected.signature));
         assertThat(actual.superName, is(expected.superName));
 
-        verifyMethod(actual, expected, 0);
-        verifyMethod(actual, expected, 1);
+        LambdaFixture.verifyMethod(actual, expected, 0);
+        LambdaFixture.verifyMethod(actual, expected, 1);
 //        verifyMethod(actual, expected, 2);
 
-        verify(actual);
+        Asm.verify(actual);
     }
-
-    private void verifyMethod(ClassNode actual, ClassNode expected, int index) {
-        verifyMethod((MethodNode) actual.methods.get(index), (MethodNode) expected.methods.get(index));
-    }
-
-    private void verifyMethod(MethodNode actual, MethodNode expected) {
-        assertThat(actual.access, is(expected.access));
-        assertThat(actual.name, is(expected.name));
-        assertThat(actual.desc, is(expected.desc));
-        assertThat(actual.exceptions, is(expected.exceptions));
-//        assertThat(Asm.toString(expected.instructions), containsString(Asm.toString(actual.instructions)));
-    }
-
 }

@@ -59,8 +59,6 @@ public class LambdaHandler implements AsmMethodHandler {
         FunctionalInterface functionalInterface = functionalInterface(lambdaBody.first(), initialLocalVariables);
         ClassNode lambdaClass = generator.generateClass(functionalInterface);
         InsnList newLambda = functionalInterface.construct();
-        System.out.println("CONSTRUCT");
-        System.out.println(Asm.toString(newLambda));
         LabelNode placeHolder = lambdaBody.second();
         method.instructions.insert(placeHolder, newLambda);
         method.instructions.remove(placeHolder);
