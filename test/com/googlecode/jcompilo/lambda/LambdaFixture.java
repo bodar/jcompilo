@@ -1,7 +1,6 @@
 package com.googlecode.jcompilo.lambda;
 
 import com.googlecode.jcompilo.asm.Asm;
-import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Either;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
@@ -38,25 +37,32 @@ public class LambdaFixture {
     }
 
     public static FunctionalInterface localVariableClosure() {
-        InsnList insnList = new InsnList();
-        insnList.add(loadLocalArgument());
-        return stringCharAt(insnList);
+        return stringCharAt(stringLocalFunctionBody(), Pair.pair(loadLocalArgument(), getType("I")));
     }
 
     public static FunctionalInterface fieldClosure() {
-        InsnList insnList = new InsnList();
-        insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        insnList.add(new FieldInsnNode(Opcodes.GETFIELD, "com/example/UsesLambda", "myIndex", "I"));
-        return stringCharAt(insnList);
+        return stringCharAt(stringFieldFunctionBody(), Pair.pair(loadThis(), getType("Lcom/example/UsesLambda;")));
     }
 
-    private static FunctionalInterface stringCharAt(final InsnList insnList) {
+    public static InsnList loadThis() {
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        return insnList;
+    }
+
+    public static InsnList loadFieldArgument() {
+        InsnList insnList = loadThis();
+        insnList.add(new FieldInsnNode(Opcodes.GETFIELD, "com/example/UsesLambda", "myIndex", "I"));
+        return insnList;
+    }
+
+    private static FunctionalInterface stringCharAt(final InsnList body, final Pair<InsnList, Type> cons) {
         return functionalInterface(
                 getType("Lcom/googlecode/totallylazy/Function1;"),
                 one(getType("Ljava/lang/String;")),
                 getType("Ljava/lang/Character;"),
-                functionBody(stringFunctionBody()),
-                Sequences.one(Pair.pair(insnList, getType("I"))));
+                functionBody(body),
+                Sequences.one(cons));
     }
 
     public static InsnList numberLambda() {
@@ -65,8 +71,16 @@ public class LambdaFixture {
     }
 
     public static InsnList localArgumentLambda() {
+        return argumentLambda(loadLocalArgument());
+    }
+
+    public static InsnList fieldLambda() {
+        return argumentLambda(loadFieldArgument());
+    }
+
+    private static InsnList argumentLambda(final InsnList insns) {
         InsnList body = String_charAt();
-        body.insert(loadLocalArgument());
+        body.insert(insns);
         return function1(new FieldInsnNode(Opcodes.GETSTATIC, "com/googlecode/totallylazy/Strings", "s", "Ljava/lang/String;"),
                 body);
     }
@@ -109,10 +123,19 @@ public class LambdaFixture {
         return body;
     }
 
-    public static InsnList stringFunctionBody() {
+    public static InsnList stringLocalFunctionBody() {
         InsnList body = new InsnList();
-        body.add(new VarInsnNode(com.tonicsystems.jarjar.asm.Opcodes.ALOAD, 0));
+        body.add(new VarInsnNode(Opcodes.ALOAD, 0));
         body.add(new FieldInsnNode(com.tonicsystems.jarjar.asm.Opcodes.GETFIELD, "this", "argument0", "I"));
+        body.add(String_charAt());
+        return body;
+    }
+
+    public static InsnList stringFieldFunctionBody() {
+        InsnList body = new InsnList();
+        body.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        body.add(new FieldInsnNode(Opcodes.GETFIELD, "this", "argument0", "Lcom/example/UsesLambda;"));
+        body.add(new FieldInsnNode(Opcodes.GETFIELD, "com/example/UsesLambda", "myIndex", "I"));
         body.add(String_charAt());
         return body;
     }

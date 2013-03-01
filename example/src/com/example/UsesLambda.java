@@ -38,9 +38,18 @@ public class UsesLambda {
         return sequence.map(λ(s, s.charAt(index)));
     }
 
-    //    @lambda
+//    @lambda
     public Sequence<Character> fieldIndex() {
         return sequence.map(λ(s, s.charAt(myIndex)));
+    }
+
+//    @lambda
+    public Sequence<Character> methodIndex() {
+        return sequence.map(λ(s, s.charAt(someIndex(s))));
+    }
+
+    private int someIndex(final String s) {
+        return s.length() - 1;
     }
 
 }

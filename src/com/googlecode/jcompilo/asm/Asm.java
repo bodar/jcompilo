@@ -107,7 +107,7 @@ public final class Asm {
 
     public static Sequence<Type> initialLocalVariables(ClassNode classNode, MethodNode methodNode) {
         Sequence<Type> sequence = argumentTypes(methodNode);
-        return isStatic(methodNode) ? sequence : sequence.cons(Type.getType(classNode.name));
+        return isStatic(methodNode) ? sequence : sequence.cons(Type.getType("L" + classNode.name + ";"));
     }
 
     public static boolean isAbstract(MethodNode methodNode) {

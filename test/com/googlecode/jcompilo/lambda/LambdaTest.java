@@ -11,6 +11,8 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
 import static com.googlecode.jcompilo.lambda.ClassGenerator.classGenerator;
+import static com.googlecode.jcompilo.lambda.LambdaFixture.fieldClosure;
+import static com.googlecode.jcompilo.lambda.LambdaFixture.fieldLambda;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.localArgumentLambda;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.localVariableClosure;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.numberIntValue;
@@ -42,4 +44,13 @@ public class LambdaTest {
         assertThat(actual, is(localVariableClosure()));
         LambdaFixture.verifyInstructions(actual.construct(), Asm.construct(actual.type(), one(Pair.pair(LambdaFixture.loadLocalArgument(), getType("I")))));
     }
+
+    @Test
+    public void rewritesClosedOverField() throws Exception {
+        InsnList body = fieldLambda();
+        FunctionalInterface actual = LambdaHandler.functionalInterface(body, Sequences.<Type>sequence(getType("Lcom/example/UsesLambda;"), getType("I")));
+        assertThat(actual, is(fieldClosure()));
+        LambdaFixture.verifyInstructions(actual.construct(), Asm.construct(actual.type(), one(Pair.pair(LambdaFixture.loadThis(), getType("Lcom/example/UsesLambda;")))));
+    }
+
 }
