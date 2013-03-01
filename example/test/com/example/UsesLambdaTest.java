@@ -24,8 +24,13 @@ public class UsesLambdaTest {
     }
 
     @Test
-    @Ignore("TODO")
     public void supportsClosingOverAField() throws Exception {
         assertThat(new UsesLambda().fieldIndex(), is(sequence('d', 'm')));
+    }
+
+    @Test
+    @Ignore
+    public void supportsClosingOverAMethod() throws Exception {
+        assertThat(new UsesLambda().methodIndex(), is(sequence('d', 'm')));
     }
 }
