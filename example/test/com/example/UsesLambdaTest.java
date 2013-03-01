@@ -19,7 +19,6 @@ public class UsesLambdaTest {
     }
 
     @Test
-    @Ignore("TODO")
     public void supportsClosingOverALocalVariable() throws Exception {
         assertThat(new UsesLambda().index(0), is(sequence('d', 'm')));
     }

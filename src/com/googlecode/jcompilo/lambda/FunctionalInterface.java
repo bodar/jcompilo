@@ -81,15 +81,6 @@ public class FunctionalInterface extends Eq {
         };
     }
 
-    private Mapper<Type, String> className() {
-        return new Mapper<Type, String>() {
-            @Override
-            public String call(final Type type) throws Exception {
-                return type.getClassName();
-            }
-        };
-    }
-
     @Override
     public int hashCode() {
         return toString().hashCode();
@@ -101,7 +92,7 @@ public class FunctionalInterface extends Eq {
     }
 
     public InsnList construct() {
-        return Asm.construct(type(), constructorArguments.map(Callables.first(InsnList.class)));
+        return Asm.construct(type(), constructorArguments);
     }
 
     public Sequence<Pair<String, Type>> fields() {

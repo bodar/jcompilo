@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo.lambda;
 
 import com.googlecode.jcompilo.asm.Asm;
+import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import org.junit.Test;
@@ -11,9 +12,10 @@ import org.objectweb.asm.tree.MethodNode;
 
 import static com.googlecode.jcompilo.lambda.ClassGenerator.classGenerator;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.localArgumentLambda;
+import static com.googlecode.jcompilo.lambda.LambdaFixture.localVariableClosure;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.numberIntValue;
 import static com.googlecode.jcompilo.lambda.LambdaFixture.numberLambda;
-import static com.googlecode.jcompilo.lambda.LambdaFixture.localVariableClosure;
+import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.matchers.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.objectweb.asm.Type.getType;
@@ -37,7 +39,7 @@ public class LambdaTest {
     public void rewritesClosedOverLocalVariables() throws Exception {
         InsnList body = localArgumentLambda();
         FunctionalInterface actual = LambdaHandler.functionalInterface(body, Sequences.<Type>sequence(getType("Lcom/example/UsesLambda;"), getType("I")));
-        System.out.println("actual = " + actual);
         assertThat(actual, is(localVariableClosure()));
+        LambdaFixture.verifyInstructions(actual.construct(), Asm.construct(actual.type(), one(Pair.pair(LambdaFixture.loadLocalArgument(), getType("I")))));
     }
 }

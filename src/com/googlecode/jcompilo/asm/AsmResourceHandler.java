@@ -2,6 +2,7 @@ package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.ResourceHandler;
+import com.googlecode.totallylazy.Debug;
 import com.googlecode.totallylazy.Mapper;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;

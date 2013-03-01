@@ -6,9 +6,6 @@ import com.googlecode.totallylazy.Either;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
-import com.googlecode.totallylazy.Triple;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -19,14 +16,15 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import org.objectweb.asm.util.CheckClassAdapter;
-
-import java.io.PrintWriter;
 
 import static com.googlecode.jcompilo.lambda.FunctionalInterface.functionalInterface;
 import static com.googlecode.totallylazy.Sequences.one;
+import static com.googlecode.totallylazy.matchers.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.objectweb.asm.Type.getType;
 
 public class LambdaFixture {
@@ -41,8 +39,7 @@ public class LambdaFixture {
 
     public static FunctionalInterface localVariableClosure() {
         InsnList insnList = new InsnList();
-        insnList.add(new VarInsnNode(Opcodes.ILOAD, 1));
-
+        insnList.add(loadLocalArgument());
         return stringCharAt(insnList);
     }
 
@@ -62,21 +59,6 @@ public class LambdaFixture {
                 Sequences.one(Pair.pair(insnList, getType("I"))));
     }
 
-    public static void verify(final ClassNode classNode) {
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classNode.accept(writer);
-        byte[] bytes = writer.toByteArray();
-        ClassReader reader = new ClassReader(bytes);
-        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out));
-    }
-
-    public static Block<ClassNode> verify = new Block<ClassNode>() {
-        @Override
-        protected void execute(ClassNode classNode) throws Exception {
-            LambdaFixture.verify(classNode);
-        }
-    };
-
     public static InsnList numberLambda() {
         return function1(new FieldInsnNode(Opcodes.GETSTATIC, "com/googlecode/totallylazy/lambda/Lambdas", "n", "Ljava/lang/Number;"),
                 Number_intValue());
@@ -84,9 +66,15 @@ public class LambdaFixture {
 
     public static InsnList localArgumentLambda() {
         InsnList body = String_charAt();
-        body.insert(new VarInsnNode(Opcodes.ILOAD, 1));
+        body.insert(loadLocalArgument());
         return function1(new FieldInsnNode(Opcodes.GETSTATIC, "com/googlecode/totallylazy/Strings", "s", "Ljava/lang/String;"),
                 body);
+    }
+
+    public static InsnList loadLocalArgument() {
+        InsnList insnList = new InsnList();
+        insnList.add(new VarInsnNode(Opcodes.ILOAD, 1));
+        return insnList;
     }
 
     private static InsnList function1(final FieldInsnNode lambdaArgument, final InsnList body) {
@@ -160,4 +148,19 @@ public class LambdaFixture {
         return instructions;
     }
 
+    public static void verifyInstructions(final InsnList actual, final InsnList expected) {
+        assertThat(Asm.toString(expected), containsString(Asm.toString(actual)));
+    }
+
+    static void verifyMethod(ClassNode actual, ClassNode expected, int index) {
+        verifyMethod((MethodNode) actual.methods.get(index), (MethodNode) expected.methods.get(index));
+    }
+
+    private static void verifyMethod(MethodNode actual, MethodNode expected) {
+        assertThat(actual.access, is(expected.access));
+        assertThat(actual.name, is(expected.name));
+        assertThat(actual.desc, is(expected.desc));
+        assertThat(actual.exceptions, is(expected.exceptions));
+//        verifyInstructions(actual.instructions, expected.instructions);
+    }
 }
