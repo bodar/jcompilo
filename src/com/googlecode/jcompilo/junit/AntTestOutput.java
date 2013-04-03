@@ -144,7 +144,7 @@ public class AntTestOutput extends RunListener {
 
     private String handleFailure(Map<Field, Object> fields) {
         if (!fields.containsKey(Field.Type)) return "";
-        return applyTemplate(fields.get(Field.Type).toString().toLowerCase(), new Object[]{fields.get(Field.Message), fields.get(Field.ExceptionType), Xml.escape(fields.get(Field.FullMessage))});
+        return applyTemplate(fields.get(Field.Type).toString().toLowerCase(), new Object[]{Xml.escape(fields.get(Field.Message)), fields.get(Field.ExceptionType), Xml.escape(fields.get(Field.FullMessage))});
     }
 
     private Object calculateTime(Map<Field, Object> fields) {
