@@ -14,7 +14,6 @@ remote_sh=${url}.sh
 
 if [ "$1" = "update" ]; then
 	rm ${jar}
-	shift 1
 fi
 
 if [ ! -f ${jar} ]; then
