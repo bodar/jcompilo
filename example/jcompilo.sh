@@ -1,6 +1,6 @@
 #!/bin/sh
 
-JAVA_OPTS=${JAVA_OPTS}
+JAVA_OPTS=-Djava.net.useSystemProxies=true ${JAVA_OPTS}
 BUILD_NUMBER=${BUILD_NUMBER-dev.build}
 version=@version@
 artifact=jcompilo
