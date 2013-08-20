@@ -164,9 +164,7 @@ public class BootStrap {
 
             }
         }).getOrElse(AutoBuild.class);
-
     }
-
 
     private Sequence<File> libs() {
         return recursiveFiles(libDir).filter(hasSuffix("jar")).realise().add(jcompiloJar());
@@ -195,7 +193,7 @@ public class BootStrap {
     }
 
     private static Sources fileSource(File buildFile, String name) throws FileNotFoundException {
-        return iterableSource(one(new Sources.Source(name, new Date(buildFile.lastModified()), new FileInputStream(buildFile))));
+        return iterableSource(one(new Sources.Source(name, new Date(buildFile.lastModified()), new FileInputStream(buildFile), false)));
     }
 
     private static String className(String build) {
