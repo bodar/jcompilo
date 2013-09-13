@@ -10,9 +10,11 @@
 
             <jarjar jarfile="${release.jar.path}" manifest="${release.jar.path}.mf">
                 <zipfileset src="${release.dep.path}"/>
-                <zipgroupfileset dir="${build.dependencies.dir}" includes="totallylazy-*.jar, yadic-*.jar, shavenmaven-*.jar, asm-*.jar"/>
+                <zipgroupfileset dir="${build.dependencies.dir}" includes="totallylazy-*.jar, utterlyidle-*.jar, yadic-*.jar, shavenmaven-*.jar, asm-*.jar"/>
                 <rule pattern="com.googlecode.totallylazy.*" result="com.googlecode.jcompilo.internal.totallylazy.$@1"/>
                 <rule pattern="com.googlecode.totallylazy.**.*" result="com.googlecode.jcompilo.internal.totallylazy.@1.$@2"/>
+                <rule pattern="com.googlecode.utterlyidle.*" result="com.googlecode.jcompilo.internal.utterlyidle.$@1"/>
+                <rule pattern="com.googlecode.utterlyidle.**.*" result="com.googlecode.jcompilo.internal.utterlyidle.@1.$@2"/>
                 <rule pattern="com.googlecode.yadic.*" result="com.googlecode.jcompilo.internal.yadic.$@1"/>
                 <rule pattern="com.googlecode.yadic.**.*" result="com.googlecode.jcompilo.internal.yadic.@1.$@2"/>
                 <rule pattern="com.googlecode.shavenmaven.*" result="com.googlecode.jcompilo.internal.shavenmaven.@1"/>
@@ -22,7 +24,6 @@
             </jarjar>
         </sequential>
     </macrodef>
-
 
     <macrodef name="requires">
         <attribute name="java.version"/>
