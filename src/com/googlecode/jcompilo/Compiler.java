@@ -20,11 +20,10 @@ import org.objectweb.asm.Type;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipOutputStream;
 
 import static com.googlecode.jcompilo.BackgroundDestination.backgroundDestination;
 import static com.googlecode.jcompilo.BackgroundOutputs.backgroundOutputs;
@@ -129,12 +128,17 @@ public class Compiler {
         });
     }
 
-    private Destination destination(File destination) throws FileNotFoundException {
+    private Destination destination(File destination) throws IOException {
         if (destination.getPath().endsWith(".jar") || destination.getPath().endsWith(".zip")) {
             env.out().prefix("      [zip] ").printf("Creating: %s%n", destination.getAbsoluteFile());
-            return zipDestination(new FileOutputStream(destination));
+            return zipDestination(outputStream(destination));
         }
         return FileDestination.fileDestination(destination);
+    }
+
+    private OutputStream outputStream(File destination) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(destination);
+        return destination.getPath().endsWith(".jar") ? new JarOutputStream(fileOutputStream) : new ZipOutputStream(fileOutputStream);
     }
 
     public Void compile(final Inputs inputs, final Outputs raw) throws Exception {
