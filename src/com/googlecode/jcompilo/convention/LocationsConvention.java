@@ -21,7 +21,6 @@ public abstract class LocationsConvention extends IdentifiersConvention implemen
     public File testDir() { return directory(rootDir(), "test"); }
     public File libDir() { return directory(rootDir(), "lib"); }
     public File mainJar() { return file(artifactsDir(), format("%s.jar", versionedArtifact())); }
-    public File mainPack() { return file(artifactsDir(), format("%s.pack.gz", versionedArtifact())); }
     public File sourcesJar() { return file(artifactsDir(), format("%s-sources.jar", versionedArtifact())); }
     public File testJar() { return file(artifactsDir(), format("%s-tests.jar", versionedArtifact())); }
     public File testSourcesJar() { return file(artifactsDir(), format("%s-test-sources.jar", versionedArtifact())); }
