@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.jar.JarFile;
 import java.util.jar.Pack200;
+import java.util.zip.GZIPOutputStream;
 
 import static com.googlecode.jcompilo.Compiler.CPUS;
 import static com.googlecode.jcompilo.Compiler.compiler;
@@ -167,7 +168,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     protected void pack(File source, File destination) throws IOException {
         Pack200.Packer packer = Pack200.newPacker();
-        packer.pack(new JarFile(source), new FileOutputStream(destination));
+        packer.pack(new JarFile(source), new GZIPOutputStream(new FileOutputStream(destination)));
         env.out().printf("  [pack200] Packed %s -> %s%n", source.getName(), destination.getAbsoluteFile());
     }
 
