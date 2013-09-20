@@ -82,7 +82,6 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         stage("package");
         zip(srcDir(), sourcesJar());
         zip(testDir(), testSourcesJar());
-        pack(mainJar(), mainPack());
         generateReleaseProperties();
         generatePom();
         return this;
@@ -144,7 +143,6 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     protected Iterable<ReleaseFile> releaseFiles(Properties lastCommitData) {
         return sequence(
                 releaseFile(mainJar(), format("%s build:%s", lastCommitData.getProperty("summary"), version()), "Jar"),
-                releaseFile(mainPack(), format("Pack 200 version build:%s", version()), "PACK200"),
                 releaseFile(pomFile(), format("Maven POM file build:%s", version()), "POM"),
                 releaseFile(sourcesJar(), format("Source file build:%s", version()), "Source"),
                 releaseFile(testJar(), format("Test jar build:%s", version()), "Test", "Jar"),
@@ -164,12 +162,6 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     protected void zip(File source, File destination) throws IOException {
         Number size = Zip.zip(source, destination);
         env.out().printf("      [zip] Zipped %s files: %s%n", size, destination.getAbsoluteFile());
-    }
-
-    protected void pack(File source, File destination) throws IOException {
-        Pack200.Packer packer = Pack200.newPacker();
-        packer.pack(new JarFile(source), new GZIPOutputStream(new FileOutputStream(destination)));
-        env.out().printf("  [pack200] Packed %s -> %s%n", source.getName(), destination.getAbsoluteFile());
     }
 
     public Build stage(String name) {
