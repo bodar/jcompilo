@@ -1,4 +1,4 @@
-s3://repo.bodar.com/com.intellij:idea-IC:jar:117.798
+s3://repo.bodar.com/com.intellij:idea-IC:pack:117.798
 s3://repo.bodar.com/com.intellij:openapi:jar:117.798
 s3://repo.bodar.com/com.intellij:annotations:jar:117.798
 s3://repo.bodar.com/com.intellij:util:jar:117.798
