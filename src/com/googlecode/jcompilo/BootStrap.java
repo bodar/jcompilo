@@ -167,7 +167,7 @@ public class BootStrap {
     }
 
     private Sequence<File> libs() {
-        return recursiveFiles(libDir).filter(hasSuffix("jar")).realise().add(jcompiloJar());
+        return recursiveFiles(libDir).filter(hasSuffix("jar")).realise().append(jcompiloJar());
     }
 
     private File jcompiloJar() {

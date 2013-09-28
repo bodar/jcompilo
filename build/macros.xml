@@ -10,7 +10,9 @@
 
             <jarjar jarfile="${release.jar.path}" manifest="${release.jar.path}.mf">
                 <zipfileset src="${release.dep.path}"/>
-                <zipgroupfileset dir="${build.dependencies.dir}" includes="totallylazy-*.jar, utterlyidle-*.jar, yadic-*.jar, shavenmaven-*.jar, asm-*.jar"/>
+                <zipgroupfileset dir="${build.dependencies.dir}"
+                                 includes="totallylazy-*.jar, utterlyidle-*.jar, yadic-*.jar, shavenmaven-*.jar, asm-*.jar"
+                                 excludes="*-sources.jar" />
                 <rule pattern="com.googlecode.totallylazy.*" result="com.googlecode.jcompilo.internal.totallylazy.$@1"/>
                 <rule pattern="com.googlecode.totallylazy.**.*" result="com.googlecode.jcompilo.internal.totallylazy.@1.$@2"/>
                 <rule pattern="com.googlecode.utterlyidle.*" result="com.googlecode.jcompilo.internal.utterlyidle.$@1"/>

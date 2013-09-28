@@ -50,6 +50,6 @@ public class CompilerDiagnostics implements DiagnosticListener<JavaFileObject> {
             Diagnostic.Kind.OTHER, CompilerMessageCategory.INFORMATION);
 
     private static CompilerMessageCategory convert(Diagnostic.Kind kind) {
-        return conversions.get(kind).get();
+        return conversions.lookup(kind).get();
     }
 }
