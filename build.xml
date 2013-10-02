@@ -125,7 +125,6 @@
         <zip destfile="${release.plugin.zip.path}">
             <zipfileset file="${release.plugin.jar.path}" prefix="jcompilo/lib"/>
             <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
-            <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
             <zipfileset dir="${build.dependencies.dir}" prefix="jcompilo/lib">
                 <include name="totallylazy*.jar"/>
                 <include name="yadic*.jar"/>
