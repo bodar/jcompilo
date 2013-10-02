@@ -18,6 +18,7 @@ import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
@@ -75,7 +76,7 @@ public class JCompiloBackendCompiler implements BackendCompiler {
 
     @NotNull
     public Process launchProcess(@NotNull ModuleChunk moduleChunk, @NotNull String outputPath, @NotNull CompileContext compileContext) throws IOException {
-        return new FakeProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), new CompilerDiagnostics(compileContext));
+        return new FakeProcess(inputsFor(moduleChunk, outputPath), outputs(outputPath), dependencies(moduleChunk), compileOptions(moduleChunk), new CompilerDiagnostics(compileContext), compileContext);
     }
 
     public void compileFinished() {
