@@ -29,7 +29,9 @@ public class CompilerDiagnostics implements DiagnosticListener<JavaFileObject> {
     }
 
     private static String uri(Diagnostic<? extends JavaFileObject> diagnostic) {
-        return constructUrl(LocalFileSystem.PROTOCOL, sourceFileName(diagnostic.getSource()));
+        JavaFileObject source = diagnostic.getSource();
+        if(source == null) return null;
+        return constructUrl(LocalFileSystem.PROTOCOL, sourceFileName(source));
     }
 
     private static String sourceFileName(JavaFileObject source) {

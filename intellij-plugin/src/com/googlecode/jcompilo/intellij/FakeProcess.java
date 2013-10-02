@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static com.googlecode.totallylazy.Exceptions.asString;
+
 public class FakeProcess extends Process {
     private final Compiler compiler;
     private final Inputs inputs;
@@ -51,7 +53,7 @@ public class FakeProcess extends Process {
             compiler.compile(inputs, outputs);
             return exit = 0;
         } catch (Exception e) {
-            context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
+            context.addMessage(CompilerMessageCategory.ERROR, asString(e), null, -1, -1);
             return exit = -1;
         }
     }
