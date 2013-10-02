@@ -6,6 +6,8 @@ import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.Inputs;
 import com.googlecode.jcompilo.Outputs;
 import com.googlecode.totallylazy.Sequence;
+import com.intellij.openapi.compiler.CompileContext;
+import com.intellij.openapi.compiler.CompilerMessageCategory;
 
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
@@ -18,11 +20,13 @@ public class FakeProcess extends Process {
     private final Compiler compiler;
     private final Inputs inputs;
     private final Outputs outputs;
+    private final CompileContext context;
     private int exit;
 
-    public FakeProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) throws IOException {
+    public FakeProcess(final Inputs inputs, final Outputs outputs, final Iterable<File> dependencies, final Sequence<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener, final CompileContext context) throws IOException {
         this.inputs = inputs;
         this.outputs = outputs;
+        this.context = context;
         compiler = Compiler.compiler(Environment.constructors.environment(), dependencies, compileOptions, diagnosticListener);
     }
 
@@ -47,6 +51,7 @@ public class FakeProcess extends Process {
             compiler.compile(inputs, outputs);
             return exit = 0;
         } catch (Exception e) {
+            context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
             return exit = -1;
         }
     }

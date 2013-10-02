@@ -1,5 +1,5 @@
-s3://repo.bodar.com/com.intellij:idea-IC:pack:117.798
-s3://repo.bodar.com/com.intellij:openapi:jar:117.798
-s3://repo.bodar.com/com.intellij:annotations:jar:117.798
-s3://repo.bodar.com/com.intellij:util:jar:117.798
-s3://repo.bodar.com/com.intellij:extensions:jar:117.798
+mvn://repo.bodar.com/com.intellij:idea-IC:pack:129.1328
+mvn://repo.bodar.com/com.intellij:openapi:pack:129.1328
+mvn://repo.bodar.com/com.intellij:annotations:pack:129.1328
+mvn://repo.bodar.com/com.intellij:util:pack:129.1328
+mvn://repo.bodar.com/com.intellij:extensions:pack:129.1328
