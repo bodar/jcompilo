@@ -1,6 +1,5 @@
 package com.googlecode.jcompilo.intellij;
 
-import com.googlecode.jcompilo.SourceFileObject;
 import com.googlecode.totallylazy.collections.PersistentMap;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
@@ -31,17 +30,8 @@ public class CompilerDiagnostics implements DiagnosticListener<JavaFileObject> {
     private static String uri(Diagnostic<? extends JavaFileObject> diagnostic) {
         JavaFileObject source = diagnostic.getSource();
         if(source == null) return null;
-        return constructUrl(LocalFileSystem.PROTOCOL, sourceFileName(source));
-    }
 
-    private static String sourceFileName(JavaFileObject source) {
-        if (source instanceof SourceFileObject) {
-            SourceFileObject sourceFileObject = (SourceFileObject) source;
-            if (sourceFileObject.resource() instanceof JCompiloBackendCompiler.ResourceWithSource) {
-                return ((JCompiloBackendCompiler.ResourceWithSource) sourceFileObject.resource()).source.toString();
-            }
-        }
-        return source.getName();
+        return constructUrl(LocalFileSystem.PROTOCOL, source.toUri().getPath());
     }
 
     private static final PersistentMap<Diagnostic.Kind, CompilerMessageCategory> conversions = sortedMap(

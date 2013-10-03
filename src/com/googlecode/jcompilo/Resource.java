@@ -2,6 +2,7 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.Bytes;
 import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Uri;
 
 import java.io.File;
 import java.util.Date;
@@ -10,6 +11,8 @@ import static com.googlecode.jcompilo.MoveToTL.classFilename;
 import static com.googlecode.totallylazy.Bytes.bytes;
 
 public interface Resource {
+    Uri uri();
+
     String name();
 
     Date modified();
@@ -17,13 +20,18 @@ public interface Resource {
     byte[] bytes();
 
     class constructors {
+        public static Resource resource(final Uri uri, final String name, final Date modified, final byte[] bytes) {
+            return new AResource(uri, name, modified, bytes);
+        }
+
         public static Resource resource(final String name, final Date modified, final byte[] bytes) {
-            return new AResource(name, modified, bytes);
+            return resource(Uri.uri(name), name, modified, bytes);
         }
 
         public static Resource resource(Class<?> aClass) {
             String name = classFilename(aClass.getName());
-            return resource(name, new Date(), Bytes.bytes(aClass.getResourceAsStream(new File(name).getName())));
+            String fileName = new File(name).getName();
+            return resource(Uri.uri(aClass.getResource(fileName)), name, new Date(), Bytes.bytes(aClass.getResourceAsStream(fileName)));
         }
     }
 
@@ -39,14 +47,21 @@ public interface Resource {
     }
 
     static class AResource implements Resource {
+        private final Uri uri;
         private final String name;
         private final Date modified;
         private final byte[] bytes;
 
-        public AResource(String name, Date modified, byte[] bytes) {
+        public AResource(Uri uri, String name, Date modified, byte[] bytes) {
+            this.uri = uri;
             this.name = name;
             this.modified = modified;
             this.bytes = bytes;
+        }
+
+        @Override
+        public Uri uri() {
+            return uri;
         }
 
         @Override

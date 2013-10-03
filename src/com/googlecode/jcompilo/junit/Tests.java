@@ -71,7 +71,7 @@ public class Tests implements Processor {
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 Streams.copy(process.getInputStream(), environment.out());
-                throw new IllegalStateException("Tests failed");
+                throw new JCompiloException("Tests failed");
             }
         } finally {
             environment.out().clearPrefix();

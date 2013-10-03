@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo.convention;
 
 import com.googlecode.jcompilo.Environment;
+import com.googlecode.jcompilo.JCompiloException;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Lazy;
 import com.googlecode.totallylazy.Sequence;
@@ -37,10 +38,10 @@ public class AutoBuild extends BuildConvention {
 
     private File rootPackage(File root) {
         Sequence<File> children = files(root);
-        if(children.isEmpty()) throw new IllegalStateException("No source files found");
+        if(children.isEmpty()) throw new JCompiloException("No source files found");
         if(!children.filter(isFile()).isEmpty()) return root;
         Sequence<File> subPackages = children.filter(isDirectory());
-        if(subPackages.size() > 1) throw new IllegalStateException("Unable to auto detect root package");
+        if(subPackages.size() > 1) throw new JCompiloException("Unable to auto detect root package");
         return rootPackage(subPackages.head());
     }
 }
