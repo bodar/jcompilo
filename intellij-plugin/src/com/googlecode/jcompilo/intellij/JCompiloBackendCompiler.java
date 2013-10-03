@@ -5,7 +5,13 @@ import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.Inputs;
 import com.googlecode.jcompilo.Outputs;
 import com.googlecode.jcompilo.Resource;
-import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.FileDestination;
+import com.googlecode.totallylazy.Files;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Sequence;
+import com.googlecode.totallylazy.Sequences;
+import com.googlecode.totallylazy.Sets;
+import com.googlecode.totallylazy.Uri;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
@@ -27,7 +33,6 @@ import java.util.Set;
 import static com.googlecode.jcompilo.MemoryStore.memoryStore;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.intellij.openapi.project.ProjectUtil.guessProjectForFile;
 import static com.intellij.openapi.roots.ProjectRootManager.getInstance;
 
@@ -95,7 +100,7 @@ public class JCompiloBackendCompiler implements BackendCompiler {
     }
 
     public static Iterable<File> dependencies(ModuleChunk moduleChunk) {
-        return Sequences.sequence(moduleChunk.getCompilationClasspathFiles()).map(new Function1<VirtualFile, File>() {
+        return sequence(moduleChunk.getCompilationClasspathFiles()).map(new Function1<VirtualFile, File>() {
             @Override
             public File call(VirtualFile virtualFile) throws Exception {
                 return file(virtualFile);
@@ -104,16 +109,13 @@ public class JCompiloBackendCompiler implements BackendCompiler {
     }
 
     public static Inputs inputsFor(ModuleChunk moduleChunk, String outputPath) throws IOException {
-        Sequence<Resource> inputs = sequence(moduleChunk.getFilesToCompile()).
-                filter(not(VirtualFileModified.modifiedMatches(new File(outputPath)))).
-                map(asResource());
-
-        return memoryStore(inputs);
+        return memoryStore(sequence(moduleChunk.getFilesToCompile()).
+                map(asResource()).
+                filter(not(ResourceModified.modifiedMatches(new File(outputPath)))));
     }
 
     public static String relativePathV(VirtualFile file) {
-        VirtualFile root = root(file);
-        return Files.relativePath(file(root), file(file));
+        return Files.relativePath(file(root(file)), file(file));
     }
 
     private static VirtualFile root(final VirtualFile file) {
