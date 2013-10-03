@@ -60,7 +60,7 @@ public class CompileProcessor implements Processor {
         env.out().printf("Compiling %s source files%n", sources.size());
         Boolean success = compiler.getTask(new OutputStreamWriter(env.out()), resources.output(outputs), diagnosticListener.getOrNull(), options.flatMap(Callables.<Iterable<String>>value()), null, javaFileObjects(sources)).call();
         env.out().clearPrefix();
-        if (!success) throw new IllegalStateException("Compile failed");
+        if (!success) throw new JCompiloException("Compile failed");
         return success;
     }
 

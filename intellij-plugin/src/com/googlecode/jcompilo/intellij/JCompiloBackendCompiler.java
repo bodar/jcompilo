@@ -5,12 +5,7 @@ import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.Inputs;
 import com.googlecode.jcompilo.Outputs;
 import com.googlecode.jcompilo.Resource;
-import com.googlecode.totallylazy.FileDestination;
-import com.googlecode.totallylazy.Files;
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Sequences;
-import com.googlecode.totallylazy.Sets;
+import com.googlecode.totallylazy.*;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
@@ -133,7 +128,7 @@ public class JCompiloBackendCompiler implements BackendCompiler {
                 String relative = relativePathV(virtualFile);
                 Date modified = modified(source);
                 byte[] bytes = virtualFile.contentsToByteArray();
-                return new ResourceWithSource(relative, modified, bytes, source);
+                return Resource.constructors.resource(Uri.uri(source), relative, modified, bytes);
             }
         };
     }
@@ -146,12 +141,5 @@ public class JCompiloBackendCompiler implements BackendCompiler {
         return new Date(file.lastModified());
     }
 
-    public static class ResourceWithSource extends Resource.AResource {
-        public final File source;
 
-        public ResourceWithSource(String relative, Date modified, byte[] bytes, File source) {
-            super(relative, modified, bytes);
-            this.source = source;
-        }
-    }
 }

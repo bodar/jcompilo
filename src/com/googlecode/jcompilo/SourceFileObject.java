@@ -14,7 +14,7 @@ public class SourceFileObject extends SimpleJavaFileObject {
     private final Lazy<CharSequence> charContent;
 
     private SourceFileObject(final Resource resource) {
-        super(URI.create(resource.name()), Kind.SOURCE);
+        super(resource.uri().toURI(), Kind.SOURCE);
         this.resource = resource;
         charContent = new Lazy<CharSequence>() {
             public CharSequence get() {
@@ -46,12 +46,13 @@ public class SourceFileObject extends SimpleJavaFileObject {
         return resource.modified().getTime();
     }
 
-    public Resource resource() {
-        return resource;
-    }
-
     @Override
     public String toString() {
         return getName();
+    }
+
+    @Override
+    public String getName() {
+        return resource.name();
     }
 }

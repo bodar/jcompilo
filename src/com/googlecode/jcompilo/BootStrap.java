@@ -175,7 +175,7 @@ public class BootStrap {
             Class<?> aClass = getClass();
             return jarFile(aClass);
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("Can't find jcompilo.jar");
+            throw new JCompiloException("Can't find jcompilo.jar");
         }
     }
 
