@@ -3,22 +3,20 @@ package com.googlecode.jcompilo.intellij;
 import com.googlecode.jcompilo.CompileOption;
 import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.Inputs;
-import com.googlecode.jcompilo.ModifiedPredicate;
 import com.googlecode.jcompilo.Outputs;
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.totallylazy.FileDestination;
+import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
-import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
@@ -32,11 +30,11 @@ import java.util.Date;
 import java.util.Set;
 
 import static com.googlecode.jcompilo.MemoryStore.memoryStore;
-import static com.googlecode.totallylazy.Files.relativePath;
 import static com.googlecode.totallylazy.Predicates.not;
-import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.startsWith;
+import static com.intellij.openapi.project.ProjectUtil.guessProjectForFile;
+import static com.intellij.openapi.roots.ProjectRootManager.getInstance;
 
 public class JCompiloBackendCompiler implements BackendCompiler {
     private static final Set<FileType> JAVA = Sets.<FileType>set(StdFileTypes.JAVA);
@@ -111,30 +109,28 @@ public class JCompiloBackendCompiler implements BackendCompiler {
     }
 
     public static Inputs inputsFor(ModuleChunk moduleChunk, String outputPath) throws IOException {
-        File root = root(moduleChunk);
         Sequence<Resource> inputs = sequence(moduleChunk.getFilesToCompile()).
-                filter(not(modifiedMatches(root, new File(outputPath)))).
-                map(asResource(root));
+                filter(not(VirtualFileModified.modifiedMatches(new File(outputPath)))).
+                map(asResource());
 
         return memoryStore(inputs);
     }
 
-    private static LogicalPredicate<VirtualFile> modifiedMatches(File sourceDirectory, File destinationDirectory) {
-        final LogicalPredicate<File> predicate = ModifiedPredicate.modifiedMatches(sourceDirectory, destinationDirectory);
-        return new LogicalPredicate<VirtualFile>() {
-            @Override
-            public boolean matches(VirtualFile other) {
-                return predicate.matches(file(other));
-            }
-        };
+    public static String relativePathV(VirtualFile file) {
+        VirtualFile root = root(file);
+        return Files.relativePath(file(root), file(file));
     }
 
-    private static Function1<VirtualFile, Resource> asResource(final File root) {
+    private static VirtualFile root(final VirtualFile file) {
+        return getInstance(guessProjectForFile(file)).getFileIndex().getSourceRootForFile(file);
+    }
+
+    private static Function1<VirtualFile, Resource> asResource() {
         return new Function1<VirtualFile, Resource>() {
             @Override
             public Resource call(VirtualFile virtualFile) throws Exception {
                 final File source = file(virtualFile);
-                String relative = relativePath(root, source);
+                String relative = relativePathV(virtualFile);
                 Date modified = modified(source);
                 byte[] bytes = virtualFile.contentsToByteArray();
                 return new ResourceWithSource(relative, modified, bytes, source);
@@ -142,22 +138,7 @@ public class JCompiloBackendCompiler implements BackendCompiler {
         };
     }
 
-    private static File root(ModuleChunk moduleChunk) {
-        return file(sequence(moduleChunk.getSourceRoots()).
-                find(where(getPath(), startsWith(moduleChunk.getProject().getBasePath()))).
-                get());
-    }
-
-    private static Function1<VirtualFile, String> getPath() {
-        return new Function1<VirtualFile, String>() {
-            @Override
-            public String call(VirtualFile virtualFile) throws Exception {
-                return virtualFile.getPath();
-            }
-        };
-    }
-
-    private static File file(VirtualFile virtualFile) {
+    public static File file(VirtualFile virtualFile) {
         return new File(virtualFile.getPresentableUrl());
     }
 
@@ -173,5 +154,4 @@ public class JCompiloBackendCompiler implements BackendCompiler {
             this.source = source;
         }
     }
-
 }
