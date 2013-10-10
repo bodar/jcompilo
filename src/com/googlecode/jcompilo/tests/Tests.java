@@ -1,4 +1,4 @@
-package com.googlecode.jcompilo.junit;
+package com.googlecode.jcompilo.tests;
 
 import com.googlecode.jcompilo.*;
 import com.googlecode.totallylazy.Predicate;
@@ -19,6 +19,7 @@ import static java.io.File.pathSeparator;
 
 public class Tests implements Processor {
     public static final Sequence<String> debugJvm = sequence("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
+    public static final String executor = "com.googlecode.jcompilo.junit.TestExecutor";
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
     private final Sequence<File> dependencies;
@@ -65,7 +66,7 @@ public class Tests implements Processor {
             environment.out().prefix("    [junit] ");
             environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
             List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
-                    "com.googlecode.jcompilo.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
+                    executor, String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
             arguments.addAll(sequence(tests).toList());
             Process process = Processes.processFor(environment.workingDirectory(), arguments);
             int exitCode = process.waitFor();

@@ -1,4 +1,4 @@
-package com.googlecode.jcompilo.junit;
+package com.googlecode.jcompilo.tests.junit;
 
 import com.googlecode.totallylazy.Lists;
 import com.googlecode.totallylazy.time.SystemClock;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.googlecode.jcompilo.junit.LocalPrintStream.localPrintStream;
+import static com.googlecode.jcompilo.tests.LocalPrintStream.localPrintStream;
 
 public class TestExecutor {
     public static void main(String[] arguments) {

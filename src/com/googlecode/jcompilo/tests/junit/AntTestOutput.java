@@ -1,5 +1,6 @@
-package com.googlecode.jcompilo.junit;
+package com.googlecode.jcompilo.tests.junit;
 
+import com.googlecode.jcompilo.tests.LocalPrintStream;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Strings;
@@ -25,7 +26,6 @@ import java.util.Properties;
 import static com.googlecode.totallylazy.Callables.first;
 import static com.googlecode.totallylazy.Files.file;
 import static com.googlecode.totallylazy.Maps.pairs;
-import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
