@@ -4,31 +4,29 @@ import com.googlecode.jcompilo.Build;
 import com.googlecode.jcompilo.CompileOption;
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.Processes;
-import com.googlecode.jcompilo.junit.Tests;
+import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
-import com.googlecode.totallylazy.Files;
+import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
 import java.io.*;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.jar.JarFile;
-import java.util.jar.Pack200;
-import java.util.zip.GZIPOutputStream;
 
 import static com.googlecode.jcompilo.Compiler.CPUS;
 import static com.googlecode.jcompilo.Compiler.compiler;
 import static com.googlecode.jcompilo.MoveToTL.write;
 import static com.googlecode.jcompilo.convention.ReleaseFile.constructors.releaseFile;
 import static com.googlecode.jcompilo.convention.ReleaseFile.functions.file;
-import static com.googlecode.jcompilo.junit.Tests.tests;
+import static com.googlecode.jcompilo.tests.Tests.tests;
 import static com.googlecode.totallylazy.Callers.callConcurrently;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.delete;
 import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
+import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.totallylazy.Option.some;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -68,6 +66,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public Build test() throws Exception {
+        if(forName(Tests.executor).isEmpty()) return this;
         stage("test");
         Sequence<File> productionJars = cons(mainJar(), dependencies());
         Tests tests = tests(env, productionJars, testThreads(), reportsDir(), debug());
@@ -75,6 +74,14 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
                 add(tests).compile(testDir(), testJar());
         tests.execute(testJar());
         return this;
+    }
+
+    private Option<Class<?>> forName(final String name) {
+        try {
+            return Option.<Class<?>>some(Class.forName(name));
+        } catch (Exception e) {
+            return none();
+        }
     }
 
     @Override

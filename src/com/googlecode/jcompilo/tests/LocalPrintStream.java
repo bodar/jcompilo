@@ -1,4 +1,4 @@
-package com.googlecode.jcompilo.junit;
+package com.googlecode.jcompilo.tests;
 
 import com.googlecode.totallylazy.StringPrintStream;
 
