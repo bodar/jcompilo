@@ -1,7 +1,6 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
-import com.googlecode.jcompilo.lambda.FunctionalInterface;
 import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Fields;
@@ -33,6 +32,7 @@ import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,6 +40,7 @@ import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.Predicates.is;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Unchecked.cast;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -191,7 +192,7 @@ public final class Asm {
 
     public static String toString(final int opcode) {
         return sequence(Opcodes.class.getFields()).
-                find(where(FunctionalInterface.<Integer>value(null), is(opcode))).
+                find(where(Asm.<Integer>value(null), is(opcode))).
                 map(Fields.name).
                 getOrElse(String.valueOf(opcode));
     }
@@ -263,6 +264,15 @@ public final class Asm {
             verify(classNode);
         }
     };
+
+    public static <T> Mapper<Field, T> value(final Object instance) {
+        return new Mapper<Field, T>() {
+            @Override
+            public T call(final Field field) throws Exception {
+                return cast(field.get(instance));
+            }
+        };
+    }
 
     public static class predicates {
         public static LogicalPredicate<AnnotationNode> annotation(Class<? extends Annotation> aClass) {
