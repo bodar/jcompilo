@@ -8,4 +8,4 @@ mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:pack|sources:707
 mvn://repo.bodar.com/com.googlecode.yadic:yadic:pack|sources:167
 mvn://repo.bodar.com/com.googlecode.shavenmaven:shavenmaven:dep|sources:90
 
-mvn:org.ow2.asm:asm-all:jar|sources:4.1
+mvn:org.ow2.asm:asm-all:jar|sources:5.0_BETA
