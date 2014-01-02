@@ -1,8 +1,11 @@
 package com.googlecode.jcompilo.tests;
 
-import com.googlecode.jcompilo.*;
-import com.googlecode.jcompilo.tests.junit.TestExecutor;
-import com.googlecode.totallylazy.Classes;
+import com.googlecode.jcompilo.Environment;
+import com.googlecode.jcompilo.Inputs;
+import com.googlecode.jcompilo.JCompiloException;
+import com.googlecode.jcompilo.Outputs;
+import com.googlecode.jcompilo.Processes;
+import com.googlecode.jcompilo.Processor;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Streams;
@@ -13,7 +16,6 @@ import java.util.List;
 
 import static com.googlecode.jcompilo.BootStrap.jarFile;
 import static com.googlecode.jcompilo.Compiler.CPUS;
-import static com.googlecode.totallylazy.Classes.forName;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.empty;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -22,7 +24,6 @@ import static java.io.File.pathSeparator;
 
 public class Tests implements Processor {
     public static final Sequence<String> debugJvm = sequence("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
-    public static final String executor = "com.googlecode.jcompilo.tests.junit.TestExecutor";
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
     private final Sequence<File> dependencies;
@@ -64,16 +65,12 @@ public class Tests implements Processor {
         return matched;
     }
 
-    public static boolean enabled() {
-        return !forName(executor).isEmpty();
-    }
-
     public void execute(File testJar) throws Exception {
         try {
             environment.out().prefix("    [junit] ");
             environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
             List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
-                    executor, String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
+                    "com.googlecode.jcompilo.tests.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
             arguments.addAll(sequence(tests).toList());
             Process process = Processes.processFor(environment.workingDirectory(), arguments);
             int exitCode = process.waitFor();
@@ -83,7 +80,6 @@ public class Tests implements Processor {
             }
         } finally {
             environment.out().clearPrefix();
-
         }
     }
 
@@ -95,7 +91,6 @@ public class Tests implements Processor {
         if (debug) {
             environment.out().println("Debugging tests running with " + debugJvm.toString(" "));
             return debugJvm;
-        }
-        else return empty(String.class);
+        } else return empty(String.class);
     }
 }
