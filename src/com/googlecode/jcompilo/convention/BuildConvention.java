@@ -68,10 +68,6 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     @Override
     public Build test() throws Exception {
         stage("test");
-        if(!Tests.enabled()) {
-            env.out().append("No test executor class available");
-            return this;
-        }
         Sequence<File> productionJars = cons(mainJar(), dependencies());
         Tests tests = tests(env, productionJars, testThreads(), reportsDir(), debug());
         compiler(env, productionJars, compileOptions()).
