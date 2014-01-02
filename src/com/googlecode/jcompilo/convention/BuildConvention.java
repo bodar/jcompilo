@@ -6,6 +6,7 @@ import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.Processes;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
+import com.googlecode.totallylazy.Classes;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
@@ -66,22 +67,17 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public Build test() throws Exception {
-        if(forName(Tests.executor).isEmpty()) return this;
         stage("test");
+        if(!Tests.enabled()) {
+            env.out().append("No test executor class available");
+            return this;
+        }
         Sequence<File> productionJars = cons(mainJar(), dependencies());
         Tests tests = tests(env, productionJars, testThreads(), reportsDir(), debug());
         compiler(env, productionJars, compileOptions()).
                 add(tests).compile(testDir(), testJar());
         tests.execute(testJar());
         return this;
-    }
-
-    private Option<Class<?>> forName(final String name) {
-        try {
-            return Option.<Class<?>>some(Class.forName(name));
-        } catch (Exception e) {
-            return none();
-        }
     }
 
     @Override
