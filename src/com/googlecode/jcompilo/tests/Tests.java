@@ -1,6 +1,8 @@
 package com.googlecode.jcompilo.tests;
 
 import com.googlecode.jcompilo.*;
+import com.googlecode.jcompilo.tests.junit.TestExecutor;
+import com.googlecode.totallylazy.Classes;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Streams;
@@ -11,6 +13,7 @@ import java.util.List;
 
 import static com.googlecode.jcompilo.BootStrap.jarFile;
 import static com.googlecode.jcompilo.Compiler.CPUS;
+import static com.googlecode.totallylazy.Classes.forName;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.empty;
 import static com.googlecode.totallylazy.Sequences.sequence;
@@ -19,7 +22,7 @@ import static java.io.File.pathSeparator;
 
 public class Tests implements Processor {
     public static final Sequence<String> debugJvm = sequence("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005");
-    public static final String executor = "com.googlecode.jcompilo.junit.TestExecutor";
+    public static final String executor = "com.googlecode.jcompilo.tests.junit.TestExecutor";
     private final List<String> tests = new ArrayList<String>();
     private final Predicate<? super String> predicate;
     private final Sequence<File> dependencies;
@@ -59,6 +62,10 @@ public class Tests implements Processor {
         boolean matched = predicate.matches(other);
         if (matched) tests.add(other);
         return matched;
+    }
+
+    public static boolean enabled() {
+        return !forName(executor).isEmpty();
     }
 
     public void execute(File testJar) throws Exception {
