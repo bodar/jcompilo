@@ -91,6 +91,12 @@
             </filterset>
         </copy>
 
+        <copy file="${basedir}/example/jcompilo.cmd" tofile="${artifacts}/${release.cmd}">
+            <filterset>
+                <filter token="version" value="${build.number}"/>
+            </filterset>
+        </copy>
+
         <exec executable="hg" output="${artifacts}/hg.properties">
             <arg line="log -l 1"/>
         </exec>
