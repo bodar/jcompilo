@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ -n "${JAVA_HOME}" ]; then
+	PATH=${JAVA_HOME}/bin:${PATH}
+fi
+
 JAVA_OPTS="-Djava.net.useSystemProxies=true ${JAVA_OPTS}"
 BUILD_NUMBER=${BUILD_NUMBER-dev.build}
 version=@version@

@@ -1,6 +1,9 @@
 @echo off
-
 setlocal
+if defined JAVA_HOME ( 
+	set PATH=%JAVA_HOME%\bin;%PATH% 
+)
+
 set JAVA_OPTS=-Djava.net.useSystemProxies=true %JAVA_OPTS%
 if not defined BUILD_NUMBER ( set BUILD_NUMBER=dev-build )
 set version=@version@
