@@ -9,7 +9,6 @@ import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sets;
 import com.googlecode.totallylazy.Uri;
 import com.intellij.compiler.OutputParser;
@@ -23,6 +22,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.pom.java.LanguageLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -94,9 +94,8 @@ public class JCompiloBackendCompiler implements BackendCompiler {
         });
     }
 
-    @SuppressWarnings("deprecation")
     private static int version(final ModuleChunk moduleChunk) {
-        return moduleChunk.getLanguageLevel().getIndex();
+        return moduleChunk.getLanguageLevel().ordinal() + 3;
     }
 
     public static Iterable<File> dependencies(ModuleChunk moduleChunk) {

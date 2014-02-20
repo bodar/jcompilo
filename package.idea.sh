@@ -22,12 +22,13 @@ tar xzv -C ${working} -f ${idea} --strip-components=2 ${extract}
 
 for name in "${files[@]}"; do
     file=${working}/${name}
+    pack=${file}-${build}.pack.gz
     echo Packing ${name} ...
-    pack200 ${file}.pack.gz ${file}.jar
+    pack200 ${pack} ${file}.jar
     echo Checksums...
-    md5sum ${file}.pack.gz | cut -f 1 -d' ' > ${file}.pack.gz.md5
-    sha1sum ${file}.pack.gz | cut -f 1 -d' ' > ${file}.pack.gz.sha1
+    md5sum ${pack} | cut -f 1 -d' ' > ${pack}.md5
+    sha1sum ${pack} | cut -f 1 -d' ' > ${pack}.sha1
     echo Uploading...
-    s3cmd -P --add-header=Cache-Control:"public, max-age=3600" put ${file}.pack.gz ${file}.pack.gz.md5 ${file}.pack.gz.sha1 s3://repo.bodar.com/com/intellij/${name}/${build}/
+    s3cmd -P --add-header=Cache-Control:"public, max-age=3600" put ${pack} ${pack}.md5 ${pack}.sha1 s3://repo.bodar.com/com/intellij/${name}/${build}/
 done
 
