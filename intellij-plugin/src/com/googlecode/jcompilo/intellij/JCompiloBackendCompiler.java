@@ -11,6 +11,7 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sets;
 import com.googlecode.totallylazy.Uri;
+import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
@@ -20,9 +21,10 @@ import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.java.LanguageLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -38,6 +40,11 @@ import static com.intellij.openapi.roots.ProjectRootManager.getInstance;
 
 public class JCompiloBackendCompiler implements BackendCompiler {
     private static final Set<FileType> JAVA = Sets.<FileType>set(StdFileTypes.JAVA);
+
+    public JCompiloBackendCompiler() {
+        Project project = ProjectUtil.guessCurrentProject(null);
+        CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD = true;
+    }
 
     @NotNull
     public String getId() {
