@@ -11,6 +11,8 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sets;
 import com.googlecode.totallylazy.Uri;
+import com.intellij.compiler.CompilerConfiguration;
+import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
@@ -43,7 +45,8 @@ public class JCompiloBackendCompiler implements BackendCompiler {
 
     public JCompiloBackendCompiler() {
         Project project = ProjectUtil.guessCurrentProject(null);
-        CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD = true;
+        String default_compiler = ((CompilerConfigurationImpl) CompilerConfiguration.getInstance(project)).DEFAULT_COMPILER;
+        CompilerWorkspaceConfiguration.getInstance(project).USE_OUT_OF_PROCESS_BUILD = !default_compiler.equals(getId());
     }
 
     @NotNull
