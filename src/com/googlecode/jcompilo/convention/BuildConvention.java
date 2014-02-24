@@ -6,8 +6,9 @@ import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.Processes;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
-import com.googlecode.totallylazy.Classes;
-import com.googlecode.totallylazy.Option;
+import com.googlecode.totallylazy.Block;
+import com.googlecode.totallylazy.Closeables;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
@@ -150,10 +151,14 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     protected Properties lastCommitData() throws IOException {
-        Properties properties = new Properties();
+        final Properties properties = new Properties();
         if (new File(rootDir(), ".hg").exists()) {
-            InputStream output = Processes.exec(rootDir(), "hg log -l 1");
-            properties.load(output);
+            using(Processes.inputStream("hg log -l 1", rootDir()), new Block<InputStream>() {
+                @Override
+                protected void execute(InputStream inputStream) throws Exception {
+                    properties.load(inputStream);
+                }
+            });
         }
         return properties;
     }

@@ -20,7 +20,7 @@ public class JavaCTest {
                 "-sourcepath example/src " +
                 "-d example/build/artifacts/ " +
                 "-cp " + findJar("example/lib/runtime", "totallylazy");
-        InputStream result = Processes.exec(command);
+        InputStream result = Processes.inputStream(command);
         copy(result, System.out);
     }
 
