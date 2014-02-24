@@ -5,9 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Lists.list;
 
 public class Processes {
+    public static InputStream exec(String command) throws IOException {
+        return exec(workingDirectory(), command);
+    }
+
     public static InputStream exec(File workingDirectory, String command) throws IOException {
         try {
             Process process = processFor(workingDirectory, command);
