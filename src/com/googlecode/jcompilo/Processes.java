@@ -9,25 +9,19 @@ import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Lists.list;
 
 public class Processes {
-    public static InputStream exec(String command) throws IOException {
-        return exec(workingDirectory(), command);
+    public static InputStream inputStream(String command) throws IOException {
+        return inputStream(command, workingDirectory());
     }
 
-    public static InputStream exec(File workingDirectory, String command) throws IOException {
-        try {
-            Process process = processFor(workingDirectory, command);
-            process.waitFor();
-            return process.getInputStream();
-        } catch (InterruptedException e) {
-            throw new UnsupportedOperationException(e);
-        }
+    public static InputStream inputStream(String command, File workingDirectory) throws IOException {
+        return execute(command, workingDirectory).getInputStream();
     }
 
-    public static Process processFor(File workingDirectory, String command) throws IOException {
-        return processFor(workingDirectory, list(command.split("\\s")));
+    public static Process execute(String command, File workingDirectory) throws IOException {
+        return execute(list(command.split("\\s")), workingDirectory);
     }
 
-    public static Process processFor(File workingDirectory, List<String> arguments) throws IOException {
+    public static Process execute(List<String> arguments, File workingDirectory) throws IOException {
         ProcessBuilder builder = new ProcessBuilder(arguments);
         builder.redirectErrorStream(true);
         builder.directory(workingDirectory);

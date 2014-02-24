@@ -72,7 +72,7 @@ public class Tests implements Processor {
             List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
                     "com.googlecode.jcompilo.tests.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
             arguments.addAll(sequence(tests).toList());
-            Process process = Processes.processFor(environment.workingDirectory(), arguments);
+            Process process = Processes.execute(arguments, environment.workingDirectory());
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 Streams.copy(process.getInputStream(), environment.out());
