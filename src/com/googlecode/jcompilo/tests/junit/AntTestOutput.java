@@ -90,13 +90,17 @@ public class AntTestOutput extends RunListener {
 
     @Override
     public void testFailure(Failure failure) throws Exception {
+        if(failure.getException() instanceof AssertionError) {
+            testAssumptionFailure(failure);
+            return;
+        }
         errors.add(failure);
-        add(failure, Type.Error, failure.getException().getMessage());
+        add(failure, Type.Error, failure.getMessage());
     }
 
     @Override
     public void testAssumptionFailure(Failure failure) {
-        errors.add(failure);
+        failures.add(failure);
         add(failure, Type.Failure, failure.getMessage());
     }
 
@@ -104,7 +108,7 @@ public class AntTestOutput extends RunListener {
         Map<Field, Object> data = testsCases.get(failure.getDescription().getMethodName());
         data.put(Field.Type, type);
         data.put(Field.Message, message);
-        data.put(Field.ExceptionType, failure.getException());
+        data.put(Field.ExceptionType, failure.getException().getClass().getName());
         data.put(Field.FullMessage, failure.getTrace());
     }
 
@@ -144,7 +148,7 @@ public class AntTestOutput extends RunListener {
 
     private String handleFailure(Map<Field, Object> fields) {
         if (!fields.containsKey(Field.Type)) return "";
-        return applyTemplate(fields.get(Field.Type).toString().toLowerCase(), new Object[]{Xml.escape(fields.get(Field.Message)), fields.get(Field.ExceptionType), Xml.escape(fields.get(Field.FullMessage))});
+        return applyTemplate(fields.get(Field.Type).toString().toLowerCase(), new Object[]{Xml.escape(fields.get(Field.Message)), Xml.escape(fields.get(Field.ExceptionType)), Xml.escape(fields.get(Field.FullMessage))});
     }
 
     private Object calculateTime(Map<Field, Object> fields) {
