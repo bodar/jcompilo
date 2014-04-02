@@ -23,9 +23,10 @@ if /i "%1"=="update" (
 
 if not exist %jar% ( 
     mkdir %dir% 2>null
-    wget -O %pack% %remote_file%
-    unpack200 %pack% %jar% 
+    wget -O %pack% %remote_file% || exit /b
+    unpack200 %pack% %jar% || exit /b
     del /q %pack%
+    wget -O $0 ${remote_sh} || exit /b
 )
 
 java -showversion -Dbuild.number=%BUILD_NUMBER% %JAVA_OPTS% -jar %jar% %*
