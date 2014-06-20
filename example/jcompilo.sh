@@ -15,7 +15,7 @@ url=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}
 remote_file=${url}.pack.gz
 remote_sh=${url}.sh
 
-(type -t setjava > /dev/null && setjava ${JAVA_VERSION} ) || ( [ -n "${JAVA_HOME}" ] && PATH=${JAVA_HOME}/bin:${PATH} )
+type -t setjava > /dev/null && setjava -q ${JAVA_VERSION} || if [ -n "${JAVA_HOME}" ]; then PATH=${JAVA_HOME}/bin:${PATH}; fi
 
 if [ "$1" = "update" ]; then
 	rm ${jar} ${pack}
