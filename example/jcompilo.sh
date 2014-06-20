@@ -1,9 +1,7 @@
 #!/bin/sh
 set -e
-if [ -n "${JAVA_HOME}" ]; then
-	PATH=${JAVA_HOME}/bin:${PATH}
-fi
 
+JAVA_VERSION=8
 JAVA_OPTS="-Djava.net.useSystemProxies=true ${JAVA_OPTS}"
 BUILD_NUMBER=${BUILD_NUMBER-dev.build}
 version=@version@
@@ -16,6 +14,8 @@ pack=${dir}${artifact}.pack.gz
 url=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}
 remote_file=${url}.pack.gz
 remote_sh=${url}.sh
+
+(type -t setjava > /dev/null && setjava ${JAVA_VERSION} ) || ( [ -n "${JAVA_HOME}" ] && PATH=${JAVA_HOME}/bin:${PATH} )
 
 if [ "$1" = "update" ]; then
 	rm ${jar} ${pack}
