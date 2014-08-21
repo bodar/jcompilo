@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version=13.0.2
-build=133.696
+version=${version-13.1.4b}
+build=${build-135.1230}
 url=http://download.jetbrains.com/idea/ideaIC-${version}.tar.gz
 files=(idea annotations extensions openapi util)
 working=build/artifacts/package.idea
