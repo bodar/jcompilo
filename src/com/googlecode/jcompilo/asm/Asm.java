@@ -212,7 +212,7 @@ public final class Asm {
         MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, argumentSignature(types), null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
-        insnList.add(new MethodInsnNode(INVOKESPECIAL, superType.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS));
+        insnList.add(new MethodInsnNode(INVOKESPECIAL, superType.getInternalName(), CONSTRUCTOR, CONSTRUCTOR_NO_ARGUMENTS, false));
 
         for (int i = 0; i < types.size(); i++) {
             Pair<String, Type> pair = types.get(i);
@@ -238,7 +238,7 @@ public final class Asm {
         for (InsnList argument : arguments.map(Callables.first(InsnList.class))) {
             construct.add(argument);
         }
-        construct.add(new MethodInsnNode(INVOKESPECIAL, type.getInternalName(), CONSTRUCTOR, argumentSignature(arguments)));
+        construct.add(new MethodInsnNode(INVOKESPECIAL, type.getInternalName(), CONSTRUCTOR, argumentSignature(arguments), false));
         return construct;
     }
 
