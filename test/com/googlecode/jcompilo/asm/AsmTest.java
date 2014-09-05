@@ -1,8 +1,6 @@
 package com.googlecode.jcompilo.asm;
 
-import junit.framework.Assert;
 import org.junit.Test;
-import org.objectweb.asm.Type;
 
 import static com.googlecode.totallylazy.matchers.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
