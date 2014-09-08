@@ -100,7 +100,7 @@ public class ConstantPoolMapper {
         return this;
     }
 
-    private final byte[] buffer = new byte[1024];
+    private final byte[] buffer = new byte[8];
 
     private void copy(DataInputStream in, DataOutputStream out, int amount) throws IOException {
         in.readFully(buffer, 0, amount);
