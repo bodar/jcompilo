@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.asm.AsmMethodHandler;
+import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.FileDestination;
 import com.googlecode.totallylazy.Function1;
@@ -12,6 +13,7 @@ import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;
 import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.Unary;
 import com.googlecode.totallylazy.collections.PersistentList;
 import org.objectweb.asm.Type;
 
@@ -39,6 +41,7 @@ import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Predicates.or;
 import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Sequences.transpose;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;
 import static com.googlecode.totallylazy.ZipDestination.zipDestination;
@@ -59,9 +62,18 @@ public class Compiler {
         this.resourceHandlers = resourceHandlers;
     }
 
-    public static Compiler compiler(Environment env, PersistentList<Processor> processors, final PersistentList<ResourceHandler> resourceHandlers1) {
-        return new Compiler(env, processors, resourceHandlers1);
+    public static Compiler compiler(Environment env, PersistentList<Processor> processors, final PersistentList<ResourceHandler> resourceHandlers) {
+        return new Compiler(env, processors, resourceHandlers);
     }
+
+//    public static Compiler compiler() {
+//        return new Compiler(Environment.constructors.environment(), constructors.<Processor>empty(), constructors.<ResourceHandler>empty());
+//    }
+//
+//    public static Compiler compiler(Unary<Compiler>... transformers) {
+//        return Sequences.sequence(transformers).reduce(Compose.compose());
+//    }
+//
 
     public static Compiler compiler(Environment env) {
         return new Compiler(env, constructors.<Processor>empty(), constructors.<ResourceHandler>empty());
