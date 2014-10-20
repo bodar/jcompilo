@@ -35,6 +35,7 @@ import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.totallylazy.Option.some;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.Strings.string;
 import static com.googlecode.totallylazy.collections.PersistentSortedMap.constructors.sortedMap;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
@@ -156,7 +157,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     private final PersistentMap<String, String> commitCommands = sortedMap(
             ".hg", "hg log -l 1",
-            ".git", "git log -n 1 --pretty='format:user: %an%ndate: %aD%nsummary: %s%nchangeset: %H'"
+            ".git", "git log -n 1 --pretty='user:%an%ndate:%aD%nsummary:%s%nchangeset:%H'"
     );
 
     protected Properties lastCommitData() throws IOException {
