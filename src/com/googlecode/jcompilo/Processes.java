@@ -1,14 +1,29 @@
 package com.googlecode.jcompilo;
 
+import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Strings;
+import com.googlecode.totallylazy.regex.Regex;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.regex.MatchResult;
 
 import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Lists.list;
 
 public class Processes {
+    private static final Regex splitter = Regex.regex("([^\"]\\S*|\".+?\")\\s*");
+
+    public static String executeReturnString(String command) throws IOException {
+        return executeReturnString(command, workingDirectory());
+    }
+
+    public static String executeReturnString(String command, File workingDirectory) throws IOException {
+        return Strings.string(inputStream(command, workingDirectory));
+    }
+
     public static InputStream inputStream(String command) throws IOException {
         return inputStream(command, workingDirectory());
     }
@@ -18,7 +33,13 @@ public class Processes {
     }
 
     public static Process execute(String command, File workingDirectory) throws IOException {
-        return execute(list(command.split("\\s")), workingDirectory);
+        List<String> arguments = splitter.findMatches(command).map(new Callable1<MatchResult, String>() {
+            @Override
+            public String call(MatchResult matchResult) throws Exception {
+                return matchResult.group(1).replaceAll("\"", "");
+            }
+        }).toList();
+        return execute(arguments, workingDirectory);
     }
 
     public static Process execute(List<String> arguments, File workingDirectory) throws IOException {

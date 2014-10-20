@@ -3,17 +3,10 @@ package com.googlecode.jcompilo.convention;
 import com.googlecode.jcompilo.Build;
 import com.googlecode.jcompilo.CompileOption;
 import com.googlecode.jcompilo.Environment;
-import com.googlecode.jcompilo.Processes;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
-import com.googlecode.totallylazy.Block;
-import com.googlecode.totallylazy.Closeables;
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
-import com.googlecode.totallylazy.collections.PersistentMap;
-import com.googlecode.totallylazy.collections.PersistentSortedMap;
 
 import java.io.*;
 import java.util.Properties;
@@ -155,24 +148,8 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         );
     }
 
-    private final PersistentMap<String, String> commitCommands = sortedMap(
-            ".hg", "hg log -l 1",
-            ".git", "git log -n 1 --pretty='user:%an%ndate:%aD%nsummary:%s%nchangeset:%H'"
-    );
-
     protected Properties lastCommitData() throws IOException {
-        final Properties properties = new Properties();
-        for (Pair<String, String> command : commitCommands) {
-            if (new File(rootDir(), command.first()).exists()) {
-                using(Processes.inputStream(command.second(), rootDir()), new Block<InputStream>() {
-                    @Override
-                    protected void execute(InputStream inputStream) throws Exception {
-                        properties.load(inputStream);
-                    }
-                });
-            }
-        }
-        return properties;
+        return LastCommit.lastCommitData(rootDir());
     }
 
     protected void zip(File source, File destination) throws IOException {
