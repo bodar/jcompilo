@@ -5,10 +5,12 @@ import com.googlecode.jcompilo.CompileOption;
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
+import com.googlecode.totallylazy.PrefixProperties;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
 import java.io.*;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -26,6 +28,7 @@ import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.totallylazy.Option.some;
+import static com.googlecode.totallylazy.Properties.compose;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.string;
@@ -109,12 +112,18 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         release.setProperty("release.version", version());
         release.setProperty("release.name", versionedArtifact());
         release.setProperty("release.path", releasePath());
-        Sequence<ReleaseFile> releaseFiles = sequence(releaseFiles(lastCommitData()));
+        Properties commit = lastCommitData();
+        Sequence<ReleaseFile> releaseFiles = sequence(releaseFiles(commit));
         release.setProperty("release.files", releaseFiles.map(file).map(name()).toString(","));
         for (ReleaseFile releaseFile : releaseFiles) {
             release.setProperty(format("%s.description", releaseFile.file().getName()), releaseFile.description());
             release.setProperty(format("%s.labels", releaseFile.file().getName()), sequence(releaseFile.labels()).toString(","));
         }
+
+        for (Map.Entry<Object, Object> entry : commit.entrySet()) {
+            release.put("commit." + entry.getKey(), entry.getValue());
+        }
+
         using(new FileWriter(releaseProperties()), write(release));
     }
 
