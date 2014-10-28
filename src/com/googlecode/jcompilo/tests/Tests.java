@@ -66,20 +66,23 @@ public class Tests implements Processor {
     }
 
     public void execute(File testJar) throws Exception {
-        try {
-            environment.out().prefix("    [junit] ");
-            environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
-            List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
-                    "com.googlecode.jcompilo.tests.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
-            arguments.addAll(sequence(tests).toList());
-            Process process = Processes.execute(arguments, environment.workingDirectory());
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                Streams.copy(process.getInputStream(), environment.out());
-                throw new JCompiloException("Tests failed");
+        if(!tests.isEmpty()) {
+            try {
+                environment.out().prefix("    [junit] ");
+                environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
+                List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
+                        "com.googlecode.jcompilo.tests.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
+                System.out.println("arguments = " + arguments);
+                arguments.addAll(sequence(tests).toList());
+                Process process = Processes.execute(arguments, environment.workingDirectory());
+                int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    Streams.copy(process.getInputStream(), environment.out());
+                    throw new JCompiloException("Tests failed");
+                }
+            } finally {
+                environment.out().clearPrefix();
             }
-        } finally {
-            environment.out().clearPrefix();
         }
     }
 
