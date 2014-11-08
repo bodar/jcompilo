@@ -1,19 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.asm.AsmMethodHandler;
-import com.googlecode.totallylazy.Callables;
-import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.FileDestination;
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Function2;
-import com.googlecode.totallylazy.Maps;
-import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Pair;
-import com.googlecode.totallylazy.Predicate;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Sequences;
-import com.googlecode.totallylazy.Sources;
-import com.googlecode.totallylazy.Unary;
+import com.googlecode.totallylazy.*;
 import com.googlecode.totallylazy.collections.PersistentList;
 import org.objectweb.asm.Type;
 
@@ -37,6 +25,8 @@ import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
+import static com.googlecode.totallylazy.Functions.and;
+import static com.googlecode.totallylazy.Predicates.and;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Predicates.or;
 import static com.googlecode.totallylazy.Runnables.VOID;
@@ -65,15 +55,6 @@ public class Compiler {
     public static Compiler compiler(Environment env, PersistentList<Processor> processors, final PersistentList<ResourceHandler> resourceHandlers) {
         return new Compiler(env, processors, resourceHandlers);
     }
-
-//    public static Compiler compiler() {
-//        return new Compiler(Environment.constructors.environment(), constructors.<Processor>empty(), constructors.<ResourceHandler>empty());
-//    }
-//
-//    public static Compiler compiler(Unary<Compiler>... transformers) {
-//        return Sequences.sequence(transformers).reduce(Compose.compose());
-//    }
-//
 
     public static Compiler compiler(Environment env) {
         return new Compiler(env, constructors.<Processor>empty(), constructors.<ResourceHandler>empty());
@@ -122,11 +103,10 @@ public class Compiler {
         return compiler(env, processors, resourceHandlers.cons(resourceHandler));
     }
 
-    public Void compile(final File sourceDirectory, final File destination) throws Exception {
+    public boolean compile(final File sourceDirectory, final File destination) throws Exception {
         Sources source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(not(isFile().and(modifiedMatches(sourceDirectory, destination)))).realise());
-        if (source.sources().isEmpty()) return VOID;
-        return using(source, backgroundDestination(destination(destination)), new Function2<Sources, Destination, Void>() {
-            public Void call(final Sources source, Destination destination) throws Exception {
+        return source.sources().isEmpty() || using(source, backgroundDestination(destination(destination)), new Function2<Sources, Destination, Boolean>() {
+            public Boolean call(final Sources source, Destination destination) throws Exception {
                 return compile(memoryStore(source), output(destination));
             }
         });
@@ -145,20 +125,19 @@ public class Compiler {
         return destination.getPath().endsWith(".jar") ? new JarOutputStream(fileOutputStream) : new ZipOutputStream(fileOutputStream);
     }
 
-    public Void compile(final Inputs inputs, final Outputs raw) throws Exception {
-        return using(backgroundOutputs(env, decorate(resourceHandlers, raw)), new Function1<Outputs, Void>() {
+    public boolean compile(final Inputs inputs, final Outputs raw) throws Exception {
+        return using(backgroundOutputs(env, decorate(resourceHandlers, raw)), new Function1<Outputs, Boolean>() {
             @Override
-            public Void call(final Outputs outputs) throws Exception {
+            public Boolean call(final Outputs outputs) throws Exception {
                 final Map<Processor, MemoryStore> partitions = partition(inputs);
 
-                sequence(processors).mapConcurrently(new Function1<Processor, Boolean>() {
+                return sequence(processors).mapConcurrently(new Function1<Processor, Boolean>() {
                     @Override
                     public Boolean call(Processor processor) throws Exception {
                         Inputs matched = partitions.get(processor);
                         return matched.isEmpty() || processor.process(matched, outputs);
                     }
-                }).realise();
-                return VOID;
+                }).reduce(and);
             }
         });
     }
