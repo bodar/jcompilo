@@ -5,11 +5,12 @@ import com.googlecode.jcompilo.CompileOption;
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
-import com.googlecode.totallylazy.PrefixProperties;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -22,17 +23,11 @@ import static com.googlecode.jcompilo.convention.ReleaseFile.functions.file;
 import static com.googlecode.jcompilo.tests.Tests.tests;
 import static com.googlecode.totallylazy.Callers.callConcurrently;
 import static com.googlecode.totallylazy.Closeables.using;
-import static com.googlecode.totallylazy.Files.delete;
-import static com.googlecode.totallylazy.Files.hasSuffix;
-import static com.googlecode.totallylazy.Files.name;
-import static com.googlecode.totallylazy.Files.recursiveFiles;
-import static com.googlecode.totallylazy.Option.none;
+import static com.googlecode.totallylazy.Files.*;
+import static com.googlecode.totallylazy.Functions.and;
 import static com.googlecode.totallylazy.Option.some;
-import static com.googlecode.totallylazy.Properties.compose;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.Strings.string;
-import static com.googlecode.totallylazy.collections.PersistentSortedMap.constructors.sortedMap;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
@@ -46,46 +41,46 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     @Override
-    public Build build() throws Exception {
-        clean().compile();
-        return parallel(test(this), Package(this));
+    public boolean build() throws Exception {
+        return sequence(
+                clean(),
+                compile(),
+                parallel(test(this), Package(this))).
+                reduce(and);
     }
 
     @Override
-    public Build clean() throws Exception {
+    public boolean clean() throws Exception {
         stage("clean");
         env.out().printf("   [delete] Deleting directory: %s%n", artifactsDir());
-        delete(artifactsDir());
-        return this;
+        return delete(artifactsDir());
     }
 
     @Override
-    public Build compile() throws Exception {
+    public boolean compile() throws Exception {
         stage("compile");
-        compiler(env, dependencies(), compileOptions()).
+        return compiler(env, dependencies(), compileOptions()).
                 compile(srcDir(), mainJar());
-        return this;
     }
 
     @Override
-    public Build test() throws Exception {
+    public boolean test() throws Exception {
         stage("test");
         Sequence<File> productionJars = cons(mainJar(), dependencies());
         Tests tests = tests(env, productionJars, testThreads(), reportsDir(), debug());
-        compiler(env, productionJars, compileOptions()).
-                add(tests).compile(testDir(), testJar());
-        tests.execute(testJar());
-        return this;
+        return compiler(env, productionJars, compileOptions()).
+                add(tests).compile(testDir(), testJar()) &&
+                tests.execute(testJar());
     }
 
     @Override
-    public Build Package() throws IOException {
+    public boolean Package() throws IOException {
         stage("package");
         zip(srcDir(), sourcesJar());
         zip(testDir(), testSourcesJar());
         generateReleaseProperties();
         generatePom();
-        return this;
+        return true;
     }
 
     @Override
@@ -172,41 +167,37 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         return this;
     }
 
-    public Build parallel(Callable<? extends Build> stage1, Callable<? extends Build> stage2) {
-        return parallel(sequence(stage1, stage2));
+    @SafeVarargs
+    public final boolean parallel(Callable<Boolean>... stages) {
+        return parallel(sequence(stages));
     }
 
-    public Build parallel(Callable<? extends Build> stage1, Callable<? extends Build> stage2, Callable<? extends Build> stage3) {
-        return parallel(sequence(stage1, stage2, stage3));
+    public final boolean parallel(Iterable<Callable<Boolean>> stages) {
+        return callConcurrently(stages).reduce(and);
     }
 
-    public Build parallel(Iterable<Callable<? extends Build>> stages) {
-        callConcurrently(stages).realise();
-        return this;
-    }
-
-    public static Callable<Build> compile(final Build build) {
-        return new Callable<Build>() {
+    public static Callable<Boolean> compile(final Build build) {
+        return new Callable<Boolean>() {
             @Override
-            public Build call() throws Exception {
+            public Boolean call() throws Exception {
                 return build.compile();
             }
         };
     }
 
-    public static Callable<Build> test(final Build build) {
-        return new Callable<Build>() {
+    public static Callable<Boolean> test(final Build build) {
+        return new Callable<Boolean>() {
             @Override
-            public Build call() throws Exception {
+            public Boolean call() throws Exception {
                 return build.test();
             }
         };
     }
 
-    public static Callable<Build> Package(final Build build) {
-        return new Callable<Build>() {
+    public static Callable<Boolean> Package(final Build build) {
+        return new Callable<Boolean>() {
             @Override
-            public Build call() throws Exception {
+            public Boolean call() throws Exception {
                 return build.Package();
             }
         };

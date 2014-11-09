@@ -65,7 +65,7 @@ public class Tests implements Processor {
         return matched;
     }
 
-    public void execute(File testJar) throws Exception {
+    public boolean execute(File testJar) throws Exception {
         if(!tests.isEmpty()) {
             try {
                 environment.out().prefix("    [junit] ");
@@ -78,12 +78,13 @@ public class Tests implements Processor {
                 int exitCode = process.waitFor();
                 if (exitCode != 0) {
                     Streams.copy(process.getInputStream(), environment.out());
-                    throw new JCompiloException("Tests failed");
+                    return false;
                 }
             } finally {
                 environment.out().clearPrefix();
             }
         }
+        return true;
     }
 
     private String javaProcess() {

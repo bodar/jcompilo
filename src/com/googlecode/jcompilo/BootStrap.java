@@ -1,13 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.convention.AutoBuild;
-import com.googlecode.totallylazy.Function1;
-import com.googlecode.totallylazy.Function2;
-import com.googlecode.totallylazy.Maps;
-import com.googlecode.totallylazy.Methods;
-import com.googlecode.totallylazy.Option;
-import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.*;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.googlecode.yadic.SimpleContainer;
 
@@ -34,6 +28,7 @@ import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Files.relativePath;
+import static com.googlecode.totallylazy.Functions.and;
 import static com.googlecode.totallylazy.Lists.list;
 import static com.googlecode.totallylazy.Methods.genericParameterTypes;
 import static com.googlecode.totallylazy.Methods.methodName;
@@ -77,7 +72,11 @@ public class BootStrap {
                 printTargets(buildClass);
                 return 0;
             }
-            call(targets, createBuildClass(buildClass));
+            boolean success = call(targets, createBuildClass(buildClass));
+            if(!success) {
+                report("FAILED", start);
+                return -1;
+            }
 
             report("SUCCESSFUL", start);
             return 0;
@@ -94,22 +93,22 @@ public class BootStrap {
         sequence(buildClass.getMethods()).filter(targets()).map(methodName()).each(printLine(env.out(), "%s"));
     }
 
-    private void call(List<String> targets, Build build) {
-        sequence(targets.isEmpty() ? one("build") : targets).fold(build, new Function2<Build, String, Build>() {
+    private boolean call(List<String> targets, final Build build) {
+        return sequence(targets.isEmpty() ? one("build") : targets).map(new Function1<String, Boolean>() {
             @Override
-            public Build call(Build build, String target) throws Exception {
+            public Boolean call(String target) throws Exception {
                 Option<Method> method = sequence(build.getClass().getMethods()).
                         find(targets().and(where(methodName(), is(target.toLowerCase()))));
-                if(method.isEmpty()) return build;
+                if(method.isEmpty()) return false;
                 return Methods.invoke(method.get(), build);
             }
-        });
+        }).reduce(and);
     }
 
     private LogicalPredicate<Method> targets() {
         return and(
                 modifier(PUBLIC), not(modifier(STATIC)),
-                where(returnType(), classAssignableTo(Build.class)),
+                where(returnType(), classAssignableTo(boolean.class)),
                 where(genericParameterTypes(), empty()));
     }
 
