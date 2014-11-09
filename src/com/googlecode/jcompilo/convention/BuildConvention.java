@@ -167,9 +167,8 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         return this;
     }
 
-    @SafeVarargs
-    public final boolean parallel(Callable<Boolean>... stages) {
-        return parallel(sequence(stages));
+    public final boolean parallel(Callable<Boolean> stage1, Callable<Boolean> stage2) {
+        return parallel(sequence(stage1, stage2));
     }
 
     public final boolean parallel(Iterable<Callable<Boolean>> stages) {
