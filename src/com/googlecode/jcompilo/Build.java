@@ -3,11 +3,11 @@ package com.googlecode.jcompilo;
 import java.io.File;
 
 public interface Build extends Locations, Identifiers {
-    Build build() throws Exception;
-    Build clean() throws Exception;
-    Build compile() throws Exception;
-    Build test() throws Exception;
-    Build Package() throws Exception;
+    boolean build() throws Exception;
+    boolean clean() throws Exception;
+    boolean compile() throws Exception;
+    boolean test() throws Exception;
+    boolean Package() throws Exception;
 
     Iterable<CompileOption> compileOptions();
     Iterable<File> dependencies();
