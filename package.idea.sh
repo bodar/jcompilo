@@ -4,7 +4,7 @@ set -e
 version=${version-14}
 build=${build-139.224.1}
 url=http://download.jetbrains.com/idea/ideaIC-${version}.tar.gz
-files=(idea annotations extensions openapi util)
+files=(jps-server idea annotations extensions openapi util)
 working=build/artifacts/package.idea
 idea=${working}/idea.tar.gz
 
