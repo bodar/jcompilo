@@ -3,10 +3,11 @@ set -e
 
 version=${version-14.0.2}
 build=${build-139.659.2}
-url=http://download.jetbrains.com/idea/ideaIC-${version}.tar.gz
+filename=ideaIC-${version}.tar.gz
+url=http://download.jetbrains.com/idea/${filename}
 files=(jps-server idea annotations extensions openapi util)
 working=build/artifacts/package.idea
-idea=${working}/idea.tar.gz
+idea=${working}/${filename}
 
 if [ "$1" = "clean" ]; then
 	rm -rf ${working}
