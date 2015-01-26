@@ -37,8 +37,6 @@ public class JCompiloTool extends JavaCompilingTool {
     @NotNull
     @Override
     public List<File> getAdditionalClasspath() {
-        File file = Files.workingDirectory();
-        System.out.println("file = " + file);
         return new ArrayList<>();
     }
 }
