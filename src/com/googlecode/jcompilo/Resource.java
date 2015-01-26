@@ -5,6 +5,7 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Uri;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 
 import static com.googlecode.jcompilo.MoveToTL.classFilename;
@@ -47,26 +48,26 @@ public interface Resource {
     }
 
     static class AResource implements Resource {
-        private final Uri uri;
         private final String name;
+        private final Uri uri;
         private final Date modified;
         private final byte[] bytes;
 
         public AResource(Uri uri, String name, Date modified, byte[] bytes) {
-            this.uri = uri;
             this.name = name;
+            this.uri = uri;
             this.modified = modified;
             this.bytes = bytes;
         }
 
         @Override
-        public Uri uri() {
-            return uri;
+        public String name() {
+            return name;
         }
 
         @Override
-        public String name() {
-            return name;
+        public Uri uri() {
+            return uri;
         }
 
         @Override
@@ -77,6 +78,11 @@ public interface Resource {
         @Override
         public byte[] bytes() {
             return bytes;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s(%s)", name, uri);
         }
     }
 
