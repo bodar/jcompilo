@@ -66,12 +66,37 @@
                          version="${release.version}" main.class="com.googlecode.jcompilo.BootStrap"/>
     </target>
 
+    <path id="plugin.path">
+        <file file="${release.plugin.jar.path}"/>
+        <file file="${release.dep.path}"/>
+        <fileset id="plugin.fileset" dir="${build.dependencies.dir}">
+            <include name="totallylazy*.jar"/>
+            <include name="yadic*.jar"/>
+            <include name="shavenmaven*.jar"/>
+            <include name="asm*.jar"/>
+            <exclude name="*-sources.jar"/>
+        </fileset>
+    </path>
+
+    <pathconvert property="plugin.libs" pathsep=";">
+        <path refid="plugin.path"/>
+        <flattenmapper/>
+    </pathconvert>
+
     <target name="plugin">
         <copy file="${plugin.src}/META-INF/plugin.xml" tofile="${artifacts}/plugin.xml.original"/>
         <replace file="${plugin.src}/META-INF/plugin.xml" token="dev.build" value="${build.number}"/>
+        <property name="plugin.libs" refid="all.jars"/>
+        <replace file="${plugin.src}/META-INF/plugin.xml" token="REPLACED_BY_BUILD" value="${plugin.libs}"/>
         <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
                          version="${release.version}"/>
         <move file="${artifacts}/plugin.xml.original" tofile="${plugin.src}/META-INF/plugin.xml"/>
+
+        <zip destfile="${release.plugin.zip.path}">
+            <zipfileset file="${release.plugin.jar.path}" prefix="jcompilo/lib"/>
+            <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
+            <zipfileset refid="plugin.fileset" prefix="jcompilo/lib" />
+        </zip>
     </target>
 
     <target name="test">
@@ -131,17 +156,6 @@
 
     <target name="embed">
         <embed.libs/>
-        <zip destfile="${release.plugin.zip.path}">
-            <zipfileset file="${release.plugin.jar.path}" prefix="jcompilo/lib"/>
-            <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
-            <zipfileset dir="${build.dependencies.dir}" prefix="jcompilo/lib">
-                <include name="totallylazy*.jar"/>
-                <include name="yadic*.jar"/>
-                <include name="shavenmaven*.jar"/>
-                <include name="asm*.jar"/>
-                <exclude name="*-sources.jar"/>
-            </zipfileset>
-        </zip>
     </target>
 
     <target name="build" description="build all">
@@ -151,10 +165,10 @@
         </parallel>
         <antcall target="compile"/>
         <parallel>
-            <antcall target="plugin"/>
             <antcall target="test"/>
             <antcall target="package"/>
         </parallel>
         <antcall target="embed"/>
+        <antcall target="plugin"/>
     </target>
 </project>

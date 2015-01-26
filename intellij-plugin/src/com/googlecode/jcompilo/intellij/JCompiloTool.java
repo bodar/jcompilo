@@ -2,6 +2,7 @@ package com.googlecode.jcompilo.intellij;
 
 import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.tool.JCompiler;
+import com.googlecode.totallylazy.Files;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.builders.java.CannotCreateJavaCompilerException;
 import org.jetbrains.jps.builders.java.JavaCompilingTool;
@@ -36,6 +37,8 @@ public class JCompiloTool extends JavaCompilingTool {
     @NotNull
     @Override
     public List<File> getAdditionalClasspath() {
+        File file = Files.workingDirectory();
+        System.out.println("file = " + file);
         return new ArrayList<>();
     }
 }

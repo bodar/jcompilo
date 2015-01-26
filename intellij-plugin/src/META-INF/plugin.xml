@@ -5,14 +5,11 @@
     <version>dev.build</version>
     <vendor>Daniel Worthington-Bodart</vendor>
 
-    <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="139.224.1"/>
+    <idea-version since-build="139.659.2"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <java.compiler implementation="com.googlecode.jcompilo.intellij.JCompiloBackendCompiler"/>
-        <compileServer.plugin classpath="asm-all-5.0.3.jar;jcompilo-dev.build-dep.jar;jcompilo-intellij-dev.build.jar;shavenmaven-95-dep.jar;totallylazy-1.21.jar;yadic-1.5.jar"/>
-        <projectService serviceInterface="com.intellij.openapi.compiler.CompilerManager"
-                        serviceImplementation="com.googlecode.jcompilo.intellij.JCompiloManager"
-                        overrides="true"/>
+        <!--<compileServer.plugin classpath="jcompilo-intellij-dev.build.jar;jcompilo-dev.build-dep.jar;asm-all-5.0.3.jar;shavenmaven-95-dep.jar;totallylazy-1.21.jar;yadic-1.5.jar"/>-->
+        <compileServer.plugin classpath="REPLACED_BY_BUILD"/>
     </extensions>
 </idea-plugin>
