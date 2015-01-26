@@ -7,21 +7,10 @@ import org.jetbrains.annotations.Nls;
 import javax.swing.*;
 
 class JCompiloConfigurable implements Configurable {
-    private final JCompiloBackendCompiler backendCompiler;
-
-    public JCompiloConfigurable(JCompiloBackendCompiler backendCompiler) {
-        this.backendCompiler = backendCompiler;
-    }
-
     @Nls
     @Override
     public String getDisplayName() {
-        return backendCompiler.getPresentableName();
-    }
-
-    // Required for IntelliJ 11
-    public Icon getIcon() {
-        return null;
+        return JCompiloBackendCompiler.NAME;
     }
 
     @Override
