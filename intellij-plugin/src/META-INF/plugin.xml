@@ -10,7 +10,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <java.compiler implementation="com.googlecode.jcompilo.intellij.JCompiloBackendCompiler"/>
-        <compileServer.plugin classpath="../classes;totallylazy-1.21.jar"/>
+        <compileServer.plugin classpath="asm-all-5.0.3.jar;jcompilo-dev.build-dep.jar;jcompilo-intellij-dev.build.jar;shavenmaven-95-dep.jar;totallylazy-1.21.jar;yadic-1.5.jar"/>
         <projectService serviceInterface="com.intellij.openapi.compiler.CompilerManager"
                         serviceImplementation="com.googlecode.jcompilo.intellij.JCompiloManager"
                         overrides="true"/>

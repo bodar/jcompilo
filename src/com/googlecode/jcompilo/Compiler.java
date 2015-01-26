@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.asm.AsmMethodHandler;
+import com.googlecode.jcompilo.tool.JCompiler;
 import com.googlecode.totallylazy.*;
 import com.googlecode.totallylazy.collections.PersistentList;
 import org.objectweb.asm.Type;
@@ -65,11 +66,11 @@ public class Compiler {
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions) {
-        return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER, Option.<DiagnosticListener<JavaFileObject>>none());
+        return compiler(env, dependancies, compileOptions, JCompiler.DEFAULT_COMPILER, Option.<DiagnosticListener<JavaFileObject>>none());
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, DiagnosticListener<JavaFileObject> diagnosticListener) {
-        return compiler(env, dependancies, compileOptions, CompileProcessor.DEFAULT_COMPILER, Option.<DiagnosticListener<JavaFileObject>>some(diagnosticListener));
+        return compiler(env, dependancies, compileOptions, JCompiler.DEFAULT_COMPILER, Option.<DiagnosticListener<JavaFileObject>>some(diagnosticListener));
     }
 
     public static Compiler compiler(Environment env, Iterable<File> dependancies, Iterable<CompileOption> compileOptions, JavaCompiler javaCompiler, Option<DiagnosticListener<JavaFileObject>> diagnosticListener) {
@@ -88,7 +89,11 @@ public class Compiler {
 
     private static Type tailRecAnnotation(Environment env) {
         String property = env.properties().getProperty("jcompilo.tailrec");
-        return Type.getType(format("L%s;", property.replace('.', '/')));
+        return typeFor(property);
+    }
+
+    public static Type typeFor(String className) {
+        return Type.getType(format("L%s;", className.replace('.', '/')));
     }
 
     private static boolean postProcess(Environment env) {

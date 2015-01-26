@@ -1,5 +1,6 @@
 package com.googlecode.jcompilo;
 
+import com.googlecode.jcompilo.tool.JCompiler;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Destination;
 import com.googlecode.totallylazy.Function2;
@@ -21,7 +22,8 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class CompileProcessor implements Processor {
-    public static final JavaCompiler DEFAULT_COMPILER = getSystemJavaCompiler();
+    @Deprecated
+    public static final JavaCompiler DEFAULT_COMPILER = JCompiler.DEFAULT_COMPILER;
     public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(Debug, Implicit(None));
     private final Environment env;
     private final JavaCompiler compiler;
@@ -49,7 +51,7 @@ public class CompileProcessor implements Processor {
         return using(source, destination, new Function2<Sources, Destination, Boolean>() {
             @Override
             public Boolean call(Sources source, Destination destination) throws Exception {
-                return compile(env, DEFAULT_OPTIONS, DEFAULT_COMPILER, dependancies, Option.<DiagnosticListener<JavaFileObject>>none()).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
+                return compile(env, DEFAULT_OPTIONS, JCompiler.DEFAULT_COMPILER, dependancies, Option.<DiagnosticListener<JavaFileObject>>none()).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
             }
         });
     }
