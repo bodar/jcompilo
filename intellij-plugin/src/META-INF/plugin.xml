@@ -9,7 +9,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <java.compiler implementation="com.googlecode.jcompilo.intellij.JCompiloBackendCompiler"/>
-        <!--<compileServer.plugin classpath="jcompilo-intellij-dev.build.jar;jcompilo-dev.build-dep.jar;asm-all-5.0.3.jar;shavenmaven-95-dep.jar;totallylazy-1.21.jar;yadic-1.5.jar"/>-->
-        <compileServer.plugin classpath="REPLACED_BY_BUILD"/>
+        <compileServer.plugin classpath="asm-all-5.0.3.jar;shavenmaven-95-dep.jar;totallylazy-1.21.jar;yadic-1.5.jar"/>
     </extensions>
 </idea-plugin>
