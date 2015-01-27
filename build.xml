@@ -66,39 +66,40 @@
                          version="${release.version}" main.class="com.googlecode.jcompilo.BootStrap"/>
     </target>
 
-    <path id="plugin.path">
-        <fileset id="plugin.fileset" dir="${build.dependencies.dir}">
-            <include name="totallylazy*.jar"/>
-            <include name="yadic*.jar"/>
-            <include name="shavenmaven*.jar"/>
-            <include name="asm*.jar"/>
-            <exclude name="*-sources.jar"/>
-        </fileset>
-    </path>
-
-    <pathconvert property="plugin.libs" pathsep=";">
-        <path refid="plugin.path"/>
-        <flattenmapper/>
-    </pathconvert>
-
     <target name="plugin">
-        <!--<replace file="${plugin.src}/META-INF/plugin.xml" token="REPLACED_BY_BUILD" value="${plugin.libs}"/>-->
-        <replaceregexp file="${plugin.src}/META-INF/plugin.xml"
-                       match='classpath\=\"[^\"]+\"'
-                       replace='classpath="${plugin.libs}"'
-                />
+        <path id="plugin.path">
+            <fileset id="plugin.fileset" dir="${build.dependencies.dir}">
+                <include name="totallylazy*.jar"/>
+                <include name="yadic*.jar"/>
+                <include name="shavenmaven*.jar"/>
+                <include name="asm*.jar"/>
+                <exclude name="*-sources.jar"/>
+            </fileset>
+        </path>
 
-        <copy file="${plugin.src}/META-INF/plugin.xml" tofile="${artifacts}/plugin.xml.original"/>
-        <replace file="${plugin.src}/META-INF/plugin.xml" token="dev.build" value="${build.number}"/>
+        <pathconvert property="plugin.libs" pathsep=";">
+            <path refid="plugin.path"/>
+            <flattenmapper/>
+        </pathconvert>
+
         <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
                          version="${release.version}"/>
-        <move file="${artifacts}/plugin.xml.original" tofile="${plugin.src}/META-INF/plugin.xml"/>
+
+        <copy file="${plugin.src}/META-INF/plugin.xml" tofile="${artifacts}/plugin.xml"/>
+        <replaceregexp file="${artifacts}/plugin.xml"
+                       match='classpath\=\"[^\"]+\"'
+                       replace='classpath="${plugin.libs}"' />
+        <replace file="${artifacts}/plugin.xml"
+                 token="dev.build"
+                 value="${build.number}"/>
 
         <zip destfile="${release.plugin.zip.path}">
+            <zipfileset file="${artifacts}/plugin.xml" prefix="jcompilo/META-INF"/>
             <zipfileset src="${release.plugin.jar.path}" prefix="jcompilo/classes"/>
             <zipfileset src="${release.dep.path}" prefix="jcompilo/classes"/>
             <zipfileset refid="plugin.fileset" prefix="jcompilo/lib" />
         </zip>
+
     </target>
 
     <target name="test">
