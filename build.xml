@@ -67,8 +67,6 @@
     </target>
 
     <path id="plugin.path">
-        <file file="${release.plugin.jar.path}"/>
-        <file file="${release.dep.path}"/>
         <fileset id="plugin.fileset" dir="${build.dependencies.dir}">
             <include name="totallylazy*.jar"/>
             <include name="yadic*.jar"/>
@@ -84,17 +82,21 @@
     </pathconvert>
 
     <target name="plugin">
+        <!--<replace file="${plugin.src}/META-INF/plugin.xml" token="REPLACED_BY_BUILD" value="${plugin.libs}"/>-->
+        <replaceregexp file="${plugin.src}/META-INF/plugin.xml"
+                       match='classpath\=\"[^\"]+\"'
+                       replace='classpath="${plugin.libs}"'
+                />
+
         <copy file="${plugin.src}/META-INF/plugin.xml" tofile="${artifacts}/plugin.xml.original"/>
         <replace file="${plugin.src}/META-INF/plugin.xml" token="dev.build" value="${build.number}"/>
-        <property name="plugin.libs" refid="all.jars"/>
-        <replace file="${plugin.src}/META-INF/plugin.xml" token="REPLACED_BY_BUILD" value="${plugin.libs}"/>
         <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
                          version="${release.version}"/>
         <move file="${artifacts}/plugin.xml.original" tofile="${plugin.src}/META-INF/plugin.xml"/>
 
         <zip destfile="${release.plugin.zip.path}">
-            <zipfileset file="${release.plugin.jar.path}" prefix="jcompilo/lib"/>
-            <zipfileset file="${release.dep.path}" prefix="jcompilo/lib"/>
+            <zipfileset src="${release.plugin.jar.path}" prefix="jcompilo/classes"/>
+            <zipfileset src="${release.dep.path}" prefix="jcompilo/classes"/>
             <zipfileset refid="plugin.fileset" prefix="jcompilo/lib" />
         </zip>
     </target>
