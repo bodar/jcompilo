@@ -1,3 +1,5 @@
+<h1><img src="https://raw.githubusercontent.com/wiki/bodar/jcompilo/logo.png" align="absmiddle"/> JCompilo</h1>
+
 A pure Java 6+ build tool with advanced compiler features including:
 
   * Extremely fast (faster than all other Java build tools by between 20%-80%)
