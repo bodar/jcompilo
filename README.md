@@ -1,4 +1,4 @@
-<h1><img src="https://raw.githubusercontent.com/wiki/bodar/jcompilo/logo.png" align="middle"/> JCompilo</h1>
+<h1><img src="https://raw.githubusercontent.com/wiki/bodar/jcompilo/logo.png" align="bottom"/> JCompilo</h1>
 
 A pure Java 6+ build tool with advanced compiler features including:
 
