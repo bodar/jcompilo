@@ -7,5 +7,6 @@ build/artifacts
 lib/build
 lib/runtime
 lib/optional
-example/lib/jcompilo.jar
+example/lib
+example/build/artifacts
 
