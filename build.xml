@@ -31,7 +31,7 @@
     <import file="${build}/macros.xml"/>
     <import file="${build}/shavenmaven.xml"/>
 
-    <requires java.version="1\.[678]"/>
+    <requires java.version="1\.[8]"/>
 
     <path id="all.dependancies">
         <fileset dir="${build.dependencies.dir}" includes="**/*.jar"/>
@@ -46,7 +46,7 @@
     </path>
 
     <target name="update">
-        <install version="90"/>
+        <install version="2.3"/>
         <parallel>
             <update dependencies="build/build.dependencies"
                     directory="${build.dependencies.dir}"/>

@@ -15,14 +15,32 @@
     </target>
     -->
 
+    <macrodef name="unpack">
+        <attribute name="input"/>
+        <attribute name="output"/>
+
+        <sequential>
+            <exec executable="unpack200" failonerror="true">
+                <arg value="@{input}"/>
+                <arg value="@{output}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <macrodef name="install">
         <attribute name="version"/>
         <attribute name="directory" default="lib"/>
+        <attribute name="repo" default="repo.bodar.com"/>
+        <attribute name="group" default="com/googlecode/shavenmaven"/>
+        <attribute name="artifact" default="shavenmaven"/>
+        <attribute name="extension" default="pack.gz"/>
 
         <sequential>
             <mkdir dir="@{directory}"/>
-            <get src="http://shavenmaven.googlecode.com/files/shavenmaven-@{version}.jar"
-                 dest="@{directory}/shavenmaven.jar" usetimestamp="true"/>
+            <get src="http://@{repo}/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.@{extension}"
+                 dest="@{directory}/@{artifact}.@{extension}" usetimestamp="true"/>
+            <unpack input="@{directory}/@{artifact}.@{extension}" output="@{directory}/@{artifact}.jar"/>
+            <delete file="@{directory}/@{artifact}.@{extension}"/>
         </sequential>
     </macrodef>
 
@@ -30,7 +48,7 @@
         <attribute name="dependencies"/>
         <attribute name="directory"/>
         <attribute name="shavenmaven.jar" default="lib/shavenmaven.jar"/>
-        <attribute name="default.repository" default="http://uk.maven.org/maven2/"/>
+        <attribute name="default.repository" default="http://repo1.maven.org/maven2/"/>
 
         <sequential>
             <mkdir dir="@{directory}"/>
