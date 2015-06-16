@@ -30,7 +30,6 @@ import static com.googlecode.totallylazy.Functions.and;
 import static com.googlecode.totallylazy.Predicates.and;
 import static com.googlecode.totallylazy.Predicates.not;
 import static com.googlecode.totallylazy.Predicates.or;
-import static com.googlecode.totallylazy.Runnables.VOID;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Sequences.transpose;
 import static com.googlecode.totallylazy.Strings.endsWith;
@@ -131,12 +130,12 @@ public class Compiler {
     }
 
     public boolean compile(final Inputs inputs, final Outputs raw) throws Exception {
-        return using(backgroundOutputs(env, decorate(resourceHandlers, raw)), new Function1<Outputs, Boolean>() {
+        return using(backgroundOutputs(env, decorate(resourceHandlers, raw)), new Function<Outputs, Boolean>() {
             @Override
             public Boolean call(final Outputs outputs) throws Exception {
                 final Map<Processor, MemoryStore> partitions = partition(inputs);
 
-                return sequence(processors).mapConcurrently(new Function1<Processor, Boolean>() {
+                return sequence(processors).mapConcurrently(new Function<Processor, Boolean>() {
                     @Override
                     public Boolean call(Processor processor) throws Exception {
                         Inputs matched = partitions.get(processor);

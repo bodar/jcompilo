@@ -62,7 +62,7 @@ public class CompilerTest {
     }
 
     public static boolean jarContains(File jar, final String name) throws FileNotFoundException {
-        return using(new ZipInputStream(new FileInputStream(jar)), new Function1<ZipInputStream, Boolean>() {
+        return using(new ZipInputStream(new FileInputStream(jar)), new Function<ZipInputStream, Boolean>() {
             @Override
             public Boolean call(ZipInputStream zipInputStream) throws Exception {
                 return Zip.entries(zipInputStream).exists(where(name(), Predicates.is(name)));
@@ -70,8 +70,8 @@ public class CompilerTest {
         });
     }
 
-    public static Function1<ZipEntry, String> name() {
-        return new Function1<ZipEntry, String>() {
+    public static Function<ZipEntry, String> name() {
+        return new Function<ZipEntry, String>() {
             @Override
             public String call(ZipEntry zipEntry) throws Exception {
                 return zipEntry.getName();
