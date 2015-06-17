@@ -72,7 +72,6 @@ public class Tests implements Processor {
                 environment.out().printf("Running %s tests classes on %s threads%n", tests.size(), numberOfThreads);
                 List<String> arguments = cons(javaProcess(), debug().join(sequence("-cp", dependencies.cons(testJar).cons(jarFile(getClass())).toString(pathSeparator),
                         "com.googlecode.jcompilo.tests.junit.TestExecutor", String.valueOf(numberOfThreads), reportsDirectory.toString()))).toList();
-                System.out.println("arguments = " + arguments);
                 arguments.addAll(sequence(tests).toList());
                 Process process = Processes.execute(arguments, environment.workingDirectory());
                 int exitCode = process.waitFor();

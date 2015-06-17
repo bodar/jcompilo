@@ -2,8 +2,7 @@ package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.ResourceHandler;
-import com.googlecode.totallylazy.Debug;
-import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.collections.PersistentList;
@@ -60,7 +59,7 @@ public class AsmResourceHandler implements ResourceHandler {
 
         final ClassNode classNode = Asm.classNode(resource.bytes());
 
-        Sequence<ClassNode> classNodes = Asm.methods(classNode).flatMap(new Mapper<MethodNode, Sequence<ClassNode>>() {
+        Sequence<ClassNode> classNodes = Asm.methods(classNode).flatMap(new Function1<MethodNode, Sequence<ClassNode>>() {
             @Override
             public Sequence<ClassNode> call(final MethodNode method) throws Exception {
                 return sequence(processors).
@@ -74,8 +73,8 @@ public class AsmResourceHandler implements ResourceHandler {
         return classNodes.map(asResource(resource.modified()));
     }
 
-    private Mapper<ClassNode, Resource> asResource(final Date modified) {
-        return new Mapper<ClassNode, Resource>() {
+    private Function1<ClassNode, Resource> asResource(final Date modified) {
+        return new Function1<ClassNode, Resource>() {
             @Override
             public Resource call(final ClassNode node) throws Exception {
                 ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -85,8 +84,8 @@ public class AsmResourceHandler implements ResourceHandler {
         };
     }
 
-    private static Mapper<Pair<Type, AsmMethodHandler>, Sequence<ClassNode>> processPair(final MethodNode method, final ClassNode classNode) {
-        return new Mapper<Pair<Type, AsmMethodHandler>, Sequence<ClassNode>>() {
+    private static Function1<Pair<Type, AsmMethodHandler>, Sequence<ClassNode>> processPair(final MethodNode method, final ClassNode classNode) {
+        return new Function1<Pair<Type, AsmMethodHandler>, Sequence<ClassNode>>() {
             @Override
             public Sequence<ClassNode> call(final Pair<Type, AsmMethodHandler> pair) throws Exception {
                 method.invisibleAnnotations.remove(annotations(method).find(annotation(pair.first())).get());

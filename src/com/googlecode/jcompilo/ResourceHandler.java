@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Predicate;
 import com.googlecode.totallylazy.Sequence;
 
@@ -25,8 +25,8 @@ public interface ResourceHandler {
     }
 
     class functions {
-        public static Mapper<ResourceHandler, Sequence<Resource>> matchAndHandle(final Resource resource) {
-            return new Mapper<ResourceHandler, Sequence<Resource>>() {
+        public static Function1<ResourceHandler, Sequence<Resource>> matchAndHandle(final Resource resource) {
+            return new Function1<ResourceHandler, Sequence<Resource>>() {
                 @Override
                 public Sequence<Resource> call(final ResourceHandler handler) throws Exception {
                     if(handler.matches(resource.name())) return handler.handle(resource);

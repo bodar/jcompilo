@@ -2,15 +2,15 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Bytes;
-import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Function1;
 
 import java.io.InputStream;
 import java.io.Writer;
 import java.util.Properties;
 
 public class MoveToTL {
-    public static Mapper<InputStream, byte[]> read() {
-        return new Mapper<InputStream, byte[]>() {
+    public static Function1<InputStream, byte[]> read() {
+        return new Function1<InputStream, byte[]>() {
             @Override
             public byte[] call(InputStream inputStream) throws Exception {
                 return Bytes.bytes(inputStream);

@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resources;
-import com.googlecode.totallylazy.Mapper;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.UnaryFunction;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
@@ -18,7 +18,7 @@ public class AsmReflector {
     }
 
     public Sequence<MethodNode> allMethods(final String className) {
-        return allClasses(className).flatMap(new Mapper<ClassNode, Sequence<MethodNode>>() {
+        return allClasses(className).flatMap(new Function1<ClassNode, Sequence<MethodNode>>() {
             @Override
             public Sequence<MethodNode> call(final ClassNode node) throws Exception {
                 return Asm.methods(node);
@@ -40,8 +40,8 @@ public class AsmReflector {
                 map(classNode());
     }
 
-    public final Mapper<String, ClassNode> classNode() {
-        return new Mapper<String, ClassNode>() {
+    public final Function1<String, ClassNode> classNode() {
+        return new Function1<String, ClassNode>() {
             @Override
             public ClassNode call(final String s) throws Exception {
                 return classNode(s);
