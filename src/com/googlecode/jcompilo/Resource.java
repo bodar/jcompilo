@@ -37,12 +37,7 @@ public interface Resource {
 
     class functions {
         public static Function1<Resource, byte[]> bytes() {
-            return new Function1<Resource, byte[]>() {
-                @Override
-                public byte[] call(Resource resource) throws Exception {
-                    return resource.bytes();
-                }
-            };
+            return resource -> resource.bytes();
         }
     }
 

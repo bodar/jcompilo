@@ -176,29 +176,14 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     public static Callable<Boolean> compile(final Build build) {
-        return new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return build.compile();
-            }
-        };
+        return () -> build.compile();
     }
 
     public static Callable<Boolean> test(final Build build) {
-        return new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return build.test();
-            }
-        };
+        return () -> build.test();
     }
 
     public static Callable<Boolean> Package(final Build build) {
-        return new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return build.Package();
-            }
-        };
+        return () -> build.Package();
     }
 }

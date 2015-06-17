@@ -25,17 +25,14 @@ public class ConstantPoolMapper {
     }
 
     public ConstantPoolMapper process(Sources sources, Destination destination) {
-        return using(sources, destination, new CurriedFunction2<Sources, Destination, ConstantPoolMapper>() {
-            @Override
-            public ConstantPoolMapper call(Sources sources, final Destination destination) throws Exception {
-                for (Sources.Source source : sources.sources()) {
-                    OutputStream outputStream = destination.destination(mapper.call(source.name), source.modified);
-                    if (source.name.endsWith(".class"))
-                        using(source.input, outputStream, functions.process(ConstantPoolMapper.this));
-                    else Streams.copyAndClose(source.input, outputStream);
-                }
-                return ConstantPoolMapper.this;
+        return using(sources, destination, (sources1, destination1) -> {
+            for (Sources.Source source : sources1.sources()) {
+                OutputStream outputStream = destination1.destination(mapper.call(source.name), source.modified);
+                if (source.name.endsWith(".class"))
+                    using(source.input, outputStream, functions.process(ConstantPoolMapper.this));
+                else Streams.copyAndClose(source.input, outputStream);
             }
+            return ConstantPoolMapper.this;
         });
     }
 
@@ -88,12 +85,7 @@ public class ConstantPoolMapper {
 
     public static class functions {
         public static CurriedFunction2<InputStream, OutputStream, ConstantPoolMapper> process(final ConstantPoolMapper poolMapper) {
-            return new CurriedFunction2<InputStream, OutputStream, ConstantPoolMapper>() {
-                @Override
-                public ConstantPoolMapper call(InputStream inputStream, OutputStream outputStream) throws Exception {
-                    return poolMapper.process(inputStream, outputStream);
-                }
-            };
+            return (inputStream, outputStream) -> poolMapper.process(inputStream, outputStream);
         }
     }
 }

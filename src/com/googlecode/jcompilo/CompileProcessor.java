@@ -47,12 +47,8 @@ public class CompileProcessor implements Processor {
     }
 
     public static boolean compile(final Environment env, final Iterable<File> dependancies, Sources source, Destination destination) throws Exception {
-        return using(source, destination, new CurriedFunction2<Sources, Destination, Boolean>() {
-            @Override
-            public Boolean call(Sources source, Destination destination) throws Exception {
-                return compile(env, DEFAULT_OPTIONS, JCompiler.DEFAULT_COMPILER, dependancies, Option.<DiagnosticListener<JavaFileObject>>none()).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
-            }
-        });
+        return using(source, destination, (source1, destination1) ->
+                compile(env, DEFAULT_OPTIONS, JCompiler.DEFAULT_COMPILER, dependancies, Option.<DiagnosticListener<JavaFileObject>>none()).process(Inputs.constructors.inputs(source1), Outputs.constructors.output(destination1)));
     }
 
     @Override

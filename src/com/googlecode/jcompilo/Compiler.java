@@ -135,12 +135,9 @@ public class Compiler {
             public Boolean call(final Outputs outputs) throws Exception {
                 final Map<Processor, MemoryStore> partitions = partition(inputs);
 
-                return sequence(processors).mapConcurrently(new Function1<Processor, Boolean>() {
-                    @Override
-                    public Boolean call(Processor processor) throws Exception {
-                        Inputs matched = partitions.get(processor);
-                        return matched.isEmpty() || processor.process(matched, outputs);
-                    }
+                return sequence(processors).mapConcurrently(processor -> {
+                    Inputs matched = partitions.get(processor);
+                    return matched.isEmpty() || processor.process(matched, outputs);
                 }).reduce(and);
             }
         });

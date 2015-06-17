@@ -43,12 +43,9 @@ public class BackgroundDestination implements Destination {
     }
 
     private Callable<Void> toDestination(final String name, final Date modified, final byte[] value) {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Closeables.using(destination.destination(name, modified), Bytes.write(value));
-                return Runnables.VOID;
-            }
+        return () -> {
+            Closeables.using(destination.destination(name, modified), Bytes.write(value));
+            return Runnables.VOID;
         };
     }
 

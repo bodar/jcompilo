@@ -27,12 +27,7 @@ public class SourceFileObject extends SimpleJavaFileObject {
     }
 
     public static Function1<Resource, JavaFileObject> sourceFileObject() {
-        return new Function1<Resource, JavaFileObject>() {
-            @Override
-            public JavaFileObject call(final Resource pair) throws Exception {
-                return sourceFileObject(pair);
-            }
-        };
+        return pair -> sourceFileObject(pair);
     }
 
     @Override

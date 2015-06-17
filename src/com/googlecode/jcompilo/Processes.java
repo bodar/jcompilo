@@ -33,12 +33,8 @@ public class Processes {
     }
 
     public static Process execute(String command, File workingDirectory) throws IOException {
-        List<String> arguments = splitter.findMatches(command).map(new Function1<MatchResult, String>() {
-            @Override
-            public String call(MatchResult matchResult) throws Exception {
-                return matchResult.group(1).replaceAll("\"", "");
-            }
-        }).toList();
+        List<String> arguments = splitter.findMatches(command).map(matchResult ->
+                matchResult.group(1).replaceAll("\"", "")).toList();
         return execute(arguments, workingDirectory);
     }
 

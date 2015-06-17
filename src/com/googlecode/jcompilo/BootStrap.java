@@ -94,14 +94,11 @@ public class BootStrap {
     }
 
     private boolean call(List<String> targets, final Build build) {
-        return sequence(targets.isEmpty() ? one("build") : targets).map(new Function1<String, Boolean>() {
-            @Override
-            public Boolean call(String target) throws Exception {
-                Option<Method> method = sequence(build.getClass().getMethods()).
-                        find(targets().and(where(methodName(), is(target.toLowerCase()))));
-                if(method.isEmpty()) return false;
-                return Methods.invoke(method.get(), build);
-            }
+        return sequence(targets.isEmpty() ? one("build") : targets).map(target -> {
+            Option<Method> method = sequence(build.getClass().getMethods()).
+                    find(targets().and(where(methodName(), is(target.toLowerCase()))));
+            if(method.isEmpty()) return false;
+            return Methods.invoke(method.get(), build);
         }).reduce(and);
     }
 
@@ -127,12 +124,8 @@ public class BootStrap {
         if (dependencies.isEmpty()) return;
         env.out().printf("update:%n");
         env.out().prefix("      [lib] ");
-        dependencies.mapConcurrently(new Function1<File, Boolean>() {
-            @Override
-            public Boolean call(File file) throws Exception {
-                return load(file, env.out()).update(directory(libDir, file.getName().replace(".dependencies", "")));
-            }
-        }).realise();
+        dependencies.mapConcurrently(file ->
+                load(file, env.out()).update(directory(libDir, file.getName().replace(".dependencies", "")))).realise();
         env.out().clearPrefix();
     }
 
@@ -147,21 +140,18 @@ public class BootStrap {
 
     public Class<?> findBuildClass(final Option<File> buildFile) throws Exception {
         update();
-        return buildFile.map(new Function1<File, Class<?>>() {
-            @Override
-            public Class<?> call(File buildFile) throws Exception {
-                String name = relativePath(env.workingDirectory(), buildFile);
+        return buildFile.<Class<?>>map(buildFile1 -> {
+            String name = relativePath(env.workingDirectory(), buildFile1);
 
-                Sequence<File> libs = libs();
-                final MemoryStore compiledBuild = MemoryStore.memoryStore();
-                compile(env, libs,
-                        fileSource(buildFile, name),
-                        compiledBuild);
+            Sequence<File> libs = libs();
+            final MemoryStore compiledBuild = MemoryStore.memoryStore();
+            compile(env, libs,
+                    fileSource(buildFile1, name),
+                    compiledBuild);
 
-                ClassLoader loader = new ByteClassLoader(Maps.mapValues(compiledBuild.data(), bytes()), FileUrls.urls(libs));
-                return loader.loadClass(className(name));
+            ClassLoader loader = new ByteClassLoader(Maps.mapValues(compiledBuild.data(), bytes()), FileUrls.urls(libs));
+            return loader.loadClass(className(name));
 
-            }
         }).getOrElse(AutoBuild.class);
     }
 

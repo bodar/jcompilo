@@ -28,12 +28,7 @@ public class BackgroundOutputs implements Outputs, Closeable {
 
     @Override
     public void put(final Resource resource) {
-        service.execute(new Runnable() {
-            @Override
-            public void run() {
-                outputs.put(resource);
-            }
-        });
+        service.execute(() -> outputs.put(resource));
     }
 
     public static void close(ExecutorService service1) {

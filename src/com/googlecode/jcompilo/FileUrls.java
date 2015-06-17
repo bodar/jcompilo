@@ -16,11 +16,6 @@ public class FileUrls {
     }
 
     public static Function1<File, URL> asUrl() {
-        return new Function1<File, URL>() {
-            @Override
-            public URL call(File file) throws Exception {
-                return file.toURI().toURL();
-            }
-        };
+        return file -> file.toURI().toURL();
     }
 }
