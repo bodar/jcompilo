@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Callable1;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.totallylazy.regex.Regex;
 
@@ -33,7 +33,7 @@ public class Processes {
     }
 
     public static Process execute(String command, File workingDirectory) throws IOException {
-        List<String> arguments = splitter.findMatches(command).map(new Callable1<MatchResult, String>() {
+        List<String> arguments = splitter.findMatches(command).map(new Function1<MatchResult, String>() {
             @Override
             public String call(MatchResult matchResult) throws Exception {
                 return matchResult.group(1).replaceAll("\"", "");

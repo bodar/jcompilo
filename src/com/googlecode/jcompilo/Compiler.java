@@ -109,7 +109,7 @@ public class Compiler {
 
     public boolean compile(final File sourceDirectory, final File destination) throws Exception {
         Sources source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(not(isFile().and(modifiedMatches(sourceDirectory, destination)))).realise());
-        return source.sources().isEmpty() || using(source, backgroundDestination(destination(destination)), new Function2<Sources, Destination, Boolean>() {
+        return source.sources().isEmpty() || using(source, backgroundDestination(destination(destination)), new Curried2<Sources, Destination, Boolean>() {
             public Boolean call(final Sources source, Destination destination) throws Exception {
                 return compile(memoryStore(source), output(destination));
             }

@@ -3,7 +3,7 @@ package com.googlecode.jcompilo;
 import com.googlecode.jcompilo.tool.JCompiler;
 import com.googlecode.totallylazy.Callables;
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.Function2;
+import com.googlecode.totallylazy.Curried2;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sources;
@@ -19,7 +19,6 @@ import static com.googlecode.jcompilo.CompileOption.Implicit;
 import static com.googlecode.jcompilo.CompileOption.Implicit.None;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class CompileProcessor implements Processor {
     @Deprecated
@@ -48,7 +47,7 @@ public class CompileProcessor implements Processor {
     }
 
     public static boolean compile(final Environment env, final Iterable<File> dependancies, Sources source, Destination destination) throws Exception {
-        return using(source, destination, new Function2<Sources, Destination, Boolean>() {
+        return using(source, destination, new Curried2<Sources, Destination, Boolean>() {
             @Override
             public Boolean call(Sources source, Destination destination) throws Exception {
                 return compile(env, DEFAULT_OPTIONS, JCompiler.DEFAULT_COMPILER, dependancies, Option.<DiagnosticListener<JavaFileObject>>none()).process(Inputs.constructors.inputs(source), Outputs.constructors.output(destination));
