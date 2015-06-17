@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Function;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 
 import java.io.File;
@@ -15,8 +15,8 @@ public class FileUrls {
         return jars.map(asUrl());
     }
 
-    public static Function<File, URL> asUrl() {
-        return new Function<File, URL>() {
+    public static Function1<File, URL> asUrl() {
+        return new Function1<File, URL>() {
             @Override
             public URL call(File file) throws Exception {
                 return file.toURI().toURL();

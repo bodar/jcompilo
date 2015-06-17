@@ -130,12 +130,12 @@ public class Compiler {
     }
 
     public boolean compile(final Inputs inputs, final Outputs raw) throws Exception {
-        return using(backgroundOutputs(env, decorate(resourceHandlers, raw)), new Function<Outputs, Boolean>() {
+        return using(backgroundOutputs(env, decorate(resourceHandlers, raw)), new Function1<Outputs, Boolean>() {
             @Override
             public Boolean call(final Outputs outputs) throws Exception {
                 final Map<Processor, MemoryStore> partitions = partition(inputs);
 
-                return sequence(processors).mapConcurrently(new Function<Processor, Boolean>() {
+                return sequence(processors).mapConcurrently(new Function1<Processor, Boolean>() {
                     @Override
                     public Boolean call(Processor processor) throws Exception {
                         Inputs matched = partitions.get(processor);

@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Function;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Lazy;
 import com.googlecode.totallylazy.Strings;
 
@@ -26,8 +26,8 @@ public class SourceFileObject extends SimpleJavaFileObject {
         return new SourceFileObject(resource);
     }
 
-    public static Function<Resource, JavaFileObject> sourceFileObject() {
-        return new Function<Resource, JavaFileObject>() {
+    public static Function1<Resource, JavaFileObject> sourceFileObject() {
+        return new Function1<Resource, JavaFileObject>() {
             @Override
             public JavaFileObject call(final Resource pair) throws Exception {
                 return sourceFileObject(pair);

@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo.convention;
 
-import com.googlecode.totallylazy.Function;
+import com.googlecode.totallylazy.Function1;
 
 import java.io.File;
 
@@ -33,7 +33,7 @@ public interface ReleaseFile {
     }
 
     class functions {
-        public static Function<ReleaseFile, File> file = new Function<ReleaseFile, File>() {
+        public static Function1<ReleaseFile, File> file = new Function1<ReleaseFile, File>() {
             @Override
             public File call(ReleaseFile releaseFile) throws Exception {
                 return releaseFile.file();

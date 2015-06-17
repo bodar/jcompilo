@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.Bytes;
-import com.googlecode.totallylazy.Function;
+import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Uri;
 
 import java.io.File;
@@ -36,8 +36,8 @@ public interface Resource {
     }
 
     class functions {
-        public static Function<Resource, byte[]> bytes() {
-            return new Function<Resource, byte[]>() {
+        public static Function1<Resource, byte[]> bytes() {
+            return new Function1<Resource, byte[]>() {
                 @Override
                 public byte[] call(Resource resource) throws Exception {
                     return resource.bytes();

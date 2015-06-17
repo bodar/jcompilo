@@ -94,7 +94,7 @@ public class BootStrap {
     }
 
     private boolean call(List<String> targets, final Build build) {
-        return sequence(targets.isEmpty() ? one("build") : targets).map(new Function<String, Boolean>() {
+        return sequence(targets.isEmpty() ? one("build") : targets).map(new Function1<String, Boolean>() {
             @Override
             public Boolean call(String target) throws Exception {
                 Option<Method> method = sequence(build.getClass().getMethods()).
@@ -127,7 +127,7 @@ public class BootStrap {
         if (dependencies.isEmpty()) return;
         env.out().printf("update:%n");
         env.out().prefix("      [lib] ");
-        dependencies.mapConcurrently(new Function<File, Boolean>() {
+        dependencies.mapConcurrently(new Function1<File, Boolean>() {
             @Override
             public Boolean call(File file) throws Exception {
                 return load(file, env.out()).update(directory(libDir, file.getName().replace(".dependencies", "")));
@@ -147,7 +147,7 @@ public class BootStrap {
 
     public Class<?> findBuildClass(final Option<File> buildFile) throws Exception {
         update();
-        return buildFile.map(new Function<File, Class<?>>() {
+        return buildFile.map(new Function1<File, Class<?>>() {
             @Override
             public Class<?> call(File buildFile) throws Exception {
                 String name = relativePath(env.workingDirectory(), buildFile);
