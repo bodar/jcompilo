@@ -2,7 +2,7 @@ package com.googlecode.jcompilo.bytecode;
 
 import com.googlecode.totallylazy.Callers;
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.Curried2;
+import com.googlecode.totallylazy.CurriedFunction2;
 import com.googlecode.totallylazy.Sources;
 import com.googlecode.totallylazy.Streams;
 import com.googlecode.totallylazy.Unary;
@@ -25,7 +25,7 @@ public class ConstantPoolMapper {
     }
 
     public ConstantPoolMapper process(Sources sources, Destination destination) {
-        return using(sources, destination, new Curried2<Sources, Destination, ConstantPoolMapper>() {
+        return using(sources, destination, new CurriedFunction2<Sources, Destination, ConstantPoolMapper>() {
             @Override
             public ConstantPoolMapper call(Sources sources, final Destination destination) throws Exception {
                 for (Sources.Source source : sources.sources()) {
@@ -87,8 +87,8 @@ public class ConstantPoolMapper {
     }
 
     public static class functions {
-        public static Curried2<InputStream, OutputStream, ConstantPoolMapper> process(final ConstantPoolMapper poolMapper) {
-            return new Curried2<InputStream, OutputStream, ConstantPoolMapper>() {
+        public static CurriedFunction2<InputStream, OutputStream, ConstantPoolMapper> process(final ConstantPoolMapper poolMapper) {
+            return new CurriedFunction2<InputStream, OutputStream, ConstantPoolMapper>() {
                 @Override
                 public ConstantPoolMapper call(InputStream inputStream, OutputStream outputStream) throws Exception {
                     return poolMapper.process(inputStream, outputStream);
