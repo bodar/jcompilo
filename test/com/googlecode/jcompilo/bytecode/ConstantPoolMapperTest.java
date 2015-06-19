@@ -15,12 +15,7 @@ public class ConstantPoolMapperTest {
     @Test
     public void supportsRenamingAClass() throws Exception {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        new ConstantPoolMapper(new UnaryFunction<String>() {
-            @Override
-            public String call(String value) throws Exception {
-                return value.replace("Dan", "Bob");
-            }
-        }).process(inputStream(Dan.class), output);
+        new ConstantPoolMapper(value -> value.replace("Dan", "Bob")).process(inputStream(Dan.class), output);
 
         byte[] originalBob = bytes(Bob.class);
         byte[] newBob = output.toByteArray();

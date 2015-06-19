@@ -31,22 +31,12 @@ public class AsmReflector {
         return Asm.<String>seq(classNode.interfaces).
                 cons(classNode.superName).
                 filter(notNullValue()).
-                map(new UnaryFunction<String>() {
-                    @Override
-                    public String call(final String s) throws Exception {
-                        return s.replace('/', '.');
-                    }
-                }).
+                map(s -> s.replace('/', '.')).
                 map(classNode());
     }
 
     public final Function1<String, ClassNode> classNode() {
-        return new Function1<String, ClassNode>() {
-            @Override
-            public ClassNode call(final String s) throws Exception {
-                return classNode(s);
-            }
-        };
+        return AsmReflector.this::classNode;
     }
 
     public ClassNode classNode(final String name) {

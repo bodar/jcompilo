@@ -4,7 +4,6 @@ import com.googlecode.jcompilo.ResourceHandler;
 import com.googlecode.totallylazy.UnaryFunction;
 
 import javax.tools.FileObject;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import java.io.File;

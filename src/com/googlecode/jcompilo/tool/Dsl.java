@@ -23,13 +23,8 @@ public class Dsl {
     }
 
     public static UnaryFunction<JCompiler> tailrec(final String className) {
-        return new UnaryFunction<JCompiler>() {
-            @Override
-            public JCompiler call(JCompiler compiler) throws Exception {
-                return new JCompiler(compiler.compiler(),
-                        compiler.resourceHandlers().append(asmResourceHandler().add(typeFor(className), tailRecHandler())));
-            }
-        };
+        return compiler -> new JCompiler(compiler.compiler(),
+                compiler.resourceHandlers().append(asmResourceHandler().add(typeFor(className), tailRecHandler())));
     }
 
 }
