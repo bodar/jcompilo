@@ -85,7 +85,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public Iterable<CompileOption> compileOptions() {
-        return sequence(CompileOption.Debug);
+        return sequence(CompileOption.Debug, CompileOption.IgnoreSymbolFile);
     }
 
     @Override
