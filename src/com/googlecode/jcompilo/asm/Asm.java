@@ -254,12 +254,7 @@ public final class Asm {
         CheckClassAdapter.verify(reader, false, new PrintWriter(System.out));
     }
 
-    public static Block<ClassNode> verify = new Block<ClassNode>() {
-        @Override
-        protected void execute(ClassNode classNode) throws Exception {
-            verify(classNode);
-        }
-    };
+    public static Block<ClassNode> verify = Asm::verify;
 
     public static <T> Function1<Field, T> value(final Object instance) {
         return field -> cast(field.get(instance));

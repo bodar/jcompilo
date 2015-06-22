@@ -25,12 +25,7 @@ public interface Outputs {
 
     class functions {
         public static Block<Resource> put(final Outputs outputs) {
-            return new Block<Resource>() {
-                @Override
-                protected void execute(final Resource resource) throws Exception {
-                    outputs.put(resource);
-                }
-            };
+            return outputs::put;
         }
     }
 }

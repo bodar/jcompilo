@@ -26,11 +26,6 @@ public class MoveToTL {
     }
 
     public static Block<Writer> write(final Properties properties) {
-        return new Block<Writer>() {
-            @Override
-            protected void execute(Writer writer) throws Exception {
-                properties.store(writer, "");
-            }
-        };
+        return writer -> properties.store(writer, "");
     }
 }

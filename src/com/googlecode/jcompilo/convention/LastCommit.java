@@ -23,12 +23,7 @@ public class LastCommit {
         final Properties properties = new Properties();
         for (Pair<String, String> command : commitCommands) {
             if (new File(root, command.first()).exists()) {
-                using(Processes.inputStream(command.second(), root), new Block<InputStream>() {
-                    @Override
-                    protected void execute(InputStream inputStream) throws Exception {
-                        properties.load(inputStream);
-                    }
-                });
+                using(Processes.inputStream(command.second(), root), (Block<InputStream>) properties::load);
             }
         }
         return properties;
