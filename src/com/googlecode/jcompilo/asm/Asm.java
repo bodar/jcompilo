@@ -142,16 +142,12 @@ public final class Asm {
         return instructions(insnList).map(toString).toString("\n");
     }
 
-    public static Function1<AbstractInsnNode, String> toString = new Function1<AbstractInsnNode, String>() {
-        @Override
-        public String call(final AbstractInsnNode node) throws Exception {
-            return Asm.toString(node);
-        }
-    };
+    public static Function1<AbstractInsnNode, String> toString = Asm::toString;
 
     public static String toString(AbstractInsnNode node) {
-        if(node == null) return "";
-        return new multi() {}.<String>methodOption(node).
+        if (node == null) return "";
+        return new multi() {
+        }.<String>methodOption(node).
                 getOrElse(Asm.toString(node.getOpcode()) + "(" + node.getClass().getSimpleName() + ")");
     }
 
@@ -208,7 +204,7 @@ public final class Asm {
         return classNode;
     }
 
-    public static MethodNode constructor(final Type superType, final String name, final Sequence<Pair<String,Type>> types) {
+    public static MethodNode constructor(final Type superType, final String name, final Sequence<Pair<String, Type>> types) {
         MethodNode constructor = new MethodNode(ACC_PUBLIC, CONSTRUCTOR, argumentSignature(types), null, new String[0]);
         InsnList insnList = new InsnList();
         insnList.add(new VarInsnNode(ALOAD, 0));
@@ -266,12 +262,7 @@ public final class Asm {
     };
 
     public static <T> Function1<Field, T> value(final Object instance) {
-        return new Function1<Field, T>() {
-            @Override
-            public T call(final Field field) throws Exception {
-                return cast(field.get(instance));
-            }
-        };
+        return field -> cast(field.get(instance));
     }
 
     public static class predicates {
@@ -285,52 +276,12 @@ public final class Asm {
     }
 
     public static class functions {
-        public static final Function1<AbstractInsnNode, Integer> opcode = new Function1<AbstractInsnNode, Integer>() {
-            @Override
-            public Integer call(AbstractInsnNode abstractInsnNode) throws Exception {
-                return abstractInsnNode.getOpcode();
-            }
-        };
-
-        public static final Function1<AnnotationNode, String> desc = new Function1<AnnotationNode, String>() {
-            @Override
-            public String call(AnnotationNode annotationNode) throws Exception {
-                return annotationNode.desc;
-            }
-        };
-
-        public static final Function1<AbstractInsnNode, AbstractInsnNode> nextInstruction = new Function1<AbstractInsnNode, AbstractInsnNode>() {
-            @Override
-            public AbstractInsnNode call(AbstractInsnNode insnNode) throws Exception {
-                return insnNode.getNext();
-            }
-        };
-
-        public static final Function1<MethodInsnNode, String> owner = new Function1<MethodInsnNode, String>() {
-            @Override
-            public String call(MethodInsnNode methodInsnNode) throws Exception {
-                return methodInsnNode.owner;
-            }
-        };
-        public static final Function1<MethodInsnNode, String> name = new Function1<MethodInsnNode, String>() {
-            @Override
-            public String call(MethodInsnNode methodInsnNode) throws Exception {
-                return methodInsnNode.name;
-            }
-        };
-        public static final Function1<LocalVariableNode, Type> localVariableType = new Function1<LocalVariableNode, Type>() {
-            @Override
-            public Type call(LocalVariableNode localVariableNode) throws Exception {
-                return Type.getType(localVariableNode.desc);
-            }
-        };
-
-        public static final Function1<MethodNode, Integer> access = new Function1<MethodNode, Integer>() {
-            @Override
-            public Integer call(final MethodNode node) throws Exception {
-                return node.access;
-            }
-        };
+        public static final Function1<AbstractInsnNode, Integer> opcode = AbstractInsnNode::getOpcode;
+        public static final Function1<AnnotationNode, String> desc = annotationNode -> annotationNode.desc;
+        public static final Function1<AbstractInsnNode, AbstractInsnNode> nextInstruction = AbstractInsnNode::getNext;
+        public static final Function1<MethodInsnNode, String> owner = methodInsnNode -> methodInsnNode.owner;
+        public static final Function1<MethodInsnNode, String> name = methodInsnNode -> methodInsnNode.name;
+        public static final Function1<LocalVariableNode, Type> localVariableType = localVariableNode -> Type.getType(localVariableNode.desc);
+        public static final Function1<MethodNode, Integer> access = node -> node.access;
     }
-
 }

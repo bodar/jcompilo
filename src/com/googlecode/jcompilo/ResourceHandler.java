@@ -13,35 +13,22 @@ public interface ResourceHandler {
 
     class methods {
         public static Outputs decorate(final Iterable<ResourceHandler> resourceHandlers, final Outputs outputs) {
-            return new Outputs() {
-                @Override
-                public void put(final Resource resource) {
-                    sequence(resourceHandlers).
-                            flatMap(ResourceHandler.functions.matchAndHandle(resource)).
-                            each(functions.put(outputs));
-                }
-            };
+            return resource -> sequence(resourceHandlers).
+                    flatMap(functions.matchAndHandle(resource)).
+                    each(Outputs.functions.put(outputs));
         }
     }
 
     class functions {
         public static Function1<ResourceHandler, Sequence<Resource>> matchAndHandle(final Resource resource) {
-            return new Function1<ResourceHandler, Sequence<Resource>>() {
-                @Override
-                public Sequence<Resource> call(final ResourceHandler handler) throws Exception {
-                    if(handler.matches(resource.name())) return handler.handle(resource);
-                    return one(resource);
-                }
+            return handler -> {
+                if(handler.matches(resource.name())) return handler.handle(resource);
+                return one(resource);
             };
         }
 
         public static Predicate<ResourceHandler> matches(final Resource resource) {
-            return new Predicate<ResourceHandler>() {
-                @Override
-                public boolean matches(final ResourceHandler other) {
-                    return other.matches(resource.name());
-                }
-            };
+            return other -> other.matches(resource.name());
         }
     }
 }

@@ -18,12 +18,7 @@ public class AsmReflector {
     }
 
     public Sequence<MethodNode> allMethods(final String className) {
-        return allClasses(className).flatMap(new Function1<ClassNode, Sequence<MethodNode>>() {
-            @Override
-            public Sequence<MethodNode> call(final ClassNode node) throws Exception {
-                return Asm.methods(node);
-            }
-        });
+        return allClasses(className).flatMap(Asm::methods);
     }
 
     public Sequence<ClassNode> allClasses(final String className) {

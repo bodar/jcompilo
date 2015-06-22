@@ -59,14 +59,9 @@ public class AsmResourceHandler implements ResourceHandler {
 
         final ClassNode classNode = Asm.classNode(resource.bytes());
 
-        Sequence<ClassNode> classNodes = Asm.methods(classNode).flatMap(new Function1<MethodNode, Sequence<ClassNode>>() {
-            @Override
-            public Sequence<ClassNode> call(final MethodNode method) throws Exception {
-                return sequence(processors).
-                        filter(where(first(Type.class), hasAnnotation(method))).
-                        flatMap(processPair(method, classNode));
-            }
-        }).realise();
+        Sequence<ClassNode> classNodes = Asm.methods(classNode).flatMap(method -> sequence(processors).
+                filter(where(first(Type.class), hasAnnotation(method))).
+                flatMap(processPair(method, classNode))).realise();
 
         if (classNodes.isEmpty()) return one(resource);
 
@@ -74,23 +69,17 @@ public class AsmResourceHandler implements ResourceHandler {
     }
 
     private Function1<ClassNode, Resource> asResource(final Date modified) {
-        return new Function1<ClassNode, Resource>() {
-            @Override
-            public Resource call(final ClassNode node) throws Exception {
-                ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                node.accept(writer);
-                return resource(node.name + ".class", modified, writer.toByteArray());
-            }
+        return node -> {
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+            node.accept(writer);
+            return resource(node.name + ".class", modified, writer.toByteArray());
         };
     }
 
     private static Function1<Pair<Type, AsmMethodHandler>, Sequence<ClassNode>> processPair(final MethodNode method, final ClassNode classNode) {
-        return new Function1<Pair<Type, AsmMethodHandler>, Sequence<ClassNode>>() {
-            @Override
-            public Sequence<ClassNode> call(final Pair<Type, AsmMethodHandler> pair) throws Exception {
-                method.invisibleAnnotations.remove(annotations(method).find(annotation(pair.first())).get());
-                return pair.second().process(classNode, method);
-            }
+        return pair -> {
+            method.invisibleAnnotations.remove(annotations(method).find(annotation(pair.first())).get());
+            return pair.second().process(classNode, method);
         };
     }
 

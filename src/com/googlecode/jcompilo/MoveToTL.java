@@ -10,12 +10,7 @@ import java.util.Properties;
 
 public class MoveToTL {
     public static Function1<InputStream, byte[]> read() {
-        return new Function1<InputStream, byte[]>() {
-            @Override
-            public byte[] call(InputStream inputStream) throws Exception {
-                return Bytes.bytes(inputStream);
-            }
-        };
+        return Bytes::bytes;
     }
 
     public static String classNameForSource(String sourceFilename) {
