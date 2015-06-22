@@ -3,7 +3,7 @@ package com.googlecode.jcompilo.asm;
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.totallylazy.Block;
 import com.googlecode.totallylazy.Callables;
-import com.googlecode.totallylazy.Fields;
+import com.googlecode.totallylazy.reflection.Fields;
 import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
