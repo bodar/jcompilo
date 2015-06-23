@@ -5,8 +5,8 @@ import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.UnaryFunction;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
+import jdk.internal.org.objectweb.asm.tree.MethodNode;
 
 import static com.googlecode.totallylazy.Predicates.notNullValue;
 

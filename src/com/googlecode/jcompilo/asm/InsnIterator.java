@@ -1,8 +1,8 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.totallylazy.iterators.ReadOnlyIterator;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
+import jdk.internal.org.objectweb.asm.tree.AbstractInsnNode;
+import jdk.internal.org.objectweb.asm.tree.InsnList;
 
 import java.util.NoSuchElementException;
 

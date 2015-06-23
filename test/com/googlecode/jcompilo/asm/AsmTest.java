@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static com.googlecode.totallylazy.matchers.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.objectweb.asm.Type.getType;
+import static jdk.internal.org.objectweb.asm.Type.getType;
 
 public class AsmTest {
     @Test
