@@ -9,7 +9,6 @@ import static com.googlecode.totallylazy.Sequences.sequence;
 public abstract class CompileOption implements Value<Iterable<String>> {
     public static final CompileOption None = compileOption();
     public static final CompileOption Debug = compileOption("-g");
-    public static final CompileOption IgnoreSymbolFile = compileOption("-XDignore.symbol.file");
     public static final CompileOption UncheckedWarnings = compileOption("-Xlint:unchecked");
     public static final CompileOption WarningAsErrors = compileOption("-Werror");
     public static CompileOption Target(int version) { return compileOption("-target", version); }

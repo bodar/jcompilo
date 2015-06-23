@@ -2,9 +2,11 @@ package com.googlecode.jcompilo.convention;
 
 import com.googlecode.jcompilo.Build;
 import com.googlecode.jcompilo.CompileOption;
+import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
+import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
@@ -85,7 +87,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
 
     @Override
     public Iterable<CompileOption> compileOptions() {
-        return sequence(CompileOption.Debug, CompileOption.IgnoreSymbolFile);
+        return CompileProcessor.DEFAULT_OPTIONS;
     }
 
     @Override
