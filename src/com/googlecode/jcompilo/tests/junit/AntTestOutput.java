@@ -4,7 +4,7 @@ import com.googlecode.jcompilo.tests.LocalPrintStream;
 import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Strings;
-import com.googlecode.totallylazy.Xml;
+import com.googlecode.totallylazy.xml.Xml;
 import com.googlecode.totallylazy.time.Clock;
 import com.googlecode.totallylazy.time.Dates;
 import org.junit.runner.Description;
