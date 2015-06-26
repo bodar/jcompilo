@@ -2,10 +2,10 @@ package com.googlecode.jcompilo.bytecode;
 
 import com.googlecode.totallylazy.Callers;
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.functions.CurriedFunction2;
+import com.googlecode.totallylazy.functions.Curried2;
 import com.googlecode.totallylazy.Sources;
 import com.googlecode.totallylazy.Streams;
-import com.googlecode.totallylazy.functions.UnaryFunction;
+import com.googlecode.totallylazy.functions.Unary;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -18,9 +18,9 @@ import java.io.OutputStream;
 import static com.googlecode.totallylazy.Closeables.using;
 
 public class ConstantPoolMapper {
-    private final UnaryFunction<String> mapper;
+    private final Unary<String> mapper;
 
-    public ConstantPoolMapper(UnaryFunction<String> mapper) {
+    public ConstantPoolMapper(Unary<String> mapper) {
         this.mapper = mapper;
     }
 
@@ -84,7 +84,7 @@ public class ConstantPoolMapper {
     }
 
     public static class functions {
-        public static CurriedFunction2<InputStream, OutputStream, ConstantPoolMapper> process(final ConstantPoolMapper poolMapper) {
+        public static Curried2<InputStream, OutputStream, ConstantPoolMapper> process(final ConstantPoolMapper poolMapper) {
             return poolMapper::process;
         }
     }

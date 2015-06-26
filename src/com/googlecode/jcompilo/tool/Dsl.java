@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.tool;
 
 import com.googlecode.jcompilo.ResourceHandler;
-import com.googlecode.totallylazy.functions.UnaryFunction;
+import com.googlecode.totallylazy.functions.Unary;
 
 import static com.googlecode.jcompilo.Compiler.typeFor;
 import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;
@@ -12,17 +12,17 @@ import static com.googlecode.totallylazy.collections.PersistentList.constructors
 
 public class Dsl {
     @SafeVarargs
-    public static JCompiler compiler(UnaryFunction<JCompiler>... builders) {
+    public static JCompiler compiler(Unary<JCompiler>... builders) {
         return sequence(builders).
                 reduce(compose(JCompiler.class)).
                 apply(new JCompiler(JCompiler.DEFAULT_COMPILER, empty(ResourceHandler.class)));
     }
 
-    public static UnaryFunction<JCompiler> tailrec() {
+    public static Unary<JCompiler> tailrec() {
         return tailrec("com.googlecode.totallylazy.annotations.tailrec");
     }
 
-    public static UnaryFunction<JCompiler> tailrec(final String className) {
+    public static Unary<JCompiler> tailrec(final String className) {
         return compiler -> new JCompiler(compiler.compiler(),
                 compiler.resourceHandlers().append(asmResourceHandler().add(typeFor(className), tailRecHandler())));
     }

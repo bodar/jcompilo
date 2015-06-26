@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.tool;
 
 import com.googlecode.jcompilo.ResourceHandler;
-import com.googlecode.totallylazy.functions.UnaryFunction;
+import com.googlecode.totallylazy.functions.Unary;
 
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -49,7 +49,7 @@ public class PostProcessor extends ForwardingStandardJavaFileManager<StandardJav
         return sequence(fileManager.getJavaFileObjects(names)).map(postProcessFile);
     }
 
-    private UnaryFunction<JavaFileObject> postProcessFile = new UnaryFunction<JavaFileObject>() {
+    private Unary<JavaFileObject> postProcessFile = new Unary<JavaFileObject>() {
         @Override
         public JavaFileObject call(JavaFileObject raw) throws Exception {
             return new PostProcessedFile(fileManager, resourceHandlers, raw);

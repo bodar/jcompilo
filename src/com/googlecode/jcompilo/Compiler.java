@@ -4,7 +4,7 @@ import com.googlecode.jcompilo.asm.AsmMethodHandler;
 import com.googlecode.jcompilo.tool.JCompiler;
 import com.googlecode.totallylazy.*;
 import com.googlecode.totallylazy.collections.PersistentList;
-import com.googlecode.totallylazy.functions.CurriedFunction2;
+import com.googlecode.totallylazy.functions.Curried2;
 import com.googlecode.totallylazy.functions.Function1;
 import jdk.internal.org.objectweb.asm.Type;
 
@@ -112,7 +112,7 @@ public class Compiler {
 
     public boolean compile(final File sourceDirectory, final File destination) throws Exception {
         Sources source = fileSource(sourceDirectory, recursiveFiles(sourceDirectory).filter(not(isFile().and(modifiedMatches(sourceDirectory, destination)))).realise());
-        return source.sources().isEmpty() || using(source, backgroundDestination(destination(destination)), new CurriedFunction2<Sources, Destination, Boolean>() {
+        return source.sources().isEmpty() || using(source, backgroundDestination(destination(destination)), new Curried2<Sources, Destination, Boolean>() {
             public Boolean call(final Sources source, Destination destination) throws Exception {
                 return compile(memoryStore(source), output(destination));
             }
