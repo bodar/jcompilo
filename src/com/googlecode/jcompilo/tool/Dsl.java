@@ -7,7 +7,7 @@ import static com.googlecode.jcompilo.Compiler.typeFor;
 import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.jcompilo.tco.TailRecHandler.tailRecHandler;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.callables.Compose.compose;
+import static com.googlecode.totallylazy.functions.Compose.compose;
 import static com.googlecode.totallylazy.collections.PersistentList.constructors.empty;
 
 public class Dsl {
