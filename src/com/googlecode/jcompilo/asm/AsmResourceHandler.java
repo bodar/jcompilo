@@ -2,7 +2,7 @@ package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
 import com.googlecode.jcompilo.ResourceHandler;
-import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.functions.Function1;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.collections.PersistentList;
@@ -18,7 +18,7 @@ import java.util.Date;
 import static com.googlecode.jcompilo.Resource.constructors.resource;
 import static com.googlecode.jcompilo.asm.Asm.annotations;
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
-import static com.googlecode.totallylazy.Callables.first;
+import static com.googlecode.totallylazy.functions.Callables.first;
 import static com.googlecode.totallylazy.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;

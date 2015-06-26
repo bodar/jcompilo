@@ -29,7 +29,7 @@ import static com.googlecode.totallylazy.Files.hasSuffix;
 import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Files.relativePath;
-import static com.googlecode.totallylazy.Functions.and;
+import static com.googlecode.totallylazy.functions.Functions.and;
 import static com.googlecode.totallylazy.Lists.list;
 import static com.googlecode.totallylazy.reflection.Methods.genericParameterTypes;
 import static com.googlecode.totallylazy.reflection.Methods.methodName;

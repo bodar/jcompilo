@@ -1,9 +1,8 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.tool.JCompiler;
-import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.functions.Callables;
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.CurriedFunction2;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sources;

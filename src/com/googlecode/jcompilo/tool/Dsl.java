@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.tool;
 
 import com.googlecode.jcompilo.ResourceHandler;
-import com.googlecode.totallylazy.UnaryFunction;
+import com.googlecode.totallylazy.functions.UnaryFunction;
 
 import static com.googlecode.jcompilo.Compiler.typeFor;
 import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;

@@ -1,14 +1,13 @@
 package com.googlecode.jcompilo.bytecode;
 
 import com.googlecode.totallylazy.Bytes;
-import com.googlecode.totallylazy.UnaryFunction;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import static com.googlecode.totallylazy.Functions.identity;
+import static com.googlecode.totallylazy.functions.Functions.identity;
 import static org.junit.Assert.assertArrayEquals;
 
 public class ConstantPoolMapperTest {

@@ -1,6 +1,5 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Function1;
 import com.googlecode.totallylazy.Strings;
 import com.googlecode.totallylazy.regex.Regex;
 
@@ -8,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.regex.MatchResult;
 
 import static com.googlecode.totallylazy.Files.workingDirectory;
 import static com.googlecode.totallylazy.Lists.list;

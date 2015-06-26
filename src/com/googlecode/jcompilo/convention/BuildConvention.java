@@ -6,7 +6,6 @@ import com.googlecode.jcompilo.CompileProcessor;
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
-import com.googlecode.totallylazy.Files;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Zip;
 
@@ -26,7 +25,7 @@ import static com.googlecode.jcompilo.tests.Tests.tests;
 import static com.googlecode.totallylazy.Callers.callConcurrently;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.*;
-import static com.googlecode.totallylazy.Functions.and;
+import static com.googlecode.totallylazy.functions.Functions.and;
 import static com.googlecode.totallylazy.Option.some;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;

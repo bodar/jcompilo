@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.convention;
 
 import com.googlecode.jcompilo.Processes;
-import com.googlecode.totallylazy.Block;
+import com.googlecode.totallylazy.functions.Block;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.collections.PersistentMap;
 

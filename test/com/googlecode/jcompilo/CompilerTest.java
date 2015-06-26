@@ -1,6 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.functions.Function1;
 import org.junit.Before;
 import org.junit.Test;
 

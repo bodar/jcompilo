@@ -2,10 +2,10 @@ package com.googlecode.jcompilo.bytecode;
 
 import com.googlecode.totallylazy.Callers;
 import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.CurriedFunction2;
+import com.googlecode.totallylazy.functions.CurriedFunction2;
 import com.googlecode.totallylazy.Sources;
 import com.googlecode.totallylazy.Streams;
-import com.googlecode.totallylazy.UnaryFunction;
+import com.googlecode.totallylazy.functions.UnaryFunction;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

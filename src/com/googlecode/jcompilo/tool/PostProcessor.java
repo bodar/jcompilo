@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo.tool;
 
 import com.googlecode.jcompilo.ResourceHandler;
-import com.googlecode.totallylazy.UnaryFunction;
+import com.googlecode.totallylazy.functions.UnaryFunction;
 
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;

@@ -1,8 +1,8 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Block;
+import com.googlecode.totallylazy.functions.Block;
 import com.googlecode.totallylazy.Bytes;
-import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.functions.Function1;
 
 import java.io.InputStream;
 import java.io.Writer;

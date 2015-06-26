@@ -3,7 +3,7 @@ package com.googlecode.jcompilo;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Value;
 
-import static com.googlecode.totallylazy.Callables.toString;
+import static com.googlecode.totallylazy.functions.Callables.toString;
 import static com.googlecode.totallylazy.Sequences.sequence;
 
 public abstract class CompileOption implements Value<Iterable<String>> {

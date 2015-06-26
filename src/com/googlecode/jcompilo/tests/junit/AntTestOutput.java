@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.googlecode.totallylazy.Callables.first;
+import static com.googlecode.totallylazy.functions.Callables.first;
 import static com.googlecode.totallylazy.Files.file;
 import static com.googlecode.totallylazy.Maps.pairs;
 import static java.lang.String.format;

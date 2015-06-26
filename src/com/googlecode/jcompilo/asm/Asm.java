@@ -1,10 +1,10 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resource;
-import com.googlecode.totallylazy.Block;
-import com.googlecode.totallylazy.Callables;
+import com.googlecode.totallylazy.functions.Block;
+import com.googlecode.totallylazy.functions.Callables;
 import com.googlecode.totallylazy.reflection.Fields;
-import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.functions.Function1;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Sequences;

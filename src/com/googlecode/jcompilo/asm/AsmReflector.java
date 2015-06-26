@@ -1,9 +1,8 @@
 package com.googlecode.jcompilo.asm;
 
 import com.googlecode.jcompilo.Resources;
-import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.functions.Function1;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.UnaryFunction;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import jdk.internal.org.objectweb.asm.tree.MethodNode;
