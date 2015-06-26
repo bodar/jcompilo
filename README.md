@@ -20,6 +20,10 @@ The following shows the default folder structure for a JCompilo project. This wi
 
   * jcompilo.sh
   * Build.java (optional)
+  * build
+    * build.dependencies (optional [ShavenMaven](https://github.com/bodar/shavenmaven))
+    * runtime.dependencies (optional)
+    * optional.dependencies (optional)
   * src
     * META-INF (optional)
       * MANIFEST.MF (optional)
