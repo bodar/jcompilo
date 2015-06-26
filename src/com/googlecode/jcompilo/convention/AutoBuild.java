@@ -8,17 +8,13 @@ import com.googlecode.totallylazy.Sequence;
 
 import java.io.File;
 
-import static com.googlecode.totallylazy.Files.files;
-import static com.googlecode.totallylazy.Files.isDirectory;
-import static com.googlecode.totallylazy.Files.isFile;
+import static com.googlecode.totallylazy.Files.*;
+import static com.googlecode.totallylazy.Predicates.is;
+import static com.googlecode.totallylazy.Predicates.not;
+import static com.googlecode.totallylazy.Predicates.where;
 
 public class AutoBuild extends BuildConvention {
-    private final Lazy<File> rootPackage = new Lazy<File>() {
-        @Override
-        protected File get() throws Exception {
-            return rootPackage(srcDir());
-        }
-    };
+    private final Lazy<File> rootPackage = Lazy.lazy( () -> rootPackage(srcDir()));
     public AutoBuild() {
     }
 
@@ -40,7 +36,7 @@ public class AutoBuild extends BuildConvention {
         Sequence<File> children = files(root);
         if(children.isEmpty()) throw new JCompiloException("No source files found");
         if(!children.filter(isFile()).isEmpty()) return root;
-        Sequence<File> subPackages = children.filter(isDirectory());
+        Sequence<File> subPackages = children.filter(isDirectory()).reject(where(name(), is("META-INF")));
         if(subPackages.size() > 1) throw new JCompiloException("Unable to auto detect root package");
         return rootPackage(subPackages.head());
     }
