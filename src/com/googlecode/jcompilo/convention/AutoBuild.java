@@ -3,7 +3,7 @@ package com.googlecode.jcompilo.convention;
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.JCompiloException;
 import com.googlecode.totallylazy.Files;
-import com.googlecode.totallylazy.Lazy;
+import com.googlecode.totallylazy.functions.Lazy;
 import com.googlecode.totallylazy.Sequence;
 
 import java.io.File;
