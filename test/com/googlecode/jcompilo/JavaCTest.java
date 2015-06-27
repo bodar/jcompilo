@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 import static com.googlecode.totallylazy.Files.name;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Streams.copy;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;

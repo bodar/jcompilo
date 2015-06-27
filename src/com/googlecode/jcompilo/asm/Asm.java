@@ -37,8 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
-import static com.googlecode.totallylazy.Predicates.is;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.predicates.Predicates.is;
+import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Unchecked.cast;
 import static jdk.internal.org.objectweb.asm.Opcodes.ACC_PUBLIC;

@@ -2,11 +2,10 @@ package com.googlecode.jcompilo.tests;
 
 import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.Inputs;
-import com.googlecode.jcompilo.JCompiloException;
 import com.googlecode.jcompilo.Outputs;
 import com.googlecode.jcompilo.Processes;
 import com.googlecode.jcompilo.Processor;
-import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.predicates.Predicate;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.Streams;
 

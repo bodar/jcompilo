@@ -19,7 +19,7 @@ import static com.googlecode.jcompilo.Resource.constructors.resource;
 import static com.googlecode.jcompilo.asm.Asm.annotations;
 import static com.googlecode.jcompilo.asm.Asm.predicates.annotation;
 import static com.googlecode.totallylazy.functions.Callables.first;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.collections.PersistentList.constructors;

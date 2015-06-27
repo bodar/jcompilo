@@ -15,7 +15,7 @@ import static com.googlecode.jcompilo.Compiler.JAVA_FILES;
 import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.asFile;
 import static com.googlecode.totallylazy.Option.none;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Sources.functions.name;
 import static com.googlecode.totallylazy.Strings.split;

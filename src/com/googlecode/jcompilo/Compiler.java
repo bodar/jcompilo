@@ -6,6 +6,7 @@ import com.googlecode.totallylazy.*;
 import com.googlecode.totallylazy.collections.PersistentList;
 import com.googlecode.totallylazy.functions.Curried2;
 import com.googlecode.totallylazy.functions.Function1;
+import com.googlecode.totallylazy.predicates.Predicate;
 import jdk.internal.org.objectweb.asm.Type;
 
 import javax.tools.DiagnosticListener;
@@ -32,8 +33,8 @@ import static com.googlecode.totallylazy.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.functions.Functions.and;
-import static com.googlecode.totallylazy.Predicates.not;
-import static com.googlecode.totallylazy.Predicates.or;
+import static com.googlecode.totallylazy.predicates.Predicates.not;
+import static com.googlecode.totallylazy.predicates.Predicates.or;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.googlecode.totallylazy.Strings.endsWith;
 import static com.googlecode.totallylazy.Strings.startsWith;

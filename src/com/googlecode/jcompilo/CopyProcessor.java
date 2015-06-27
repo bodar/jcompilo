@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.predicates.Predicate;
 
 import static com.googlecode.totallylazy.Closeables.using;
 

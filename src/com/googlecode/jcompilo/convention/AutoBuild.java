@@ -9,9 +9,9 @@ import com.googlecode.totallylazy.Sequence;
 import java.io.File;
 
 import static com.googlecode.totallylazy.Files.*;
-import static com.googlecode.totallylazy.Predicates.is;
-import static com.googlecode.totallylazy.Predicates.not;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.predicates.Predicates.is;
+import static com.googlecode.totallylazy.predicates.Predicates.not;
+import static com.googlecode.totallylazy.predicates.Predicates.where;
 
 public class AutoBuild extends BuildConvention {
     private final Lazy<File> rootPackage = Lazy.lazy( () -> rootPackage(srcDir()));

@@ -7,7 +7,7 @@ import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import jdk.internal.org.objectweb.asm.tree.MethodNode;
 
-import static com.googlecode.totallylazy.Predicates.notNullValue;
+import static com.googlecode.totallylazy.predicates.Predicates.notNullValue;
 
 public class AsmReflector {
     private final Resources resources;

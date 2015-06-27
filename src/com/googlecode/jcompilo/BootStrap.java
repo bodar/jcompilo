@@ -35,11 +35,11 @@ import static com.googlecode.totallylazy.reflection.Methods.genericParameterType
 import static com.googlecode.totallylazy.reflection.Methods.methodName;
 import static com.googlecode.totallylazy.reflection.Methods.modifier;
 import static com.googlecode.totallylazy.reflection.Methods.returnType;
-import static com.googlecode.totallylazy.Predicates.and;
-import static com.googlecode.totallylazy.Predicates.classAssignableTo;
-import static com.googlecode.totallylazy.Predicates.is;
-import static com.googlecode.totallylazy.Predicates.not;
-import static com.googlecode.totallylazy.Predicates.where;
+import static com.googlecode.totallylazy.predicates.Predicates.and;
+import static com.googlecode.totallylazy.predicates.Predicates.classAssignableTo;
+import static com.googlecode.totallylazy.predicates.Predicates.is;
+import static com.googlecode.totallylazy.predicates.Predicates.not;
+import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Runnables.printLine;
 import static com.googlecode.totallylazy.Sequences.one;
 import static com.googlecode.totallylazy.Sequences.sequence;
