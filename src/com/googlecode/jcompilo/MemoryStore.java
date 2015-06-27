@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.io.Destination;
+import com.googlecode.totallylazy.io.Sources;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -2,7 +2,7 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.Bytes;
 import com.googlecode.totallylazy.Closeables;
-import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.io.Destination;
 import com.googlecode.totallylazy.Runnables;
 
 import java.io.ByteArrayOutputStream;

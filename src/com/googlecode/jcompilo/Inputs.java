@@ -1,6 +1,6 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.io.Sources;
 
 import java.util.Date;
 

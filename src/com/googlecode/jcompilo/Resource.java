@@ -2,7 +2,7 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.Bytes;
 import com.googlecode.totallylazy.functions.Function1;
-import com.googlecode.totallylazy.http.Uri;
+import com.googlecode.totallylazy.io.Uri;
 
 import java.io.File;
 import java.util.Date;

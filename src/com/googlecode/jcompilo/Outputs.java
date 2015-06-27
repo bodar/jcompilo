@@ -1,7 +1,7 @@
 package com.googlecode.jcompilo;
 
 import com.googlecode.totallylazy.functions.Block;
-import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.io.Destination;
 
 import java.io.IOException;
 

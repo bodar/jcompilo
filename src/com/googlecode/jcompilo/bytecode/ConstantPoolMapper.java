@@ -1,9 +1,9 @@
 package com.googlecode.jcompilo.bytecode;
 
 import com.googlecode.totallylazy.Callers;
-import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.io.Destination;
 import com.googlecode.totallylazy.functions.Curried2;
-import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.io.Sources;
 import com.googlecode.totallylazy.Streams;
 import com.googlecode.totallylazy.functions.Unary;
 

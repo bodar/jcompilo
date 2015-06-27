@@ -7,7 +7,7 @@ import com.googlecode.jcompilo.Environment;
 import com.googlecode.jcompilo.tests.Tests;
 import com.googlecode.shavenmaven.PomGenerator;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Zip;
+import com.googlecode.totallylazy.io.Zip;
 
 import java.io.File;
 import java.io.FileWriter;

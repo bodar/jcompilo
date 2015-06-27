@@ -1,23 +1,23 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.Destination;
-import com.googlecode.totallylazy.FileDestination;
+import com.googlecode.totallylazy.io.Destination;
+import com.googlecode.totallylazy.io.FileDestination;
 import com.googlecode.totallylazy.Files;
-import com.googlecode.totallylazy.FilterSource;
+import com.googlecode.totallylazy.io.FilterSource;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.io.Sources;
 
 import java.io.File;
 import java.util.concurrent.Callable;
 
 import static com.googlecode.jcompilo.Compiler.JAVA_FILES;
-import static com.googlecode.totallylazy.FileSource.fileSource;
+import static com.googlecode.totallylazy.io.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.asFile;
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.Sources.functions.name;
+import static com.googlecode.totallylazy.io.Sources.functions.name;
 import static com.googlecode.totallylazy.Strings.split;
 import static java.lang.System.getProperty;
 

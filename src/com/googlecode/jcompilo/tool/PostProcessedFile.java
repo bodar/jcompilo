@@ -16,7 +16,7 @@ import static com.googlecode.jcompilo.Resource.constructors.resource;
 import static com.googlecode.jcompilo.ResourceHandler.functions.matchAndHandle;
 import static com.googlecode.totallylazy.Sequences.head;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.http.Uri.uri;
+import static com.googlecode.totallylazy.io.Uri.uri;
 import static javax.tools.JavaFileObject.Kind.CLASS;
 import static javax.tools.StandardLocation.CLASS_OUTPUT;
 

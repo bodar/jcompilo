@@ -2,10 +2,10 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.tool.JCompiler;
 import com.googlecode.totallylazy.functions.Callables;
-import com.googlecode.totallylazy.Destination;
+import com.googlecode.totallylazy.io.Destination;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.Sources;
+import com.googlecode.totallylazy.io.Sources;
 
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;

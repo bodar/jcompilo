@@ -2,6 +2,7 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.convention.AutoBuild;
 import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.io.Sources;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.googlecode.totallylazy.reflection.Methods;
 import com.googlecode.yadic.SimpleContainer;
