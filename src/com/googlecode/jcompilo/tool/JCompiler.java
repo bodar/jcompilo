@@ -12,7 +12,14 @@ import java.util.Locale;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class JCompiler extends ForwardingJavaCompiler<JavaCompiler> {
-    public static final JavaCompiler DEFAULT_COMPILER = getSystemJavaCompiler();
+    public static final JavaCompiler DEFAULT_COMPILER = defaultCompiler();
+
+    private static JavaCompiler defaultCompiler() {
+        JavaCompiler javaCompiler = getSystemJavaCompiler();
+        if(javaCompiler == null) throw new IllegalStateException("No SystemJavaCompiler installed");
+        return javaCompiler;
+    }
+
     private final PersistentList<ResourceHandler> resourceHandlers;
 
     public JCompiler(JavaCompiler javaCompiler, PersistentList<ResourceHandler> resourceHandlers) {
