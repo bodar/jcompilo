@@ -32,6 +32,7 @@ import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Files.relativePath;
 import static com.googlecode.totallylazy.functions.Functions.and;
 import static com.googlecode.totallylazy.Lists.list;
+import static com.googlecode.totallylazy.functions.Functions.andPair;
 import static com.googlecode.totallylazy.reflection.Methods.genericParameterTypes;
 import static com.googlecode.totallylazy.reflection.Methods.methodName;
 import static com.googlecode.totallylazy.reflection.Methods.modifier;
@@ -83,7 +84,7 @@ public class BootStrap {
             report("SUCCESSFUL", start);
             return 0;
         } catch (Exception e) {
-            report(format("FAILED: %s%n", e.getMessage()), start);
+            report(format("FAILED: %s%n", e), start);
             return -1;
         }
 
@@ -101,7 +102,7 @@ public class BootStrap {
                     find(targets().and(where(methodName(), is(target.toLowerCase()))));
             if(method.isEmpty()) return false;
             return Methods.invoke(method.get(), build);
-        }).reduce(and);
+        }).reduceRight(andPair());
     }
 
     private LogicalPredicate<Method> targets() {

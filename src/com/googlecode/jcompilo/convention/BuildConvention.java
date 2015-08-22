@@ -29,6 +29,7 @@ import static com.googlecode.totallylazy.functions.Functions.and;
 import static com.googlecode.totallylazy.Option.some;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
+import static com.googlecode.totallylazy.functions.Functions.andPair;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.String.format;
 
@@ -46,8 +47,8 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
         return sequence(
                 clean(),
                 compile(),
-                parallel(test(this), Package(this))).
-                reduce(and);
+                parallel(this::test, this::Package)).
+                reduceRight(andPair());
     }
 
     @Override
@@ -173,18 +174,7 @@ public abstract class BuildConvention extends LocationsConvention implements Bui
     }
 
     public final boolean parallel(Iterable<Callable<Boolean>> stages) {
-        return callConcurrently(stages).reduce(and);
+        return callConcurrently(stages).reduceRight(andPair());
     }
 
-    public static Callable<Boolean> compile(final Build build) {
-        return () -> build.compile();
-    }
-
-    public static Callable<Boolean> test(final Build build) {
-        return () -> build.test();
-    }
-
-    public static Callable<Boolean> Package(final Build build) {
-        return () -> build.Package();
-    }
 }

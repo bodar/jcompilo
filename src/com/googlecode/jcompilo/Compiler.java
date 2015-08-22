@@ -32,6 +32,7 @@ import static com.googlecode.jcompilo.ResourceHandler.methods.decorate;
 import static com.googlecode.jcompilo.asm.AsmResourceHandler.asmResourceHandler;
 import static com.googlecode.jcompilo.tco.TailRecHandler.tailRecHandler;
 import static com.googlecode.totallylazy.Closeables.using;
+import static com.googlecode.totallylazy.functions.Functions.andPair;
 import static com.googlecode.totallylazy.io.FileSource.fileSource;
 import static com.googlecode.totallylazy.Files.isFile;
 import static com.googlecode.totallylazy.Files.recursiveFiles;
@@ -145,7 +146,7 @@ public class Compiler {
                 return sequence(processors).mapConcurrently(processor -> {
                     Inputs matched = partitions.get(processor);
                     return matched.isEmpty() || processor.process(matched, outputs);
-                }).reduce(and);
+                }).reduceRight(andPair());
             }
         });
     }
