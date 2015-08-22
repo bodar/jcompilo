@@ -84,7 +84,7 @@ public class BootStrap {
             report("SUCCESSFUL", start);
             return 0;
         } catch (Exception e) {
-            report(format("FAILED: %s%n", e), start);
+            report(format("FAILED: %s%n", Exceptions.asString(e)), start);
             return -1;
         }
 
