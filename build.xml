@@ -6,7 +6,7 @@
     <property name="artifacts" value="${build}/artifacts"/>
     <property name="reports" value="${artifacts}/reports"/>
     <property name="src" value="${basedir}/src"/>
-    <property name="plugin.src" value="${basedir}/intellij-plugin/src"/>
+    <property name="crazyfast.build.src" value="${basedir}/crazyfast.build/src"/>
     <property name="test" value="${basedir}/test"/>
     <property name="group.id" value="com.googlecode.${ant.project.name}"/>
     <property name="release.version" value="${build.number}"/>
@@ -14,15 +14,15 @@
     <property name="release.jar" value="${release.name}.jar"/>
     <property name="release.sh" value="${release.name}.sh"/>
     <property name="release.cmd" value="${release.name}.cmd"/>
-    <property name="release.plugin.jar" value="${ant.project.name}-intellij-${release.version}.jar"/>
-    <property name="release.plugin.zip" value="${ant.project.name}-intellij-${release.version}.zip"/>
+    <property name="crazyfast.build.jar" value="crazyfast.build-${release.version}.jar"/>
+    <property name="crazyfast.build.zip" value="crazyfast.build-${release.version}.zip"/>
     <property name="release.pom" value="${release.name}.pom"/>
     <property name="release.src" value="${release.name}-sources.jar"/>
     <property name="release.dep" value="${release.name}-dep.jar"/>
     <property name="release.dep.path" value="${artifacts}/${release.name}-dep.jar"/>
     <property name="release.jar.path" value="${artifacts}/${release.jar}"/>
-    <property name="release.plugin.jar.path" value="${artifacts}/${release.plugin.jar}"/>
-    <property name="release.plugin.zip.path" value="${artifacts}/${release.plugin.zip}"/>
+    <property name="crazyfast.build.jar.path" value="${artifacts}/${crazyfast.build.jar}"/>
+    <property name="crazyfast.build.zip.path" value="${artifacts}/${crazyfast.build.zip}"/>
     <property name="test.jar.path" value="${artifacts}/${release.name}.test.jar"/>
     <property name="build.dependencies.dir" value="lib/build"/>
     <property name="runtime.dependencies.dir" value="lib/runtime"/>
@@ -66,40 +66,31 @@
                          version="${release.version}" main.class="com.googlecode.jcompilo.BootStrap"/>
     </target>
 
-    <target name="plugin">
-        <path id="plugin.path">
-            <fileset id="plugin.fileset" dir="${build.dependencies.dir}">
+    <target name="crazyfast.build">
+        <compile.and.jar src="${crazyfast.build.src}" jar="${crazyfast.build.jar.path}" classpathref="all.jars"
+                         version="${release.version}"/>
+
+        <property environment="env"/>
+        <echo message="${env.JAVA_HOME}/lib"/>
+
+
+        <zip destfile="${crazyfast.build.zip.path}">
+            <zipfileset dir="${artifacts}" prefix="lib">
+                <include name="${crazyfast.build.jar}"/>
+                <include name="${release.dep}"/>
+            </zipfileset>
+
+            <zipfileset dir="${env.JAVA_HOME}/lib" prefix="lib">
+                <include name="tools.jar"/>
+            </zipfileset>
+
+            <zipfileset dir="${build.dependencies.dir}" prefix="lib">
                 <include name="totallylazy*.jar"/>
                 <include name="yadic*.jar"/>
                 <include name="shavenmaven*.jar"/>
-                <include name="asm*.jar"/>
                 <exclude name="*-sources.jar"/>
-            </fileset>
-        </path>
-
-        <pathconvert property="plugin.libs" pathsep=";">
-            <path refid="plugin.path"/>
-            <flattenmapper/>
-        </pathconvert>
-
-        <compile.and.jar src="${plugin.src}" jar="${release.plugin.jar.path}" classpathref="all.jars"
-                         version="${release.version}"/>
-
-        <copy file="${plugin.src}/META-INF/plugin.xml" tofile="${artifacts}/plugin.xml"/>
-        <replaceregexp file="${artifacts}/plugin.xml"
-                       match='classpath\=\"[^\"]+\"'
-                       replace='classpath="${plugin.libs}"' />
-        <replace file="${artifacts}/plugin.xml"
-                 token="dev.build"
-                 value="${build.number}"/>
-
-        <zip destfile="${release.plugin.zip.path}">
-            <zipfileset file="${artifacts}/plugin.xml" prefix="jcompilo/META-INF"/>
-            <zipfileset src="${release.plugin.jar.path}" prefix="jcompilo/classes"/>
-            <zipfileset src="${release.dep.path}" prefix="jcompilo/classes"/>
-            <zipfileset refid="plugin.fileset" prefix="jcompilo/lib" />
+            </zipfileset>
         </zip>
-
     </target>
 
     <target name="test">
@@ -168,6 +159,6 @@
             <antcall target="package"/>
         </parallel>
         <antcall target="embed"/>
-        <antcall target="plugin"/>
+        <antcall target="crazyfast.build"/>
     </target>
 </project>

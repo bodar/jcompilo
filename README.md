@@ -12,7 +12,6 @@ A pure Java 7 (Version 1) / Java 8 (Version 2) build tool with advanced compiler
     * Parallel downloads
     * No transitives
   * Supports 100% convention (no build file needed) or customisation in Java code
-  * IntelliJ Plugin (For Compiler)
 
 # Standard Convention #
 
