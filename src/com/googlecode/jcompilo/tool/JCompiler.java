@@ -20,7 +20,7 @@ public class JCompiler extends ForwardingJavaCompiler<JavaCompiler> {
     public static final JavaCompiler DEFAULT_COMPILER = defaultCompiler();
     public static final String ORACLE_COMPILER = "com.sun.tools.javac.api.JavacTool";
 
-    private static JavaCompiler defaultCompiler() {
+    public static JavaCompiler defaultCompiler() {
         JavaCompiler javaCompiler = getSystemJavaCompiler();
         if(javaCompiler == null) {
             return one(Classes.forName(ORACLE_COMPILER)).
