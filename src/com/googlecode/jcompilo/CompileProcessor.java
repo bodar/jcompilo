@@ -20,8 +20,6 @@ import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Sequences.sequence;
 
 public class CompileProcessor implements Processor {
-    @Deprecated
-    public static final JavaCompiler DEFAULT_COMPILER = JCompiler.DEFAULT_COMPILER;
     public static final Sequence<CompileOption> DEFAULT_OPTIONS = sequence(Debug, Implicit(None));
     private final Environment env;
     private final JavaCompiler compiler;

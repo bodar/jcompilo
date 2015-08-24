@@ -6,7 +6,6 @@
     <property name="artifacts" value="${build}/artifacts"/>
     <property name="reports" value="${artifacts}/reports"/>
     <property name="src" value="${basedir}/src"/>
-    <property name="crazyfast.build.src" value="${basedir}/crazyfast.build/src"/>
     <property name="test" value="${basedir}/test"/>
     <property name="group.id" value="com.googlecode.${ant.project.name}"/>
     <property name="release.version" value="${build.number}"/>
@@ -14,16 +13,20 @@
     <property name="release.jar" value="${release.name}.jar"/>
     <property name="release.sh" value="${release.name}.sh"/>
     <property name="release.cmd" value="${release.name}.cmd"/>
-    <property name="crazyfast.build.jar" value="crazyfast.build-${release.version}.jar"/>
-    <property name="crazyfast.build.zip" value="crazyfast.build-${release.version}.zip"/>
     <property name="release.pom" value="${release.name}.pom"/>
     <property name="release.src" value="${release.name}-sources.jar"/>
     <property name="release.dep" value="${release.name}-dep.jar"/>
     <property name="release.dep.path" value="${artifacts}/${release.name}-dep.jar"/>
     <property name="release.jar.path" value="${artifacts}/${release.jar}"/>
+    <property name="test.jar.path" value="${artifacts}/${release.name}-tests.jar"/>
+    <property name="crazyfast.build.src" value="${basedir}/crazyfast.build/src"/>
+    <property name="crazyfast.build.test" value="${basedir}/crazyfast.build/test"/>
+    <property name="crazyfast.build.jar" value="crazyfast.build-${release.version}.jar"/>
+    <property name="crazyfast.build.test.jar" value="crazyfast.build-${release.version}-tests.jar"/>
+    <property name="crazyfast.build.test.jar.path" value="${artifacts}/crazyfast.build-${release.version}-tests.jar"/>
+    <property name="crazyfast.build.zip" value="crazyfast.build-${release.version}.zip"/>
     <property name="crazyfast.build.jar.path" value="${artifacts}/${crazyfast.build.jar}"/>
     <property name="crazyfast.build.zip.path" value="${artifacts}/${crazyfast.build.zip}"/>
-    <property name="test.jar.path" value="${artifacts}/${release.name}.test.jar"/>
     <property name="build.dependencies.dir" value="lib/build"/>
     <property name="runtime.dependencies.dir" value="lib/runtime"/>
     <property name="optional.dependencies.dir" value="lib/optional"/>
@@ -69,6 +72,16 @@
     <target name="crazyfast.build">
         <compile.and.jar src="${crazyfast.build.src}" jar="${crazyfast.build.jar.path}" classpathref="all.jars"
                          version="${release.version}"/>
+
+        <path id="crazyfast.build.jars">
+            <path refid="all.jars"/>
+            <path path="${crazyfast.build.jar.path}"/>
+            <path path="${crazyfast.build.test.jar.path}"/>
+        </path>
+
+        <compile.and.jar src="${crazyfast.build.test}" jar="${crazyfast.build.test.jar.path}" classpathref="crazyfast.build.jars"
+                         version="${release.version}"/>
+        <test jar="${crazyfast.build.test.jar.path}" classpathref="crazyfast.build.jars" reports="${reports}"/>
 
         <property environment="env"/>
         <echo message="${env.JAVA_HOME}/lib"/>

@@ -1,7 +1,10 @@
 package com.googlecode.jcompilo.tool;
 
 import com.googlecode.jcompilo.ResourceHandler;
+import com.googlecode.totallylazy.*;
 import com.googlecode.totallylazy.collections.PersistentList;
+import com.googlecode.totallylazy.reflection.Constructors;
+import com.googlecode.totallylazy.reflection.Reflection;
 
 import javax.tools.*;
 import java.io.IOException;
@@ -9,14 +12,24 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
+import static com.googlecode.totallylazy.Sequences.one;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static javax.tools.ToolProvider.getSystemJavaCompiler;
 
 public class JCompiler extends ForwardingJavaCompiler<JavaCompiler> {
     public static final JavaCompiler DEFAULT_COMPILER = defaultCompiler();
+    public static final String ORACLE_COMPILER = "com.sun.tools.javac.api.JavacTool";
 
     private static JavaCompiler defaultCompiler() {
         JavaCompiler javaCompiler = getSystemJavaCompiler();
-        if(javaCompiler == null) throw new IllegalStateException("No SystemJavaCompiler installed");
+        if(javaCompiler == null) {
+            return one(Classes.forName(ORACLE_COMPILER)).
+                    flatMap(Option.identity()).
+                    flatMap(Exceptions.optional(aClass -> aClass.newInstance())).
+                    safeCast(JavaCompiler.class).
+                    headOption().
+                    getOrThrow(new IllegalStateException("Unable to find a Java Compiler"));
+        }
         return javaCompiler;
     }
 
