@@ -26,6 +26,6 @@ if [ ! -f ${jar} ]; then
 	wget -O ${pack} ${remote_file} || curl -o ${pack} ${remote_file}
 	unpack200 ${pack} ${jar}
 	rm ${pack}
-	wget -O $0 ${remote_sh} || curl -o $0 ${remote_sh}
+	#wget -O $0 ${remote_sh} || curl -o $0 ${remote_sh}
 fi
 exec java -showversion -Dbuild.number=${BUILD_NUMBER} ${JAVA_OPTS} -jar ${jar} $*
