@@ -26,7 +26,7 @@ if not exist %jar% (
     wget -O %pack% %remote_file% || exit /b
     unpack200 %pack% %jar% || exit /b
     del /q %pack%
-    wget -O $0 ${remote_sh} || exit /b
+    #wget -O $0 ${remote_sh} || exit /b
 )
 
 java -showversion -Dbuild.number=%BUILD_NUMBER% %JAVA_OPTS% -jar %jar% %*
