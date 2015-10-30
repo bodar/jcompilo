@@ -19,14 +19,6 @@
     <property name="release.dep.path" value="${artifacts}/${release.name}-dep.jar"/>
     <property name="release.jar.path" value="${artifacts}/${release.jar}"/>
     <property name="test.jar.path" value="${artifacts}/${release.name}-tests.jar"/>
-    <property name="crazyfast.build.src" value="${basedir}/crazyfast.build/src"/>
-    <property name="crazyfast.build.test" value="${basedir}/crazyfast.build/test"/>
-    <property name="crazyfast.build.jar" value="crazyfast.build-${release.version}.jar"/>
-    <property name="crazyfast.build.test.jar" value="crazyfast.build-${release.version}-tests.jar"/>
-    <property name="crazyfast.build.test.jar.path" value="${artifacts}/crazyfast.build-${release.version}-tests.jar"/>
-    <property name="crazyfast.build.zip" value="crazyfast.build-${release.version}.zip"/>
-    <property name="crazyfast.build.jar.path" value="${artifacts}/${crazyfast.build.jar}"/>
-    <property name="crazyfast.build.zip.path" value="${artifacts}/${crazyfast.build.zip}"/>
     <property name="build.dependencies.dir" value="lib/build"/>
     <property name="runtime.dependencies.dir" value="lib/runtime"/>
     <property name="optional.dependencies.dir" value="lib/optional"/>
@@ -67,43 +59,6 @@
     <target name="compile">
         <compile.and.jar src="${src}" jar="${release.jar.path}" classpathref="all.dependancies"
                          version="${release.version}" main.class="com.googlecode.jcompilo.BootStrap"/>
-    </target>
-
-    <target name="crazyfast.build">
-        <compile.and.jar src="${crazyfast.build.src}" jar="${crazyfast.build.jar.path}" classpathref="all.jars"
-                         version="${release.version}"/>
-
-        <path id="crazyfast.build.jars">
-            <path refid="all.jars"/>
-            <path path="${crazyfast.build.jar.path}"/>
-            <path path="${crazyfast.build.test.jar.path}"/>
-        </path>
-
-        <compile.and.jar src="${crazyfast.build.test}" jar="${crazyfast.build.test.jar.path}" classpathref="crazyfast.build.jars"
-                         version="${release.version}"/>
-        <test jar="${crazyfast.build.test.jar.path}" classpathref="crazyfast.build.jars" reports="${reports}"/>
-
-        <property environment="env"/>
-        <echo message="${env.JAVA_HOME}/lib"/>
-
-
-        <zip destfile="${crazyfast.build.zip.path}">
-            <zipfileset dir="${artifacts}" prefix="lib">
-                <include name="${crazyfast.build.jar}"/>
-                <include name="${release.dep}"/>
-            </zipfileset>
-
-            <zipfileset dir="${env.JAVA_HOME}/lib" prefix="lib">
-                <include name="tools.jar"/>
-            </zipfileset>
-
-            <zipfileset dir="${build.dependencies.dir}" prefix="lib">
-                <include name="totallylazy*.jar"/>
-                <include name="yadic*.jar"/>
-                <include name="shavenmaven*.jar"/>
-                <exclude name="*-sources.jar"/>
-            </zipfileset>
-        </zip>
     </target>
 
     <target name="test">
@@ -172,6 +127,5 @@
             <antcall target="package"/>
         </parallel>
         <antcall target="embed"/>
-        <antcall target="crazyfast.build"/>
     </target>
 </project>
