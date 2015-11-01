@@ -2,9 +2,9 @@ mvn:org.hamcrest:hamcrest-core:jar:1.2
 mvn:org.hamcrest:hamcrest-library:jar:1.2
 mvn:junit:junit-dep:jar|sources:4.8.2
 
-mvn://repo.bodar.com/com.googlecode.totallylazy:totallylazy:pack|sources:2.197
+mvn://repo.bodar.com/com.googlecode.totallylazy:totallylazy:pack|sources:2.198
 mvn://repo.bodar.com/com.googlecode.yadic:yadic:pack|sources:2.44
-mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:pack|sources:2.52
-mvn://repo.bodar.com/com.googlecode.shavenmaven:shavenmaven:dep|sources:2.22
+mvn://repo.bodar.com/com.googlecode.utterlyidle:utterlyidle:pack|sources:2.56
+mvn://repo.bodar.com/com.googlecode.shavenmaven:shavenmaven:dep|sources:2.23
 
 mvn://repo.bodar.com/com.googlecode.jarjar:jarjar:pack:1.4.1
