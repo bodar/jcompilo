@@ -14,6 +14,8 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -149,8 +151,8 @@ public class BootStrap {
             compile(env, libs,
                     fileSource(buildFile1, name),
                     compiledBuild);
-
-            ClassLoader loader = new ByteClassLoader(Maps.mapValues(compiledBuild.data(), bytes()), FileUrls.urls(libs));
+            URLClassLoader libraries = new URLClassLoader(FileUrls.urls(libs).toArray(URL.class));
+            ClassLoader loader = new ByteClassLoader(Maps.mapValues(compiledBuild.data(), bytes()), libraries);
             return loader.loadClass(className(name));
 
         }).getOrElse(AutoBuild.class);

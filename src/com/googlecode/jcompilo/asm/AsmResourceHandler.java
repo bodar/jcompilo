@@ -6,7 +6,7 @@ import com.googlecode.totallylazy.functions.Function1;
 import com.googlecode.totallylazy.Pair;
 import com.googlecode.totallylazy.Sequence;
 import com.googlecode.totallylazy.collections.PersistentList;
-import com.googlecode.totallylazy.predicates.LogicalPredicate;
+import com.googlecode.totallylazy.predicates.Predicate;
 import jdk.internal.org.objectweb.asm.ClassWriter;
 import jdk.internal.org.objectweb.asm.Type;
 import jdk.internal.org.objectweb.asm.tree.ClassNode;
@@ -83,12 +83,7 @@ public class AsmResourceHandler implements ResourceHandler {
         };
     }
 
-    private static LogicalPredicate<Type> hasAnnotation(final MethodNode methodNode) {
-        return new LogicalPredicate<Type>() {
-            @Override
-            public boolean matches(final Type other) {
-                return Asm.hasAnnotation(methodNode, other);
-            }
-        };
+    private static Predicate<Type> hasAnnotation(final MethodNode methodNode) {
+        return other -> Asm.hasAnnotation(methodNode, other);
     }
 }
