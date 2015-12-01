@@ -1,12 +1,9 @@
 package com.googlecode.jcompilo;
 
-import com.googlecode.totallylazy.io.Destination;
-import com.googlecode.totallylazy.io.FileDestination;
+import com.googlecode.totallylazy.io.*;
 import com.googlecode.totallylazy.Files;
-import com.googlecode.totallylazy.io.FilterSource;
 import com.googlecode.totallylazy.Option;
 import com.googlecode.totallylazy.Sequence;
-import com.googlecode.totallylazy.io.Sources;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -17,7 +14,6 @@ import static com.googlecode.totallylazy.Files.asFile;
 import static com.googlecode.totallylazy.Option.none;
 import static com.googlecode.totallylazy.predicates.Predicates.where;
 import static com.googlecode.totallylazy.Sequences.sequence;
-import static com.googlecode.totallylazy.io.Sources.functions.name;
 import static com.googlecode.totallylazy.Strings.split;
 import static java.lang.System.getProperty;
 
@@ -48,7 +44,7 @@ public class JavaC implements Callable<Boolean> {
                 flatMap(split(getProperty("path.separator"))).
                 map(asFile());
 
-        Sources sourceFiles = FilterSource.filterSource(where(name, JAVA_FILES), fileSource(directory("-sourcepath")));
+        Sources sourceFiles = FilterSource.filterSource(where(Source::name, JAVA_FILES), fileSource(directory("-sourcepath")));
         Destination destination = FileDestination.fileDestination(directory("-d"));
         return CompileProcessor.compile(environment, classPath, sourceFiles, destination);
     }

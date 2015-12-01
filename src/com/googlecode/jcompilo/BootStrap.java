@@ -2,6 +2,7 @@ package com.googlecode.jcompilo;
 
 import com.googlecode.jcompilo.convention.AutoBuild;
 import com.googlecode.totallylazy.*;
+import com.googlecode.totallylazy.io.Source;
 import com.googlecode.totallylazy.io.Sources;
 import com.googlecode.totallylazy.predicates.LogicalPredicate;
 import com.googlecode.totallylazy.reflection.Methods;
@@ -34,6 +35,7 @@ import static com.googlecode.totallylazy.Files.recursiveFiles;
 import static com.googlecode.totallylazy.Files.relativePath;
 import static com.googlecode.totallylazy.Lists.list;
 import static com.googlecode.totallylazy.functions.Functions.andPair;
+import static com.googlecode.totallylazy.io.Source.source;
 import static com.googlecode.totallylazy.reflection.Methods.genericParameterTypes;
 import static com.googlecode.totallylazy.reflection.Methods.methodName;
 import static com.googlecode.totallylazy.reflection.Methods.modifier;
@@ -185,7 +187,7 @@ public class BootStrap {
     }
 
     private static Sources fileSource(File buildFile, String name) throws FileNotFoundException {
-        return iterableSource(one(new Sources.Source(name, new Date(buildFile.lastModified()), new FileInputStream(buildFile), false)));
+        return iterableSource(one(source(name, () -> new Date(buildFile.lastModified()), () -> new FileInputStream(buildFile), false)));
     }
 
     private static String className(String build) {

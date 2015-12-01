@@ -3,6 +3,7 @@ package com.googlecode.jcompilo.bytecode;
 import com.googlecode.totallylazy.Callers;
 import com.googlecode.totallylazy.io.Destination;
 import com.googlecode.totallylazy.functions.Curried2;
+import com.googlecode.totallylazy.io.Source;
 import com.googlecode.totallylazy.io.Sources;
 import com.googlecode.totallylazy.Streams;
 import com.googlecode.totallylazy.functions.Unary;
@@ -26,11 +27,11 @@ public class ConstantPoolMapper {
 
     public ConstantPoolMapper process(Sources sources, Destination destination) {
         return using(sources, destination, (sources1, destination1) -> {
-            for (Sources.Source source : sources1.sources()) {
-                OutputStream outputStream = destination1.destination(mapper.call(source.name), source.modified);
-                if (source.name.endsWith(".class"))
-                    using(source.input, outputStream, functions.process(ConstantPoolMapper.this));
-                else Streams.copyAndClose(source.input, outputStream);
+            for (Source source : sources1.sources()) {
+                OutputStream outputStream = destination1.destination(mapper.call(source.name()), source.modified());
+                if (source.name().endsWith(".class"))
+                    using(source.input(), outputStream, functions.process(ConstantPoolMapper.this));
+                else Streams.copyAndClose(source.input(), outputStream);
             }
             return ConstantPoolMapper.this;
         });

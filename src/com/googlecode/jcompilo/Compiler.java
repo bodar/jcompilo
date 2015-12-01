@@ -8,6 +8,7 @@ import com.googlecode.totallylazy.functions.Curried2;
 import com.googlecode.totallylazy.functions.Function1;
 import com.googlecode.totallylazy.io.Destination;
 import com.googlecode.totallylazy.io.FileDestination;
+import com.googlecode.totallylazy.io.Source;
 import com.googlecode.totallylazy.io.Sources;
 import com.googlecode.totallylazy.predicates.Predicate;
 import jdk.internal.org.objectweb.asm.Type;
@@ -168,7 +169,7 @@ public class Compiler {
         return partitions;
     }
 
-    public static Sources iterableSource(final Iterable<Sources.Source> sequence) {
+    public static Sources iterableSource(final Iterable<Source> sequence) {
         return new Sources() {
             @Override
             public Sequence<Source> sources() {
