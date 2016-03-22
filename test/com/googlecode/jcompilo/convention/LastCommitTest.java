@@ -31,6 +31,8 @@ public class LastCommitTest {
     public void supportsGit() throws Exception {
         File directory = emptyTemporaryDirectory(LastCommitTest.class.getName());
         out.println(executeReturnString("git init", directory));
+        out.println(executeReturnString("git config user.email \"you@example.com\"", directory));
+        out.println(executeReturnString("git config user.name \"Your Name\"", directory));
         file(directory, "afile.txt");
         out.println(executeReturnString("git add .", directory));
         out.println(executeReturnString("git commit -m \"Hello\"", directory));
