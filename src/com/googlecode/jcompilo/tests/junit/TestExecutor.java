@@ -26,6 +26,7 @@ public class TestExecutor {
             boolean success = execute(values.subList(2, values.size()), Integer.valueOf(values.get(0)), System.out, new File(values.get(1)));
             System.exit(success ? 0 : -1);
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             System.exit(-1);
         }
     }
@@ -88,7 +89,7 @@ public class TestExecutor {
     }
 
     public static String className(String filename) {
-        return filename.replace('/', '.').replace(".java", "");
+        return filename.replace('/', '.').replaceFirst("\\.java$", "");
     }
 
     static class ResultCallable implements Callable<Result> {
