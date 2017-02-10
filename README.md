@@ -2,17 +2,15 @@
 
 A pure Java 7 (Version 1) / Java 8 (Version 2) build tool with advanced compiler features including:
 
-  * Extremely fast (faster than all other Java build tools by between 20%-80%)  
-  * Zero copy Jar creation (Jars are faster to process than .class files in directories - for unit test cycles too)
-  * Compatible with Junit test cycles
-  * [Pack200](https://en.wikipedia.org/wiki/Pack200) optimizations (10 x faster downloads)    
-    * Parallel downloads    
-  * No transitive dependencies, itself
-Optional Features:
-
-  * Post-processing of output bytecode
+  * Extremely fast (faster than all other Java build tools by between 20%-80%)
+  * Post processing of output bytecode
+  * Zero copy Jar creation
   * Tail-recursion call optimisation (via [TotallyLazy](https://github.com/bodar/totallylazy/blob/master/src/com/googlecode/totallylazy/annotations/tailrec.java) or system property "jcompilo.tailrec=your.annotation.Name")
-  * Facilitates dependency resolution via [shavenmaven](http://code.google.com/p/shavenmaven/) which gives us the following features
+  * Test support via [JUnit](http://www.junit.org/)
+  * Dependency resolution via [shavenmaven](http://code.google.com/p/shavenmaven/) which gives us the following features
+    * Pack200 support (10 x faster downloads)
+    * Parallel downloads
+    * No transitives
   * Supports 100% convention (no build file needed) or customisation in Java code
 
 # Standard Convention #
@@ -37,20 +35,13 @@ The following shows the default folder structure for a JCompilo project. This wi
       * example
         * HelloWorldTest.java
 
-Optional support for Maven project layout (src/main/java, src/test/java) too.
-
 # Latest Releases and Repo #
 http://repo.bodar.com/com/googlecode/jcompilo/jcompilo/
 
-# Contributing
 
-Pull requests welcome.
+# Future exploration #
 
-# TODO / Future exploration #
-
-  * Full Maven/ant compatibility (maven-compiler-plugin, maven-surefire-plugin)
-  * TestNG compatibility
-  * Run tests while compiling
+  * Run tests while compiling!
   * Even more compact console output
   * Remove JUnit/Hamcrest dependency
   * REPL

@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/crazyfast.build/crazyfast.build.iml" filepath="$PROJECT_DIR$/crazyfast.build/crazyfast.build.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
       <module fileurl="file://$PROJECT_DIR$/jcompilo.iml" filepath="$PROJECT_DIR$/jcompilo.iml" />
     </modules>
