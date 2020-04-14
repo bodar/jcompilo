@@ -34,7 +34,7 @@ main() {
 
     local GROUP_PATH=$(cat "$POM_ARTEFACT" | grep groupId | cut -f2 -d'>' | cut -f1 -d'<' | sed 's%\.%/%g')
 
-    for ARTEFACT_FILE in $ARTEFACTS_DIR/{*.jar,*.pom}; do
+    for ARTEFACT_FILE in $ARTEFACTS_DIR/{*.jar,*.pom,*.pack.gz}; do
         local FILE_NAME=$(basename -- "$ARTEFACT_FILE")
         echo "Publishing $FILE_NAME... "
         curl -T "$ARTEFACT_FILE" "-u$API_USERNAME:$API_KEY" "https://api.bintray.com/content/$ORGANISATION_NAME/$REPOSITORY_NAME/$ARTEFACT_NAME/$BUILD_VERSION/$GROUP_PATH/$ARTEFACT_NAME/$BUILD_VERSION/$FILE_NAME;publish=1"
