@@ -11,6 +11,7 @@
     <property name="release.version" value="${build.number}"/>
     <property name="release.name" value="${ant.project.name}-${release.version}"/>
     <property name="release.jar" value="${release.name}.jar"/>
+    <property name="release.pack200" value="${release.name}.pack.gz"/>
     <property name="release.sh" value="${release.name}.sh"/>
     <property name="release.cmd" value="${release.name}.cmd"/>
     <property name="release.pom" value="${release.name}.pom"/>
@@ -71,6 +72,10 @@
         <mkdir dir="${artifacts}"/>
 
         <zip destfile="${artifacts}/${release.src}" basedir="src"/>
+
+        <exec executable="pack200">
+            <arg line="${artifacts}/${release.pack200} ${artifacts}/${release.jar}"/>
+        </exec>
 
         <copy file="${basedir}/example/jcompilo.sh" tofile="${artifacts}/${release.sh}">
             <filterset>
