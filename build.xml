@@ -109,14 +109,16 @@
         <test jar="${test.jar.path}" classpathref="all.jars" reports="${reports}"/>
     </target>
 
+    <target name="pack">
+        <exec executable="pack200">
+            <arg line="${artifacts}/${release.pack200} ${artifacts}/${release.jar}"/>
+        </exec>
+    </target>
+
     <target name="package">
         <mkdir dir="${artifacts}"/>
 
         <zip destfile="${artifacts}/${release.src}" basedir="src"/>
-
-        <exec executable="pack200">
-            <arg line="${artifacts}/${release.pack200} ${artifacts}/${release.jar}"/>
-        </exec>
 
         <copy file="${basedir}/example/jcompilo.sh" tofile="${artifacts}/${release.sh}">
             <filterset>
@@ -173,6 +175,7 @@
             <antcall target="package"/>
         </parallel>
         <antcall target="embed"/>
+        <antcall target="pack"/>
         <antcall target="plugin"/>
     </target>
 </project>
