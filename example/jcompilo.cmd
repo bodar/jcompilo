@@ -13,7 +13,7 @@ set repo=repo.bodar.com
 set dir=lib
 set jar=%dir%\%artifact%.jar
 set pack=%dir%\%artifact%.pack.gz
-set url=http://%repo%/%group%/%artifact%/%version%/%artifact%-%version%
+set url=https://%repo%/%group%/%artifact%/%version%/%artifact%-%version%
 set remote_file=%url%.pack.gz
 set remote_sh=%url%.cmd
 

@@ -5,7 +5,7 @@
     <import file="shavenmaven.xml"/> // Ant < 1.8
     <import><javaresource name="shavenmaven.xml" classpath="lib/shavenmaven.jar"/></import> // Ant 1.8+
     <target name="update">
-        <install version="38"/> // This can either be done ever update or just once
+        <install version="1.9"/> // This can either be done ever update or just once
         <parallel>
             <update dependencies="${build}/build.dependencies"
                     directory="${build.dependencies.dir}"/>
@@ -21,7 +21,7 @@
 
         <sequential>
             <mkdir dir="@{directory}"/>
-            <get src="http://shavenmaven.googlecode.com/files/shavenmaven-@{version}.jar"
+            <get src="https://dl.bintray.com/bodar/maven/com/googlecode/shavenmaven/shavenmaven/@{version}/shavenmaven-@{version}.jar"
                  dest="@{directory}/shavenmaven.jar" usetimestamp="true"/>
         </sequential>
     </macrodef>
@@ -30,7 +30,7 @@
         <attribute name="dependencies"/>
         <attribute name="directory"/>
         <attribute name="shavenmaven.jar" default="lib/shavenmaven.jar"/>
-        <attribute name="default.repository" default="http://uk.maven.org/maven2/"/>
+        <attribute name="default.repository" default="https://repo1.maven.org/maven2/"/>
 
         <sequential>
             <mkdir dir="@{directory}"/>

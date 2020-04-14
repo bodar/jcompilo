@@ -11,7 +11,7 @@ repo=repo.bodar.com
 dir=lib/
 jar=${dir}${artifact}.jar
 pack=${dir}${artifact}.pack.gz
-url=http://${repo}/${group}/${artifact}/${version}/${artifact}-${version}
+url=https://${repo}/${group}/${artifact}/${version}/${artifact}-${version}
 remote_file=${url}.pack.gz
 remote_sh=${url}.sh
 
