@@ -37,7 +37,7 @@
 
         <sequential>
             <mkdir dir="@{directory}"/>
-            <get src="http://@{repo}/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.@{extension}"
+            <get src="https://@{repo}/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.@{extension}"
                  dest="@{directory}/@{artifact}.@{extension}" usetimestamp="true"/>
             <unpack input="@{directory}/@{artifact}.@{extension}" output="@{directory}/@{artifact}.jar"/>
             <delete file="@{directory}/@{artifact}.@{extension}"/>
@@ -48,7 +48,7 @@
         <attribute name="dependencies"/>
         <attribute name="directory"/>
         <attribute name="shavenmaven.jar" default="lib/shavenmaven.jar"/>
-        <attribute name="default.repository" default="http://repo1.maven.org/maven2/"/>
+        <attribute name="default.repository" default="https://repo1.maven.org/maven2/"/>
 
         <sequential>
             <mkdir dir="@{directory}"/>
