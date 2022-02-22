@@ -42,7 +42,7 @@
     </path>
 
     <target name="update">
-        <install version="2.6"/>
+        <install version="2.36"/>
         <parallel>
             <update dependencies="build/build.dependencies"
                     directory="${build.dependencies.dir}"/>

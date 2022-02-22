@@ -7,6 +7,8 @@
     <JAVADOC />
     <SOURCES>
       <root url="file://$PROJECT_DIR$/lib/build" />
+      <root url="jar://$PROJECT_DIR$/lib/build/totallylazy-2.207-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/build/totallylazy-2.207-sources.jar!/" />
     </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/lib/build" recursive="false" />
     <jarDirectory url="file://$PROJECT_DIR$/lib/build" recursive="false" />

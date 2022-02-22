@@ -30,17 +30,13 @@
     <macrodef name="install">
         <attribute name="version"/>
         <attribute name="directory" default="lib"/>
-        <attribute name="repo" default="repo.bodar.com"/>
-        <attribute name="group" default="com/googlecode/shavenmaven"/>
         <attribute name="artifact" default="shavenmaven"/>
-        <attribute name="extension" default="pack.gz"/>
+        <attribute name="extension" default="jar"/>
 
         <sequential>
             <mkdir dir="@{directory}"/>
-            <get src="https://@{repo}/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.@{extension}"
-                 dest="@{directory}/@{artifact}.@{extension}" usetimestamp="true"/>
-            <unpack input="@{directory}/@{artifact}.@{extension}" output="@{directory}/@{artifact}.jar"/>
-            <delete file="@{directory}/@{artifact}.@{extension}"/>
+            <get src="https://github.com/bodar/@{artifact}/releases/download/@{version}/@{artifact}-@{version}.jar"
+                 dest="@{directory}/@{artifact}.jar" usetimestamp="true"/>
         </sequential>
     </macrodef>
 
