@@ -25,7 +25,7 @@ import static com.googlecode.totallylazy.Callers.callConcurrently;
 import static com.googlecode.totallylazy.Closeables.using;
 import static com.googlecode.totallylazy.Files.*;
 import static com.googlecode.totallylazy.Functions.and;
-import static com.googlecode.totallylazy.Option.some;
+import static com.googlecode.shavenmaven.internal.totallylazy.$Option.some;
 import static com.googlecode.totallylazy.Sequences.cons;
 import static com.googlecode.totallylazy.Sequences.sequence;
 import static java.lang.Boolean.parseBoolean;

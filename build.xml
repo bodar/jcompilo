@@ -47,7 +47,7 @@
     </path>
 
     <target name="update">
-        <install version="1.9"/>
+        <install version="1.11"/>
         <parallel>
             <update dependencies="build/build.dependencies"
                     directory="${build.dependencies.dir}"/>

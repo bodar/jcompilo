@@ -18,11 +18,13 @@
     <macrodef name="install">
         <attribute name="version"/>
         <attribute name="directory" default="lib"/>
+        <attribute name="artifact" default="shavenmaven"/>
+        <attribute name="extension" default="jar"/>
 
         <sequential>
             <mkdir dir="@{directory}"/>
-            <get src="https://dl.bintray.com/bodar/maven/com/googlecode/shavenmaven/shavenmaven/@{version}/shavenmaven-@{version}.jar"
-                 dest="@{directory}/shavenmaven.jar" usetimestamp="true"/>
+            <get src="https://github.com/bodar/@{artifact}/releases/download/@{version}/@{artifact}-@{version}.jar"
+                 dest="@{directory}/@{artifact}.jar" usetimestamp="true"/>
         </sequential>
     </macrodef>
 
