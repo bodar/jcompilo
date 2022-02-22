@@ -18,7 +18,7 @@ jobs:
         java-version: 1.8
 
     - name: Set release version
-      run: echo "::set-env name=RELEASE_VERSION::${GITHUB_REF##*/}"
+      run: echo "RELEASE_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
     - name: Build with Ant
       run: ant -noinput -buildfile build.xml -Dbuild.number="$RELEASE_VERSION"
