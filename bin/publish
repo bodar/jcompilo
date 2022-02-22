@@ -9,9 +9,9 @@ print_usage_and_exit() {
 }
 
 main() {
-    local ARTEFACT_NAME="shavenmaven"
+    local ARTEFACT_NAME="jcompilo"
     local ORGANISATION_NAME="bodar"
-    local REPOSITORY_NAME="shavenmaven"
+    local REPOSITORY_NAME="jcompilo"
 
     local BUILD_VERSION=${1:-}
     local API_TOKEN=${2:-}
